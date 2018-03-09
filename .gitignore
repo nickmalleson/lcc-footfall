@@ -9,6 +9,9 @@
 # R history files
 *.Rhistory
 
+# Python stuff
+.ipynb_checkpoints
+
 # Uncompressed footfall data (v. large)
 footfall_data/footfall.csv
 
