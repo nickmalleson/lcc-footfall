@@ -1,0 +1,14 @@
+
+
+# Mac crap
+.DS_Store
+
+# Vim swap files
+*.swp
+
+# R history files
+*.Rhistory
+
+# Uncompressed footfall data (v. large)
+footfall_data/footfall.csv
+
