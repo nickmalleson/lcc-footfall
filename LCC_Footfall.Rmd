@@ -23,12 +23,12 @@ library(caret)
 ```
 
 # Introduction
-This script provides an R equivalence of the RandomForest algorithm in 'LCC_Footfall.ipynb', used in the predictive analysis of footfall datasets. 
+This script provides an R equivalence of the RandomForest algorithm in `LCC_Footfall.ipynb`, used in the predictive analysis of footfall datasets. 
 The goal of this module is to compare the performance of the R version with the Python version, before its integration into a web-based tool designed for daily prediction of footfall data in Leeds City Centre.
 
-```{r echo=FALSE }
-#processing of raw dataset
-#To be added here
+This module skipped to the `Create Validation Data Set` section of the `LCC_Footfall.ipynb`. In other words, an already prepared (cleaned) dataset is used here.
+
+```{r echo=TRUE }
 
 #Importing cleaned (processed) datasets and preview
 data <- read.table(file="//ds.leeds.ac.uk/staff/staff7/geomad/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",",head=TRUE)
@@ -49,11 +49,12 @@ colnames(XYfull) <- c(xname, yname)
 
 #partitioning the dataset into training and testing sets
 set.seed(123)
-inTraining <- createDataPartition(XYfull$y, p = .70, list = FALSE)
+inTraining <- createDataPartition(XYfull$y, p = .66666, list = FALSE)
 training_set <- XYfull[inTraining,] 
 testing_set  <- XYfull[-inTraining,]
 
-#Run a k-fold cross validation using the "training_set" (70%)
+#Run a 10-fold cross validation using the "training_set" (66% partition)
+#evaluate sme
 
 
 ```
