@@ -3,15 +3,15 @@ title: "LCC_Footfall data prediction"
 author: "Mo"
 
 # uncomment for markdown output:
-# output:
-#   md_document:
-#     variant: markdown_github
+output:
+  md_document:
+    variant: markdown_github
     
 # uncomment for html output:
-output:
- bookdown::html_document2:
-   number_sections: yes
-   toc: yes
+# output:
+#  bookdown::html_document2:
+#    number_sections: yes
+#    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -23,11 +23,8 @@ library(caret)
 ```
 
 # Introduction
-This script provides an R-version of the best-performing Python-based "RandomForest algorithm" (in 'LCC_Footfall.ipynb') for predicting the footfall datasets. 
-The goal is to integrate this algorithm into a footfall predictive web tool based on R Shiny.
-
-
-
+This script provides an R equivalence of the RandomForest algorithm in 'LCC_Footfall.ipynb', used in the predictive analysis of footfall datasets. 
+The goal of this module is to compare the performance of the R version with the Python version, before the integration of the former into a web-based tool designed for daily prediction of footfall data in Leeds City Centre.
 
 ```{r echo=FALSE }
 #processing of raw dataset
