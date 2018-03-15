@@ -102,11 +102,13 @@ for(i in 1:k){ # i = 1
 print(paste("Regression: mse = ", mean(result_List[i,1]), "r2 = ", mean(result_List[i,2])) )
 print(paste("RandomForest: mse = ", mean(result_List[i,3]), "r2 = ", mean(result_List[i,4])) ) 
 
-#Hypterparameter tuning to be included....
-#fgl.res <- tuneRF(subset(train, select=-c(y)), train[,ncol(train)], stepFactor=1.5)
 
+#fgl.res <- tuneRF(subset(train, select=-c(y)), train[,ncol(train)], stepFactor=1.5)
 #randomForest <- randomForest(y ~., data=train, importance=TRUE)
 #importance(randomForest, type=1)[1:10,]
 
 ```
+Comment: The results above do not seem to be different.... 
+Hypterparameter tuning to be included....
 
+Work in progress....

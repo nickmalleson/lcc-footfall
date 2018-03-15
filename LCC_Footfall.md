@@ -101,9 +101,11 @@ print(paste("RandomForest: mse = ", mean(result_List[i,3]), "r2 = ", mean(result
     ## [1] "RandomForest: mse =  301163799.369455 r2 =  0.798975561498177"
 
 ``` r
-#Hypterparameter tuning to be included....
 #fgl.res <- tuneRF(subset(train, select=-c(y)), train[,ncol(train)], stepFactor=1.5)
-
 #randomForest <- randomForest(y ~., data=train, importance=TRUE)
 #importance(randomForest, type=1)[1:10,]
 ```
+
+Comment: The results above do not seem to be different.... Hypterparameter tuning to be included....
+
+Work in progress....
