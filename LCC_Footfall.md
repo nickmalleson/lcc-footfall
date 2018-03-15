@@ -1,27 +1,15 @@
-R Markdown
-----------
+Introduction
+============
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This script provides an R-version of the best-performing Python-based "RandomForest algorithm" (in 'LCC\_Footfall.ipynb') for predicting the footfall datasets. The goal is to integrate this algorithm into a footfall predictive web tool based on R Shiny.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+in the
 
-``` r
-summary(cars)
-```
+    ##   InCount school_holiday uni_holiday bank_hols easter_sunday
+    ## 1  115685              1           1         0             0
+    ## 2  160658              1           1         1             0
+    ## 3  165334              1           1         0             0
+    ## 4  135127              0           1         0             0
+    ## 5  148253              0           1         0             0
 
-    ##      speed           dist       
-    ##  Min.   : 4.0   Min.   :  2.00  
-    ##  1st Qu.:12.0   1st Qu.: 26.00  
-    ##  Median :15.0   Median : 36.00  
-    ##  Mean   :15.4   Mean   : 42.98  
-    ##  3rd Qu.:19.0   3rd Qu.: 56.00  
-    ##  Max.   :25.0   Max.   :120.00
-
-Including Plots
----------------
-
-You can also embed plots, for example:
-
-![](LCC_Footfall_files/figure-markdown_github/pressure-1.png)
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+    ## [1] "Data summary: no. of rows = 2122; no. of column = 83"

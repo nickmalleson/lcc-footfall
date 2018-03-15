@@ -3,28 +3,61 @@ title: "LCC_Footfall data prediction"
 author: "Mo"
 
 # uncomment for markdown output:
-output:
-  md_document:
-    variant: markdown_github
+# output:
+#   md_document:
+#     variant: markdown_github
     
 # uncomment for html output:
-# output:
-#  bookdown::html_document2:
-#    number_sections: yes
-#    toc: yes
+output:
+ bookdown::html_document2:
+   number_sections: yes
+   toc: yes
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #importing libraries
-library()
+library(MASS)
 library(randomForest)
+library(caret)
 ```
 
-```{r }
-#Importing datasets and preview
-dd = "//ds.leeds.ac.uk/staff/staff7/geomad/GitHub/lcc-footfall/Cleaned_Dataset/" #data directory
-data <- read.table(file="dd/input_Dataset.csv", sep=",",head=TRUE)
-head(data)
+# Introduction
+This script provides an R-version of the best-performing Python-based "RandomForest algorithm" (in 'LCC_Footfall.ipynb') for predicting the footfall datasets. 
+The goal is to integrate this algorithm into a footfall predictive web tool based on R Shiny.
+
+
+
+
+```{r echo=FALSE }
+#processing of raw dataset
+#To be added here
+
+#Importing cleaned (processed) datasets and preview
+data <- read.table(file="//ds.leeds.ac.uk/staff/staff7/geomad/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",",head=TRUE)
+
+#previewing first 5 rows and 5 columns of the dataset
+data[1:5,1:5]
+print(paste("Data summary: no. of rows = ",nrow(data),"; no. of column = ",ncol(data), sep = ""))
+#subsetting the predictors
+Xfull <- subset(data, select=-c(InCount)) 
+xname <- colnames(Xfull)
+#subsetting the dependent variable (footfall count)
+Yfull <-data[,1]
+yname <- c("y")
+
+#merge as dataframe
+XYfull <- as.data.frame(cbind(Xfull, Yfull))
+colnames(XYfull) <- c(xname, yname)
+
+#partitioning the dataset into training and testing sets
+set.seed(123)
+inTraining <- createDataPartition(XYfull$y, p = .70, list = FALSE)
+training_set <- XYfull[inTraining,] 
+testing_set  <- XYfull[-inTraining,]
+
+#Run a k-fold cross validation using the "training_set" (70%)
+
+
 ```
 
