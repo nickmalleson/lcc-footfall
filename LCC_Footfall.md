@@ -3,72 +3,22 @@ Introduction
 
 This script provides an R equivalence of the RandomForest algorithm in `LCC_Footfall.ipynb`, used in the predictive analysis of footfall datasets. The goal of this module is to compare the performance of the R version with the Python version, before its integration into a web-based tool designed for daily prediction of footfall data in Leeds City Centre.
 
-This module skipped to the `Create Validation Data Set` section of the `LCC_Footfall.ipynb`. In other words, an already prepared (cleaned) dataset is used here.
+This module jumped to the `Create Validation Data Set` section of the `LCC_Footfall.ipynb`. In other words, an already prepared dataset is used here.
 
 ``` r
 #Importing cleaned (processed) datasets and preview
 data <- read.table(file="//ds.leeds.ac.uk/staff/staff7/geomad/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",",head=TRUE)
 
-#previewing the dataset
-head(data)
+#previewing first 5 rows and 5 columns of the dataset
+head(data)[1:5,1:5]
 ```
 
-    ##   InCount school_holiday uni_holiday bank_hols easter_sunday mean_temp
-    ## 1  115685              1           1         0             0       0.0
-    ## 2  160658              1           1         1             0       0.0
-    ## 3  165334              1           1         0             0       5.7
-    ## 4  135127              0           1         0             0       5.1
-    ## 5  148253              0           1         0             0       4.5
-    ## 6  113746              0           1         0             0       2.9
-    ##   rain after_trinity_opened Monday Saturday Sunday Thursday Tuesday
-    ## 1  0.0                    0      0        0      1        0       0
-    ## 2  0.0                    0      1        0      0        0       0
-    ## 3  0.0                    0      0        0      0        0       1
-    ## 4  0.6                    0      0        0      0        0       0
-    ## 5  0.1                    0      0        0      0        1       0
-    ## 6  1.4                    0      0        0      0        0       0
-    ##   Wednesday X.._2011... X.._2012... X.._2013... X.._2014... X.._2016...
-    ## 1         0           1           0           0           0           0
-    ## 2         0           1           0           0           0           0
-    ## 3         0           1           0           0           0           0
-    ## 4         1           1           0           0           0           0
-    ## 5         0           1           0           0           0           0
-    ## 6         0           1           0           0           0           0
-    ##   February March April May June July August September October November
-    ## 1        0     0     0   0    0    0      0         0       0        0
-    ## 2        0     0     0   0    0    0      0         0       0        0
-    ## 3        0     0     0   0    0    0      0         0       0        0
-    ## 4        0     0     0   0    0    0      0         0       0        0
-    ## 5        0     0     0   0    0    0      0         0       0        0
-    ## 6        0     0     0   0    0    0      0         0       0        0
-    ##   December X1 X2 X3 X4 X5 X6 X7 X8 X9 X10 X11 X12 X13 X14 X15 X16 X17 X18
-    ## 1        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ## 2        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ## 3        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ## 4        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ## 5        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ## 6        0  1  0  0  0  0  0  0  0  0   0   0   0   0   0   0   0   0   0
-    ##   X19 X20 X21 X22 X23 X24 X25 X26 X27 X28 X29 X30 X31 X32 X34 X35 X36 X37
-    ## 1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 2   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 3   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 4   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 5   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 6   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ##   X38 X39 X40 X41 X42 X43 X44 X45 X46 X47 X48 X49 X50 X51 X52
-    ## 1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 2   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 3   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 4   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 5   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ## 6   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-    ##   week_before_xmas week_after_xmas
-    ## 1                0               0
-    ## 2                0               0
-    ## 3                0               0
-    ## 4                0               0
-    ## 5                0               0
-    ## 6                0               0
+    ##   InCount school_holiday uni_holiday bank_hols easter_sunday
+    ## 1  115685              1           1         0             0
+    ## 2  160658              1           1         1             0
+    ## 3  165334              1           1         0             0
+    ## 4  135127              0           1         0             0
+    ## 5  148253              0           1         0             0
 
 ``` r
 print(paste("Data summary: no. of rows = ",nrow(data),"; no. of column = ",ncol(data), sep = ""))
@@ -80,6 +30,7 @@ print(paste("Data summary: no. of rows = ",nrow(data),"; no. of column = ",ncol(
 #subsetting the predictors
 Xfull <- subset(data, select=-c(InCount)) 
 xname <- colnames(Xfull)
+
 #subsetting the dependent variable (footfall count)
 Yfull <-data[,1]
 yname <- c("y")
@@ -94,6 +45,65 @@ inTraining <- createDataPartition(XYfull$y, p = .66666, list = FALSE)
 training_set <- XYfull[inTraining,] 
 testing_set  <- XYfull[-inTraining,]
 
-#Run a 10-fold cross validation using the "training_set" (66% partition)
-#evaluate sme
+#Run a k-fold cross validation using the "training_set" (66.66% partition). 
+#Combine k-1 subsets in turns, and predict the last (kth) subset
+#Each time, compute the Median R2, Median, and Runtime.
+
+#First, randomise the dataset
+training_set<- training_set[sample(nrow(training_set)),]
+
+folds <- cut(seq(1,nrow(training_set)), breaks=10, labels=FALSE)
+training_set$holdoutpred <- rep(0,nrow(training_set)) #nrow(training)
+
+k =10;
+
+result_List <- matrix(0, k, 4)
+
+for(i in 1:k){ # i = 1
+
+  subset_train <- subset(training_set, select=-c(holdoutpred)) 
+  train <- subset_train[(folds != i), ] #Set the training set nrow(train)
+  validation <- subset_train[(folds == i), ] #Set the validation set, #nrow(validation)
+
+  #using Regression method
+  regre_model <- lm(y~.,data=train) 
+  mse_1 <- mean(regre_model$residuals^2)
+  r2_1 <- summary(regre_model)$adj.r.squared
+  #newpred <- predict(regre_model, newdata=validation)
+  #correl_accuracy <- cor(data.frame(cbind(validation$y, newpred)))
+  result_List[i,1] <- mse_1
+  result_List[i,2] <- r2_1
+
+  ##Using randomForest algorithm
+  randomForest <- randomForest(y ~., data=train)
+  mse_2 <- mean(randomForest$mse)
+  r2_2 <- mean(randomForest$rsq)
+  #predict_Random <- predict(randomForest, validation)
+  #correl_accuracy <- cor(data.frame(cbind(validation$y, as.vector(predict_Random))))
+  result_List[i,3] <- mse_2
+  result_List[i,4] <- r2_2
+
+  
+#flush.console()
+#print(i)
+ }
+
+#Feature importance.
+print(paste("Regression: mse = ", mean(result_List[i,1]), "r2 = ", mean(result_List[i,2])) )
+```
+
+    ## [1] "Regression: mse =  298662924.423021 r2 =  0.787098092834183"
+
+``` r
+print(paste("RandomForest: mse = ", mean(result_List[i,3]), "r2 = ", mean(result_List[i,4])) ) 
+```
+
+    ## [1] "RandomForest: mse =  301163799.369455 r2 =  0.798975561498177"
+
+``` r
+#Hypterparameter tuning to be included....
+#fgl.res <- tuneRF(subset(train, select=-c(y)), train[,ncol(train)], stepFactor=1.5)
+
+#randomForest <- randomForest(y ~., data=train, importance=TRUE)
+#importance(randomForest, type=1)[1:10,]
 ```
