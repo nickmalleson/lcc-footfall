@@ -47,7 +47,7 @@ testing_set  <- XYfull[-inTraining,]
 
 #Run a k-fold cross validation using the "training_set" (66.66% partition). 
 #Combine k-1 subsets in turns, and predict the last (kth) subset
-#Each time, compute the Median R2, Median, and Runtime.
+#Each time, compute the Median R2, Median, and predictive accuracy.
 
 #First, randomise the dataset
 training_set<- training_set[sample(nrow(training_set)),]
@@ -57,7 +57,7 @@ training_set$holdoutpred <- rep(0,nrow(training_set)) #nrow(training)
 
 k =10;
 
-result_List <- matrix(0, k, 4)
+result_List <- matrix(0, k, 6)
 
 for(i in 1:k){ # i = 1
 
@@ -70,35 +70,35 @@ for(i in 1:k){ # i = 1
   mse_1 <- mean(regre_model$residuals^2)
   r2_1 <- summary(regre_model)$adj.r.squared
   #newpred <- predict(regre_model, newdata=validation)
-  #correl_accuracy <- cor(data.frame(cbind(validation$y, newpred)))
+  #corr_acc_1 <- cor(data.frame(cbind(validation$y, newpred)))
   result_List[i,1] <- mse_1
   result_List[i,2] <- r2_1
+  #result_List[i,3] <- corr_acc_1[1,2]
 
   ##Using randomForest algorithm
   randomForest <- randomForest(y ~., data=train)
   mse_2 <- mean(randomForest$mse)
   r2_2 <- mean(randomForest$rsq)
   #predict_Random <- predict(randomForest, validation)
-  #correl_accuracy <- cor(data.frame(cbind(validation$y, as.vector(predict_Random))))
-  result_List[i,3] <- mse_2
-  result_List[i,4] <- r2_2
+  #corr_acc_2 <- cor(data.frame(cbind(validation$y, as.vector(predict_Random))))
+  result_List[i,4] <- mse_2
+  result_List[i,5] <- r2_2
+  #result_List[i,6] <- corr_acc_2[1,2]
 
-  
-#flush.console()
-#print(i)
  }
 
 #Feature importance.
-print(paste("Regression: mse = ", mean(result_List[i,1]), "r2 = ", mean(result_List[i,2])) )
+
+print(paste("Regression: mse = ", mean(result_List[i,1]), "r2 = ", mean(result_List[i,2]), "pred_acc = ", mean(result_List[i,3])) )
 ```
 
-    ## [1] "Regression: mse =  298662924.423021 r2 =  0.787098092834183"
+    ## [1] "Regression: mse =  298662924.423021 r2 =  0.787098092834183 pred_acc =  0"
 
 ``` r
-print(paste("RandomForest: mse = ", mean(result_List[i,3]), "r2 = ", mean(result_List[i,4])) ) 
+print(paste("RandomForest: mse = ", mean(result_List[i,4]), "r2 = ", mean(result_List[i,5]), "pred_acc = ", mean(result_List[i,6])) ) 
 ```
 
-    ## [1] "RandomForest: mse =  301163799.369455 r2 =  0.798975561498177"
+    ## [1] "RandomForest: mse =  301163799.369455 r2 =  0.798975561498177 pred_acc =  0"
 
 ``` r
 #fgl.res <- tuneRF(subset(train, select=-c(y)), train[,ncol(train)], stepFactor=1.5)
@@ -106,6 +106,6 @@ print(paste("RandomForest: mse = ", mean(result_List[i,3]), "r2 = ", mean(result
 #importance(randomForest, type=1)[1:10,]
 ```
 
-Comment: The results above do not seem to be different.... Hypterparameter tuning to be included....
+Hypterparameter tuning to be included....
 
 Work in progress....
