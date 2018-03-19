@@ -19,6 +19,7 @@ shinyServer(function(input, output, session){
   
   #every 2 seconds
   autoInvalidate <- reactiveTimer(1000, session)
+  autoInvalidate2 <- reactiveTimer(2000, session)
   
    output$histogram <- renderPlot({
     #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10

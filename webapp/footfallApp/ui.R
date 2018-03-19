@@ -55,8 +55,10 @@ shinyUI(
       sidebarMenu(
       sidebarSearchForm("searchText", "buttonSearch", "Search"),
       menuItem("Dashboard", tabName ="dashboard", icon = icon("dashboard")), #align-left
+      sliderInput("p", "Adjust Footfall history (length)", 0, 365, 30),
+      sliderInput("q", "Prediction length", 0, 30, 1),
       sliderInput("m", "Set time to update prediction", 5, 60, 10),
-      menuItem("Raw Data", tabName = "rawdata", icon=icon("database")),
+      menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
       menuItem("Map", tabName = "map", icon=icon("map"))
  
           )),
@@ -76,13 +78,13 @@ shinyUI(
                   fluidRow(
                     box(
                       width = 8, status = "info", solidHeader = TRUE,
-                      title = "Popularity by package",
+                      title = "Footfall history",
                       plotOutput("chart")),
                       
                    
                     box(
                       width = 4, status = "info", solidHeader = TRUE,
-                      title = "Popularity by package2",
+                      title = "Factors impacting footfall level (by importance)",
                       plotOutput("chart2"))
                     ),
                 
