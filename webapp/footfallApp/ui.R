@@ -9,6 +9,9 @@
 library(base)
 library(shiny)
 library(shinydashboard)
+library(leaflet)
+library(ggplot2)
+
 
 # Define UI for application that ...
 shinyUI(
@@ -58,18 +61,25 @@ shinyUI(
       sliderInput("p", "Adjust Footfall history (length)", 0, 365, 30),
       sliderInput("q", "Prediction length", 0, 30, 1),
       sliderInput("m", "Set time to update prediction", 5, 60, 10),
-      menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
+       menuItem("View Raw Data (Predictors)", tabName = "rawdata", icon=icon("database"), 
+        checkboxGroupInput("show_vars", "Columns in the dataset:",
+                                        names(diamonds), selected = names(diamonds)
+       )
+                       
+                     ),
       menuItem("Map", tabName = "map", icon=icon("map"))
+                   )),
  
-          )),
+          
+    #menuSubItem
     
-    
-    dashboardBody(
+  body <- dashboardBody(
       tabItems(
         tabItem(tabName = "dashboard",
 
                 fluidRow(
-                  valueBox(15*200, "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
+                  #valueBoxOutput("currentCount", "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
+                  valueBoxOutput("currentCount"),
                   valueBoxOutput("todayaverage"), #itemRequested
                   valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
                 ),
@@ -86,18 +96,40 @@ shinyUI(
                       width = 4, status = "info", solidHeader = TRUE,
                       title = "Factors impacting footfall level (by importance)",
                       plotOutput("chart2"))
-                    ),
+                  )
+                  
                 
-        tabItem("predictorImportance",
-                numericInput("maxrows", "Rows to show", 25),
-                verbatimTextOutput("processedTable"),
-                downloadButton("downloadCsv", "Download as CSV"))
+                ),
+                
+        # tabItem("predictorImportance",
+        #         numericInput("maxrows", "Rows to show", 25),
+        #         verbatimTextOutput("processedTable"),
+        #         downloadButton("downloadCsv", "Download as CSV")),
+        # 
+  
+        tabItem(tabName = "map",
+            h1("Camera Location"),
+            fluidRow(
+              column(width = 9,
+                     box(
+                       width = NULL, solidHeader = TRUE,
+                       leafletOutput("busmap", height=500)
+                     )
+                     )  
+              #h1("Camera Location")
+            )
+        ),
+        
+        tabItem(tabName = "rawdata",
+                h1("Explore datasets")
+        )
  
     )
     
   )
+  )
   
 )
-)
 
-)
+
+#)
