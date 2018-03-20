@@ -11,6 +11,7 @@ library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(ggplot2)
+library(DT)
 
 
 # Define UI for application that ...
@@ -57,18 +58,27 @@ shinyUI(
 
       sidebarMenu(
       sidebarSearchForm("searchText", "buttonSearch", "Search"),
-      menuItem("Dashboard", tabName ="dashboard", icon = icon("dashboard")), #align-left
+      
+      menuItem("Dashboard", tabName ="dashboard", icon = icon("dashboard")), 
       sliderInput("p", "Adjust Footfall history (length)", 0, 365, 30),
       sliderInput("q", "Prediction length", 0, 30, 1),
       sliderInput("m", "Set time to update prediction", 5, 60, 10),
-       menuItem("View Raw Data (Predictors)", tabName = "rawdata", icon=icon("database"), 
-        checkboxGroupInput("show_vars", "Columns in the dataset:",
-                                        names(diamonds), selected = names(diamonds)
-       )
-                       
-                     ),
-      menuItem("Map", tabName = "map", icon=icon("map"))
-                   )),
+      
+      menuItem("Map", tabName = "map", icon=icon("map")),
+      
+      menuItem("View Raw Data (Predictors)", tabName = "rawdata", icon=icon("database")), 
+      
+        conditionalPanel(
+                 'input.dataset === "diamonds"',
+                 checkboxGroupInput("show_vars", "Columns in the dataset:",
+                                  names(diamonds), selected = names(diamonds))),
+        conditionalPanel(
+          'input.dataset === "iris"',
+          helpText("Display 5 record by default.")
+        )
+               
+               )
+             ),
  
           
     #menuSubItem
@@ -121,7 +131,9 @@ shinyUI(
         ),
         
         tabItem(tabName = "rawdata",
-                h1("Explore datasets")
+                tabPanel("diamonds", DT::dataTableOutput("mytable1")),
+                tabPanel("mtcars", DT::dataTableOutput("mytable2"))
+                #h1("Explore datasets")
         )
  
     )

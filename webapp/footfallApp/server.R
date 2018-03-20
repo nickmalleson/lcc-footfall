@@ -11,6 +11,7 @@ library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(ggplot2)
+library(DT)
 
 
 #initiali.
@@ -71,6 +72,17 @@ shinyServer(function(input, output, session){
     camera_loc =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/camera_locs.csv", sep=",", head=TRUE)
     leaflet(data = camera_loc[1:20,]) %>% addTiles() %>%
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id))
+    
+  })
+  
+  diamonds2 = diamonds[sample(nrow(diamonds), 1000),]
+  
+  output$rawdata <- DT::renderDataTable({
+    DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
+  })
+  
+  output$mytable2 <- DT::renderDataTable({
+    DT::datatable(mtcars, options=list(orderClasses = TRUE))
     
   })
 
