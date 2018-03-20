@@ -50,12 +50,12 @@ shinyServer(function(input, output, session){
   observe({
   output$currentCount <- renderValueBox({
     autoInvalidate2()
-    valueBox(20*100, "Current footfall count (predicted)", icon = icon("street-view"), color = "yellow")
+    valueBox(20*100, "Current footfall count (forecast)", icon = icon("street-view"), color = "yellow")
    }) 
   })
   
   output$todayaverage <- renderValueBox({
-      valueBox(20*100, "Today's Average", icon = icon("universal-access"))
+      valueBox(20*100, "Today's Average (forecast)", icon = icon("universal-access"))
   }) 
 
   output$eventTimeRemaining <- renderValueBox({  #renderText

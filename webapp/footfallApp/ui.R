@@ -62,10 +62,10 @@ shinyUI(
       sidebarMenu(
       sidebarSearchForm("searchText", "buttonSearch", "Search"),
       
-      menuItem("Dashboard", tabName ="dashboard", icon = icon("dashboard")), 
-      sliderInput("p", "Adjust Footfall history (length)", 0, 365, 30),
-      sliderInput("q", "Prediction length", 0, 30, 1),
-      sliderInput("m", "Set time to update prediction", 5, 60, 10),
+      menuItem("Dashboard", tabName ="dashboard", icon = icon("braille")), 
+      sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
+      sliderInput("q", "Length of footfall (to predict)", 0, 30, 1),
+      sliderInput("m", "Update current footfall in:", 5, 60, 10),
       
       menuItem("Map", tabName = "map", icon=icon("map")),
       
@@ -115,10 +115,42 @@ shinyUI(
                       width = 4, status = "info", solidHeader = TRUE,
                       title = "Factors impacting footfall level (by importance)",
                       plotOutput("chart2"))
-                  )
+                  ),
                   
                 
-                ),
+                #),
+        
+                fluidRow(
+                  #column(1,
+                  tabBox(
+                    tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "aqua",
+                             plotOutput("histogram", width = "500px", height = "400px")),
+                    tabPanel(title = "Controls for Dashboard", status = "warning", solidHeader = T, background = "red",
+                             "Use this controls to fine-tune your dashboard", br(),br(),
+                             "Do not use lot of control as it confuses the user",
+                             sliderInput("bins","Number of breaks", 1, 50, 10),
+                             textInput("text_input", "Search Opportunities", value = "123456")),
+                    tabPanel(title = "Map", status = "primary", solidHeader = T, background = "aqua")
+                    #plotOutput("histogram"))
+                  )
+                #),
+                
+                  #)
+                  
+                )
+                #)
+                
+              ##fluidRow(
+                #tabBox("newpanel",
+                  ##tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "blue",
+                     ##plotOutput("histogram"))
+                     
+                    ## ),
+                  ##tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "red")
+                     #plotOutput("histogram"))
+                  #)
+                  #)
+              ),
                 
         # tabItem("predictorImportance",
         #         numericInput("maxrows", "Rows to show", 25),
