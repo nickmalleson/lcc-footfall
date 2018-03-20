@@ -13,9 +13,12 @@ library(leaflet)
 library(ggplot2)
 library(DT)
 
+Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 
 # Define UI for application that ...
 shinyUI(
+
+  
   
   dashboardPage(title = "Demo App", skin = "blue",
     
@@ -67,15 +70,21 @@ shinyUI(
       menuItem("Map", tabName = "map", icon=icon("map")),
       
       menuItem("View Raw Data (Predictors)", tabName = "rawdata", icon=icon("database")), 
-      
-        conditionalPanel(
-                 'input.dataset === "diamonds"',
+  
+    
+ 
+     
+     conditionalPanel(
+                 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                 'input.dataset === "Cleaned_footfall"',
                  checkboxGroupInput("show_vars", "Columns in the dataset:",
-                                  names(diamonds), selected = names(diamonds))),
-        conditionalPanel(
-          'input.dataset === "iris"',
-          helpText("Display 5 record by default.")
-        )
+                                  names(Cleaned_footfall), selected = names(Cleaned_footfall)))
+     # conditionalPanel(
+     #      'input.dataset === "iris"',
+     #      helpText("Display 5 record by default.")
+     #    ),
+     
+     
                
                )
              ),

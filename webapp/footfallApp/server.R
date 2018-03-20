@@ -75,14 +75,16 @@ shinyServer(function(input, output, session){
     
   })
   
-  diamonds2 = diamonds[sample(nrow(diamonds), 1000),]
+  Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  
+  Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
   
   output$rawdata <- DT::renderDataTable({
-    DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
+    DT::datatable(Cleaned_footfall[, input$show_vars, drop=FALSE])
   })
   
   output$mytable2 <- DT::renderDataTable({
-    DT::datatable(mtcars, options=list(orderClasses = TRUE))
+    DT::datatable(Cleaned_footfall, options=list(orderClasses = TRUE))
     
   })
 
