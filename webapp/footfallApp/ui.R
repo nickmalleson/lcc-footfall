@@ -20,11 +20,16 @@ Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfal
 shinyUI(
 
   
-  
-  dashboardPage(title = "Demo App", #skin = "yellow"
-    
-    dashboardHeader(title = "LCC Footfall Predictor"),
-    
+  #frame 
+  dashboardPage(title = "Demo App", skin = "green",
+                
+    #header of the app
+    dashboardHeader(
+                   title = "LCC Footfall Predictor",
+                   tags$li(class = "dropdown", tags$a((htmlOutput("headersTime"))))
+                   ),
+                    
+                    
     dashboardSidebar(
 
       sidebarMenu(
@@ -33,9 +38,9 @@ shinyUI(
       menuItem("Dashboard", tabName ="dashboard", icon = icon("braille")), 
       sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
       sliderInput("q", "Length of footfall (to predict)", 0, 30, 1),
-      sliderInput("m", "Update current footfall in:", 5, 60, 10),
+      sliderInput("m", "Update current footfall in:", 5, 60, 30),
       
-      menuItem("Map", tabName = "map", icon=icon("map")),
+      #menuItem("Map", tabName = "map", icon=icon("map")),
       
       menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
   
@@ -58,6 +63,7 @@ shinyUI(
     #menuSubItem
     
   body <- dashboardBody(
+    
       tabItems(
         tabItem(tabName = "dashboard",
 
@@ -71,31 +77,38 @@ shinyUI(
                   
                   fluidRow(
                     box(
-                      width = 8, status = "info", solidHeader = TRUE,
+                      width = 8, status="info", solidHeader = TRUE,
                       title = "Footfall history",
                       plotOutput("chart")),
                       
                    
+                    # box(
+                    #   width = 4, status = "info", solidHeader = TRUE,
+                    #   title = "Map of City of Leeds",
+                    #   plotOutput("chart2"))
+                    
                     box(
                       width = 4, status = "info", solidHeader = TRUE,
-                      title = "10 most impactful factors on footfall level ",
-                      plotOutput("chart2"))
+                      title = "Map of City of Leeds",
+                      leafletOutput("map_2", height=500)
+                    
+                    
                   )
-        ),
+               )),
                   
  
-        tabItem(tabName = "map",
-            h1("City of Leeds, United Kingdom"),
-            fluidRow(
-              column(width = 12,
-                     box(
-                       width = NULL, solidHeader = TRUE,
-                       leafletOutput("busmap", height=1000)
-                     )
-                     )  
-              #h1("Camera Location")
-            )
-        ),
+        # tabItem(tabName = "map",
+        #     h1("City of Leeds, United Kingdom"),
+        #     fluidRow(
+        #       column(width = 12,
+        #              box(
+        #                width = NULL, solidHeader = TRUE,
+        #                leafletOutput("busmap", height=1000)
+        #              )
+        #              )  
+        #       #h1("Camera Location")
+        #     )
+        # ),
         
         tabItem(tabName = "rawdata",
                 tabPanel("diamonds", DT::dataTableOutput("mytable1")),
