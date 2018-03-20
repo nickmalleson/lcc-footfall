@@ -48,12 +48,17 @@ shinyServer(function(input, output, session){
   #            icon = icon("bar-chart-o"))
   #  })
 
-  observe({
+  #observe({
   output$currentCount <- renderValueBox({
+    numberBleep <-  
     autoInvalidate2()
-    valueBox(20*100, "Current footfall count (forecast)", icon = icon("street-view")) #yellow
+    Sys.sleep(1)
+    valueBox(
+      print(30*200), 
+      "Current footfall count (forecast)", icon = icon("street-view")) #yellow
+  
    }) 
-  })
+  #})
   
   output$todayaverage <- renderValueBox({
       valueBox(20*100, "Today's Average (forecast)", icon = icon("universal-access"))
@@ -65,7 +70,7 @@ shinyServer(function(input, output, session){
     invalidateLater(1000, session)
     time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
      valueBox(
-     print(paste(numberSequence[time_to_update], "secs", sep=" ")), icon = icon("clock-o"), paste("Time to next update:", sep = " "))
+     print(paste(numberSequence[time_to_update], "secs", sep=" ")), icon = icon("clock-o"), paste("Time to update Dashboard:", sep = " "))
 
       })
   
