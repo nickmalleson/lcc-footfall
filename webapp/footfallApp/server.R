@@ -12,6 +12,7 @@ library(shinydashboard)
 library(leaflet)
 library(ggplot2)
 library(DT)
+library(maptools)
 
 
 #initiali.
@@ -50,7 +51,7 @@ shinyServer(function(input, output, session){
   observe({
   output$currentCount <- renderValueBox({
     autoInvalidate2()
-    valueBox(20*100, "Current footfall count (forecast)", icon = icon("street-view"), color = "yellow")
+    valueBox(20*100, "Current footfall count (forecast)", icon = icon("street-view")) #yellow
    }) 
   })
   
@@ -64,14 +65,16 @@ shinyServer(function(input, output, session){
     invalidateLater(1000, session)
     time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
      valueBox(
-     print(paste(numberSequence[time_to_update], "secs", sep=" ")), icon = icon("clock-o"), "Time to next update:")
+     print(paste(numberSequence[time_to_update], "secs", sep=" ")), icon = icon("clock-o"), paste("Time to next update:", sep = " "))
 
       })
   
   output$busmap <- renderLeaflet({
+    crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     camera_loc =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/camera_locs.csv", sep=",", head=TRUE)
-    leaflet(data = camera_loc[1:20,]) %>% addTiles() %>%
-      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id))
+    city_Boundary = readShapePoly("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/leeds_City.shp")
+    leaflet(data = camera_loc[1:nrow(camera_loc),]) %>% addTiles() %>%
+      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data = city_Boundary, color = "black")
     
   })
   

@@ -12,6 +12,7 @@ library(shinydashboard)
 library(leaflet)
 library(ggplot2)
 library(DT)
+library(maptools)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 
@@ -20,7 +21,7 @@ shinyUI(
 
   
   
-  dashboardPage(title = "Demo App", skin = "blue",
+  dashboardPage(title = "Demo App", skin = "yellow",
     
     dashboardHeader(title = "LCC Footfall Predictor", dropdownMenuOutput("msgOutput"),
  
@@ -96,7 +97,7 @@ shinyUI(
       tabItems(
         tabItem(tabName = "dashboard",
 
-                fluidRow(
+                fixedRow(
                   #valueBoxOutput("currentCount", "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
                   valueBoxOutput("currentCount"),
                   valueBoxOutput("todayaverage"), #itemRequested
@@ -104,7 +105,7 @@ shinyUI(
                 ),
   
                   
-                  fluidRow(
+                  fixedRow(
                     box(
                       width = 8, status = "info", solidHeader = TRUE,
                       title = "Footfall history",
@@ -121,36 +122,26 @@ shinyUI(
                 #),
         
                 fluidRow(
-                  #column(1,
                   tabBox(
-                    tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "aqua",
-                             plotOutput("histogram", width = "500px", height = "400px")),
-                    tabPanel(title = "Controls for Dashboard", status = "warning", solidHeader = T, background = "red",
+                    tabPanel(title = "Temperature", status = "primary", solidHeader = T, background = "aqua",
+                             plotOutput("histogram", width = "900px", height = "400px")),
+                    tabPanel(title = "Rainfall rate", status = "warning", solidHeader = T, background = "red",
                              "Use this controls to fine-tune your dashboard", br(),br(),
                              "Do not use lot of control as it confuses the user",
                              sliderInput("bins","Number of breaks", 1, 50, 10),
                              textInput("text_input", "Search Opportunities", value = "123456")),
-                    tabPanel(title = "Map", status = "primary", solidHeader = T, background = "aqua")
+                    tabPanel(title = "Wind", status = "primary", solidHeader = T, background = "aqua"),
+                    tabPanel(title = "Humidity", status = "primary", solidHeader = T, background = "aqua")
+                    
                     #plotOutput("histogram"))
                   )
-                #),
-                
-                  #)
                   
-                )
-                #)
-                
-              ##fluidRow(
-                #tabBox("newpanel",
-                  ##tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "blue",
-                     ##plotOutput("histogram"))
-                     
-                    ## ),
-                  ##tabPanel(title = "Histogram of Faithful", status = "primary", solidHeader = T, background = "red")
-                     #plotOutput("histogram"))
-                  #)
-                  #)
-              ),
+                  # tabBox(
+                  #   tabPanel(title = "Temperature", status = "primary", solidHeader = T, background = "aqua",
+                  #            plotOutput("histogram", width = "900px", height = "400px"))
+                  # )
+
+                  )),
                 
         # tabItem("predictorImportance",
         #         numericInput("maxrows", "Rows to show", 25),
@@ -159,12 +150,12 @@ shinyUI(
         # 
   
         tabItem(tabName = "map",
-            h1("Camera Location"),
+            h1("City of Leeds, United Kingdom"),
             fluidRow(
-              column(width = 9,
+              column(width = 12,
                      box(
                        width = NULL, solidHeader = TRUE,
-                       leafletOutput("busmap", height=500)
+                       leafletOutput("busmap", height=1000)
                      )
                      )  
               #h1("Camera Location")
