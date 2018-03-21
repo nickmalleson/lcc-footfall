@@ -31,11 +31,19 @@ shinyServer(function(input, output, session){
   autoInvalidate2 <- reactiveTimer(5000)
   
   #display date and time on the header
-  output$headersTime <- renderText({
+  # output$headersTime <- renderText({
+  #   #using the zone
+  #   date_time <- Sys.time()
+  #   invalidateLater(1000, session)
+  #   print(paste(as.character(date_time), "GMT", sep=" "))
+  # })
+  
+  output$headersLogo <- renderText({
     #using the zone
-    date_time <- Sys.time()
-    invalidateLater(1000, session)
-    print(paste(as.character(date_time), "GMT", sep=" "))
+    #date_time <- Sys.time()
+    #invalidateLater(1000, session)
+    #HTML(paste("<div class= man_made_class>","Last updated at", filetime, "</div>")) #
+    print("Powered by:")
   })
   
   output$histogram <- renderPlot({
@@ -89,9 +97,9 @@ shinyServer(function(input, output, session){
   
   output$map_2 <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    camera_loc =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/camera_locs.csv", sep=",", head=TRUE)
+    city_central =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/city_central.csv", sep=",", head=TRUE)
     city_Boundary = readShapePoly("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/leeds_City.shp")
-    leaflet(data = camera_loc[1:nrow(camera_loc),]) %>% addTiles() %>%
+    leaflet(data = city_central[1:nrow(city_central),]) %>% addTiles() %>%
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data = city_Boundary, color = "black", fill=FALSE)
     
   })

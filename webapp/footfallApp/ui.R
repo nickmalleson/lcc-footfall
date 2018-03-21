@@ -24,11 +24,23 @@ shinyUI(
   dashboardPage(title = "Demo App", skin = "green",
                 
                 #header of the app
-                header <- dashboardHeader(
-                  title = "LCC Footfall Predictor",
-                  tags$li(class = "dropdown", tags$a((htmlOutput("headersTime"))))
-                  
-                  
+                # dashboardHeader(
+                #   title = "LCC Footfall Predictor",
+                #   tags$li(class = "dropdown", tags$a((htmlOutput("headersTime"))))
+                #   
+                  dashboardHeader(title = 'LCC Footfall Predictor',
+                                  
+                                  #tags$li(class = "dropdown", tags$a((htmlOutput("headersTime")))),
+                                  #tags$style(HTML(".man_made_class{color:#f2f205; text-align: center;}")),
+                                 # div(style="text-align:center","This application is based on",br(), "Quandl Data")
+                                  tags$li(class = "dropdown", style="text-align:bottom", tags$a((htmlOutput("headersLogo")))),
+                                  
+                                  tags$li(class = "dropdown",
+                                          tags$a(href="https://en.wikipedia.org/wiki/University_of_Leeds", target="_blank", 
+                                                 tags$img(height = "20px", alt="SNAP Logo", src="https://upload.wikimedia.org/wikipedia/en/a/a8/Logo_of_University_of_Leeds.png")
+                                          )
+                                  ) 
+                                  
                   
                   #((htmlOutput("headersTime"))))
                 ),
@@ -84,7 +96,7 @@ shinyUI(
                             
                             fluidRow(
                               box(
-                                width = 8, status="info", solidHeader = TRUE,
+                                width = 8, status="primary", solidHeader = TRUE,
                                 title = "Footfall history",
                                 plotOutput("chart")),
                               
@@ -95,7 +107,7 @@ shinyUI(
                               #   plotOutput("chart2"))
                               
                               box(
-                                width = 4, status = "info", solidHeader = TRUE,
+                                width = 4, status = "primary", solidHeader = TRUE,
                                 title = "Map of City of Leeds",
                                 leafletOutput("map_2", height=400)
                                 
@@ -105,7 +117,13 @@ shinyUI(
                             fluidRow(
                               box(
                                 width = 8, solidHeader = TRUE,
-                                title = "Footfall history2")
+                                title = "Analysis1"),
+                              
+                              box(
+                                width = 4, solidHeader = TRUE,
+                                title = "Analysis2")
+                              
+                              
                               #plotOutput("chart22"))
                             )
                     ),
