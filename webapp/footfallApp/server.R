@@ -20,6 +20,10 @@ canceller = 0
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
+#function to display number with thousand separator
+th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
+
+
 shinyServer(function(input, output, session){
   
   #every 2 seconds
@@ -34,7 +38,7 @@ shinyServer(function(input, output, session){
     print(paste(as.character(date_time), "GMT", sep=" "))
   })
   
-   output$histogram <- renderPlot({
+  output$histogram <- renderPlot({
     #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
     #hist(faithful$eruptions, breaks = input$bins, main = "")
     ##autoInvalidate()
@@ -42,7 +46,7 @@ shinyServer(function(input, output, session){
     #hist(rnorm(input$n))
     #hist(rnorm(input$n))
     hist(rnorm(30))
-    })
+  })
   
   output$msgOutput = renderMenu({
     msgs <- apply(read.csv(file = "C:/Users/monsu/Desktop/RShinyDashboard/dash12/misc/messages.csv"), 1, function(row){
@@ -55,33 +59,33 @@ shinyServer(function(input, output, session){
   #   infoBox("Approval Sales", "10,000,000",
   #            icon = icon("bar-chart-o"))
   #  })
-
+  
   #observe({
   output$currentCount <- renderValueBox({
     #numberBleep <-  
     autoInvalidate2()
     Sys.sleep(1)
     valueBox(
-      print(30*200), 
-      "Current footfall count (forecast)", icon = icon("blind"), color = "green") #yellow #icon("street-view")
-  
-   }) 
+      print(th_separator(30*200)), 
+      "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+    
+  }) 
   #})
   
   output$todayaverage <- renderValueBox({
-      valueBox(20*100, "Today's Average (forecast)", icon = icon("universal-access"), color = "blue")
+    valueBox(th_separator(20*100), "Today's Average (forecast)", icon = icon("arrow-circle-up"), color = "blue")
   }) 
-
+  
   output$eventTimeRemaining <- renderValueBox({  #renderText
     numberSequence <- rep(c(paste(rep(input$m:1, 1), "sec"), "forecast updated!"), 1000)
     #time_to_update <- 10
     invalidateLater(1000, session)
     #time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
     time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
-     valueBox(
-     print(paste(numberSequence[time_to_update], sep=" ")), icon = icon("clock-o"), paste("Remaining time to update forecast:", sep = " "), color = "blue")
-     #print("yes")
-      })
+    valueBox(
+      print(paste(numberSequence[time_to_update], sep=" ")), icon = icon("clock-o"), paste("Remaining time to update forecast:", sep = " "), color = "blue")
+    #print("yes")
+  })
   
   output$map_2 <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
@@ -106,6 +110,6 @@ shinyServer(function(input, output, session){
   })
   
   #output$chart
-
+  
 })
 
