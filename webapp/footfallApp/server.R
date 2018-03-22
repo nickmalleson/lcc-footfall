@@ -43,8 +43,8 @@ auc_plot <- function(y){
 shinyServer(function(input, output, session){
   
   #every 2 seconds
-  autoInvalidate <- reactiveTimer(1000, session)
-  autoInvalidate2 <- reactiveTimer(5000)
+  #autoInvalidate <- reactiveTimer(1000, session)
+  autoInvalidate <- reactiveTimer(5000)
   
   #display date and time on the header
   # output$headersTime <- renderText({
@@ -83,8 +83,7 @@ shinyServer(function(input, output, session){
     x <- 1:25
     y <- x^2
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    plot(x,y, cex = 1.5, axes=F, type = 'n')
-    lines(x,y, cex = 1.5)
+    auc_plot(y)
   })
   
   output$daily_footfall <- renderPlot({
@@ -113,8 +112,7 @@ shinyServer(function(input, output, session){
     x <- 1:25
     y <- x^2
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    plot(x,y, cex = 1.5, col="red", axes=F)
-    lines(x,y, cex = 1.5)
+    auc_plot(y)
   })
   
   output$msgOutput = renderMenu({
@@ -130,31 +128,72 @@ shinyServer(function(input, output, session){
   #  })
   
   #observe({
-  output$currentCount <- renderValueBox({
-    #numberBleep <-  
-    autoInvalidate2()
-    Sys.sleep(1)
-    valueBox(
-      print(th_separator(30*200)), 
-      "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-    
-  }) 
+  # output$currentCount <- renderValueBox({
+  #   #numberBleep <-  
+  #   autoInvalidate2()
+  #   Sys.sleep(1)
+  #   valueBox(
+  #     print(th_separator(30*200)), 
+  #     "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+  #   
+  # }) 
   #})
   
-  output$todayaverage <- renderValueBox({
-    valueBox(th_separator(20*100), "Today's Average (forecast)", icon = icon("arrow-circle-up"), color = "blue")
+  # output$currentCount <- renderText({
+  #   #numberBleep <-  
+  #   autoInvalidate2()
+  #   Sys.sleep(1)
+  #   valueBox(
+  #     print(th_separator(30*200)), 
+  #     "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+  #   
+  # }) 
+  
+  #to update
+  output$lastDayCount <- renderText({
+    
+    #numberBleep <-  
+    autoInvalidate()
+    #Sys.sleep(1)
+    #valueBox(
+      #print(th_separator(30*200)), 
+      #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+    paste(th_separator(30*200))
   }) 
   
-  output$eventTimeRemaining <- renderValueBox({  #renderText
-    numberSequence <- rep(c(paste(rep(input$m:1, 1), "sec"), "forecast updated!"), 1000)
-    #time_to_update <- 10
-    invalidateLater(1000, session)
-    #time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
-    time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
-    valueBox(
-      print(paste(numberSequence[time_to_update], sep=" ")), icon = icon("clock-o"), paste("Remaining time to update forecast:", sep = " "), color = "blue")
-    #print("yes")
-  })
+  output$lastWeekCount <- renderText({
+    
+    #numberBleep <-  
+    autoInvalidate()
+    #Sys.sleep(1)
+    #valueBox(
+    #print(th_separator(30*200)), 
+    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+    paste(th_separator(309*200))
+  }) 
+  
+  output$lastHourCount <- renderText({
+    
+    #numberBleep <-  
+    autoInvalidate()
+    #Sys.sleep(1)
+    #valueBox(
+    #print(th_separator(30*200)), 
+    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+    paste(th_separator(3091*200))
+  }) 
+  
+  # output$todayaverage <- renderValueBox({
+  #   valueBox(th_separator(20*100), "Today's Average (forecast)", icon = icon("arrow-circle-up"), color = "blue")
+  # }) 
+  # 
+  # output$eventTimeRemaining <- renderValueBox({  #renderText
+  #   numberSequence <- rep(c(paste(rep(input$m:1, 1), "sec"), "forecast updated!"), 1000)
+  #   invalidateLater(1000, session)
+  #   time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
+  #   valueBox(
+  #     print(paste(numberSequence[time_to_update], sep=" ")), icon = icon("clock-o"), paste("Remaining time to update forecast:", sep = " "), color = "blue")
+  # })
   
   output$map_2 <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
