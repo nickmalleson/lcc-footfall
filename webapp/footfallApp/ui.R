@@ -118,40 +118,39 @@ shinyUI(
                               # ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Footfall Count (hours)")),
+                                title = p(tags$h4(tags$b("Footfall Count (last hours)")),
                                   #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
                                           tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "",
+                                          actionButton("hourlyId", "19%",
                                                        icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update")
-                                ), width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"),
-
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs.7,140 (prev)"))), 
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), br(),
                                 plotOutput("hour_footfall", width = "100%", height = "50px")
 
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Footfall Count (days)")),
+                                title = p(tags$h4(tags$b("Footfall Count (last days)")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
                                           tags$head(tags$style("#lastDayCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", "",
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update")
-                                ), width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"),
+                                                       class = "btn-xs", title = "Update")), 
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"),
                                 
                                 plotOutput("daily_footfall", width = "100%", height = "50px")
                                 
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Footfall Count (weeks)")),
+                                title = p(tags$h4(tags$b("Footfall Count (last weeks)")),
                                           tags$b(tags$h1(textOutput("lastWeekCount"))),
                                           tags$head(tags$style("#lastWeekCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", "",
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update")
-                                ), width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"),
+                                                       class = "btn-xs", title = "Update")), 
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"),
                                 
                                 plotOutput("week_footfall", width = "100%", height = "50px")
                                 
