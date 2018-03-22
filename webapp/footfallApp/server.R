@@ -61,7 +61,7 @@ shinyServer(function(input, output, session){
     #using the zone
     date_time <- Sys.time()
     invalidateLater(1000, session)
-    print(paste(as.character(date_time), "GMT", sep=" "))
+    print(paste(substr(as.character(date_time), 1, 10), "||", substr(as.character(date_time), 11, 20), "GMT", sep=" "))
     #print(date_time)
   })
 
@@ -92,9 +92,12 @@ shinyServer(function(input, output, session){
     #hist(rnorm(input$n))
     #hist(rnorm(30))
     x <- 1:25
+    set.seed(11)
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
   })
   
   output$daily_footfall <- renderPlot({
@@ -245,42 +248,68 @@ shinyServer(function(input, output, session){
   output$temp_patterns <- renderPlot({
     x <- 1:100
     #generate some random number
+    set.seed(1)
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
+    #points(x[length(x)], y[length(y)], pch=16, col="blue", cex=2) # (Optional)
   })
+  
+  #temperature trend
+  # output$temp_patterns <- renderPlot({
+  #   x <- 1:100
+  #   #generate some random number
+  #   set.seed(1)
+  #   y <- sample(x^2)
+  #   points(x[length(x)], y[length(y)], pch=16, col="blue", cex=2, add=TRUE) # (Optional)
+  # })
+  # 
   
   #holiday
   output$holidays <- renderPlot({
     x <- 1:100
+    set.seed(2)
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
   })
   
   output$rainfall_patterns <- renderPlot({
     x <- 1:100
+    set.seed(3)
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
   })
   
   output$humidity_patterns <- renderPlot({
     x <- 1:100
+    set.seed(4)
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
   })
   
   output$wind_patterns <- renderPlot({
     x <- 1:100
+    set.seed(5)
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y)
+    autoInvalidate1()
+    Sys.sleep(1)
   })
   #output$chart
   

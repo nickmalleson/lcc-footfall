@@ -91,6 +91,7 @@ shinyUI(
                 
                 body <- dashboardBody(
                   
+ 
                 tags$style(HTML(".box-header{background:#FFFFFF; color:#000000; text-align:center; font-size:20px}")),
                 #tag for icon
                   
@@ -157,24 +158,13 @@ shinyUI(
  
                             fluidRow(
                               box(
-                                width = 8, status="primary", solidHeader = FALSE,
+                                width = 8, height = "300px", status="primary", solidHeader = FALSE,
                                 title = "Footfall history",
                                 plotOutput("chart")),
                               
-                              
-                              # box(
-                              #   width = 4, status = "info", solidHeader = TRUE,
-                              #   title = "Map of City of Leeds",
-                              #   plotOutput("chart2"))
-                              
-                              # box(
-                              #   width = 4, status = "primary", solidHeader = TRUE,
-                              #   title = "Map of City of Leeds (Inset: City Central)",
-                              #   leafletOutput("map_2", height=400)
-                              #   
-                              # )
+
                               box(
-                                width = 4, status = "primary", solidHeader = FALSE,
+                                width = 4, height = "300px", status = "primary", solidHeader = FALSE,
                                 title = "Footfall forecast for the next x days",
                                 plotOutput("forecast")
                                 #leafletOutput("map_2", height=400)
@@ -198,14 +188,14 @@ shinyUI(
                               
                               box(
                                 width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Holidays"
+                                title = "Next holidays"
                                 #plotOutput("forecast")
                                 #leafletOutput("map_2", height=400)
                                 
                               ),
                               box(
                                 width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Weather forecast (www.bbc.co.uk)"
+                                title = "Weather information"
                                 #plotOutput("forecast")
                                 #leafletOutput("map_2", height=400)
                                 
@@ -252,7 +242,7 @@ shinyUI(
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
                                                      tags$b(tags$h4("vs. 7,140 (prev)"))),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"),
-                                           plotOutput("temp_patterns", width = "500%", height = "400px")
+                                           plotOutput("temp_patterns", width = "320%", height = "150px")
                                            
                                          )),
                                 
@@ -264,7 +254,7 @@ shinyUI(
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
                                                      tags$b(tags$h4("vs. 7,140 (prev)"))),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI5"),
-                                           plotOutput("rainfall_patterns", width = "500%", height = "400px")
+                                           plotOutput("rainfall_patterns", width = "320%", height = "150px")
                                            
                                          )),
                                 
@@ -276,7 +266,7 @@ shinyUI(
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
                                                      tags$b(tags$h4("vs. 7,140 (prev)"))),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI6"),
-                                           plotOutput("wind_patterns", width = "500%", height = "400px")
+                                           plotOutput("wind_patterns", width = "320%", height = "150px")
                                            
                                          )),
                                 
@@ -288,7 +278,7 @@ shinyUI(
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
                                                      tags$b(tags$h4("vs. 7,140 (prev)"))),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI7"),
-                                           plotOutput("humidity_patterns", width = "500%", height = "400px")
+                                           plotOutput("humidity_patterns", width = "320%", height = "150px")
                                            
                                          )),
                                
