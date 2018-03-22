@@ -34,7 +34,7 @@ shinyUI(
                                   
                                   #tags$li(class = "dropdown", tags$a((htmlOutput("headersTime")))),
                                   #tags$style(HTML(".man_made_class{color:#f2f205; text-align: center;}")),
-                                 # div(style="text-align:center","This application is based on",br(), "Quandl Data")
+                                  # div(style="text-align:center","This application is based on",br(), "Quandl Data")
                                   tags$li(class = "dropdown", style="text-align:bottom", tags$a((htmlOutput("headersLogo")))),
                                   
                                   tags$li(class = "dropdown",
@@ -47,17 +47,16 @@ shinyUI(
                   #((htmlOutput("headersTime"))))
                 ),
                 
-                dashboardSidebar(
+                dashboardSidebar( 
                   
                   sidebarMenu(
                     
                     #sidebarSearchForm("searchText", "buttonSearch", "Search"),
                     
                     
-                    menuItem("Dashboard", tabName ="dashboard", icon = icon("braille")),
+                    menuItem("  DASHBOARD", tabName ="dashboard", icon = icon("braille")),
                     
-                      # 
-                    
+
                       #adding a slider to specify how often should the predictions be updated
                       sliderInput("m", "Update current footfall in:", 5, 60, 30),
                     
@@ -124,7 +123,7 @@ shinyUI(
                                           tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", "19%",
                                                        icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs.7,140 (prev)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 7,140 (prev)"))), 
                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), br(),
                                 plotOutput("hour_footfall", width = "100%", height = "50px")
 
@@ -134,10 +133,10 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Footfall Count (last days)")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
                                           tags$head(tags$style("#lastDayCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "",
+                                          actionButton("hourlyId", "23%",
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update")), 
-                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"),
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 47,124 (prev)"))), 
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), br(),
                                 
                                 plotOutput("daily_footfall", width = "100%", height = "50px")
                                 
@@ -147,10 +146,10 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Footfall Count (last weeks)")),
                                           tags$b(tags$h1(textOutput("lastWeekCount"))),
                                           tags$head(tags$style("#lastWeekCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "",
+                                          actionButton("hourlyId", "43%",
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update")), 
-                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"),
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 352,488 (prev)"))),  
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), br(),
                                 
                                 plotOutput("week_footfall", width = "100%", height = "50px")
                                 

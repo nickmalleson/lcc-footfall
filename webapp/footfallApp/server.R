@@ -47,13 +47,14 @@ shinyServer(function(input, output, session){
   autoInvalidate <- reactiveTimer(5000)
   
   #display date and time on the header
-  # output$headersTime <- renderText({
-  #   #using the zone
-  #   date_time <- Sys.time()
-  #   invalidateLater(1000, session)
-  #   print(paste(as.character(date_time), "GMT", sep=" "))
-  # })
-  
+  output$headersTime <- renderText({
+    #using the zone
+    date_time <- system.time()
+    invalidateLater(1000, session)
+    print(paste(as.character(date_time), "GMT", sep=" "))
+    #print(date_time)
+  })
+
   output$headersLogo <- renderText({
     #using the zone
     #date_time <- Sys.time()
@@ -152,7 +153,7 @@ shinyServer(function(input, output, session){
     
     #numberBleep <-  
     autoInvalidate()
-    #Sys.sleep(1)
+    Sys.sleep(1)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
@@ -163,8 +164,8 @@ shinyServer(function(input, output, session){
   output$lastDayCount <- renderText({
     
     #numberBleep <-  
-    autoInvalidate()
-    #Sys.sleep(1)
+    #autoInvalidate()
+    #Sys.sleep(2)
     #valueBox(
       #print(th_separator(30*200)), 
       #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
@@ -174,8 +175,8 @@ shinyServer(function(input, output, session){
   output$lastWeekCount <- renderText({
     
     #numberBleep <-  
-    autoInvalidate()
-    #Sys.sleep(1)
+    #autoInvalidate()
+    #Sys.sleep(3)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
