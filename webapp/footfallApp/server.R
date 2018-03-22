@@ -20,8 +20,24 @@ canceller = 0
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
+#functions
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
+
+#function to plot line graph with filled area-under-curve
+auc_plot <- function(y){
+  x <- 1:length(y)
+  n <- length(y)
+  s = smooth.spline(x, y, spar=0.5)
+  xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
+  m <- length(xy$x)                         
+  x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
+  y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
+  plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+  polygon(x.poly, y.poly, col="lightblue", border=NA)          # Show the polygon fill only
+  lines(s, col="blue", lwd=2)
+  points(x.poly[length(x.poly)-2], y.poly[length(y.poly)-2], pch=16, col="blue") # (Optional)
+}
 
 
 shinyServer(function(input, output, session){
@@ -46,14 +62,59 @@ shinyServer(function(input, output, session){
     print("Powered by:")
   })
   
-  output$histogram <- renderPlot({
+  ##output$histogram <- renderPlot({
     #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
     #hist(faithful$eruptions, breaks = input$bins, main = "")
     ##autoInvalidate()
     #hist(rnorm(isolate(input$n)))
     #hist(rnorm(input$n))
     #hist(rnorm(input$n))
-    hist(rnorm(30))
+    ##hist(rnorm(30))
+  ##})
+  
+  output$hour_footfall <- renderPlot({
+    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
+    #hist(faithful$eruptions, breaks = input$bins, main = "")
+    ##autoInvalidate()
+    #hist(rnorm(isolate(input$n)))
+    #hist(rnorm(input$n))
+    #hist(rnorm(input$n))
+    #hist(rnorm(30))
+    x <- 1:25
+    y <- x^2
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    plot(x,y, cex = 1.5, axes=F, type = 'n')
+    lines(x,y, cex = 1.5)
+  })
+  
+  output$daily_footfall <- renderPlot({
+    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
+    #hist(faithful$eruptions, breaks = input$bins, main = "")
+    ##autoInvalidate()
+    #hist(rnorm(isolate(input$n)))
+    #hist(rnorm(input$n))
+    #hist(rnorm(input$n))
+    #hist(rnorm(30))
+    x <- 1:25
+    y <- x^2
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot(y)
+    #lines(x,y, cex = 1.5)
+  })
+  
+  output$week_footfall <- renderPlot({
+    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
+    #hist(faithful$eruptions, breaks = input$bins, main = "")
+    ##autoInvalidate()
+    #hist(rnorm(isolate(input$n)))
+    #hist(rnorm(input$n))
+    #hist(rnorm(input$n))
+    #hist(rnorm(30))
+    x <- 1:25
+    y <- x^2
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    plot(x,y, cex = 1.5, col="red", axes=F)
+    lines(x,y, cex = 1.5)
   })
   
   output$msgOutput = renderMenu({

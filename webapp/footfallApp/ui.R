@@ -16,9 +16,11 @@ library(maptools)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 
+
 # Define UI for application that ...
 shinyUI(
   
+     
   
   #frame 
   dashboardPage(title = "Demo App", skin = "green",
@@ -48,21 +50,33 @@ shinyUI(
                 dashboardSidebar(
                   
                   sidebarMenu(
-                    sidebarSearchForm("searchText", "buttonSearch", "Search"),
                     
-                    menuItem("Dashboard", tabName ="dashboard", icon = icon("braille")), 
-                    sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
-                    sliderInput("q", "Length of footfall (to predict)", 0, 30, 1),
-                    sliderInput("m", "Update current footfall in:", 5, 60, 30),
+                    #sidebarSearchForm("searchText", "buttonSearch", "Search"),
+                    
+                    
+                    menuItem("Dashboard", tabName ="dashboard", icon = icon("braille")),
+                    
+                      # 
+                    
+                      #adding a slider to specify how often should the predictions be updated
+                      sliderInput("m", "Update current footfall in:", 5, 60, 30),
+                    
+                      #adding slider to adjust the length (history) of footfall to view
+                      sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
+                    
+                      #adding slider to view the length of footfall to predict
+                      sliderInput("q", "Length of footfall (to predict)", 0, 30, 1),
+                    
+
                     
                     #menuItem("Map", tabName = "map", icon=icon("map")),
                     
                     menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
                     
-                    conditionalPanel(
-                      Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                      'input.dataset === "Cleaned_footfall"',
-                      checkboxGroupInput("show_vars", "Columns in the dataset:",
+                      conditionalPanel(
+                        Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                        'input.dataset === "Cleaned_footfall"',
+                        checkboxGroupInput("show_vars", "Columns in the dataset:",
                                          names(Cleaned_footfall), selected = names(Cleaned_footfall)))
                     # conditionalPanel(
                     #      'input.dataset === "iris"',
@@ -74,26 +88,60 @@ shinyUI(
                   )
                 ),
                 
+  
                 
                 #menuSubItem
                 
                 body <- dashboardBody(
                   
+                tags$style(HTML(".box-header{background:#FFFFFF; color:#000000; text-align:center; font-size:20px}")),
+                #tag for icon
+                  
                   tabItems(
                     tabItem(tabName = "dashboard",
-                            
+  
+                            #)
                             fluidRow(
-                              #valueBoxOutput("currentCount", "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
-                              # valueBoxOutput("currentCount"),
-                              # valueBoxOutput("todayaverage"), #itemRequested
-                              # valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
                               
-                              valueBoxOutput("currentCount"),
-                              valueBoxOutput("todayaverage"), #itemRequested
-                              valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
-                            ),
-                            
-                            
+                              tags$head(
+                                tags$style(HTML(".fa{font-size: 20px; }"))),
+                              
+                              
+                              box(
+                                title = p(tags$h4("Footfall Count (hours)"), tags$b(tags$h1(20 * 300)),
+                                          actionButton("hourlyId", "",
+                                                       icon=icon("arrow-circle-down"),
+                                                       class = "btn-xs", title = "Update")
+                                ), width = 4, solidHeader = FALSE, status = "warning", uiOutput("boxContentUI"),
+                                
+                                plotOutput("hour_footfall", width = "100%", height = "50px")
+                                
+                              ),
+                              
+                              box(
+                                title = p(tags$h4("Footfall Count (days)"), tags$b(tags$h1(20 * 300)),
+                                          actionButton("hourlyId", "",
+                                                       icon=icon("arrow-circle-down"),
+                                                       class = "btn-xs", title = "Update")
+                                ), width = 4, solidHeader = FALSE, status = "warning", uiOutput("boxContentUI2"),
+                                
+                                plotOutput("daily_footfall", width = "100%", height = "50px")
+                                
+                              ),
+                              
+                              box(
+                                title = p(tags$h4("Footfall Count (weeks)"), tags$b(tags$h1(20 * 300)),
+                                          actionButton("hourlyId", "",
+                                                       icon=icon("arrow-circle-down"),
+                                                       class = "btn-xs", title = "Update")
+                                ), width = 4, solidHeader = FALSE, status = "warning", uiOutput("boxContentUI3"),
+                                
+                                plotOutput("week_footfall", width = "100%", height = "50px")
+                                
+                              )
+                              ),
+                              
+ 
                             fluidRow(
                               box(
                                 width = 8, status="primary", solidHeader = TRUE,
@@ -108,26 +156,35 @@ shinyUI(
                               
                               box(
                                 width = 4, status = "primary", solidHeader = TRUE,
-                                title = "Map of City of Leeds",
+                                title = "Map of City of Leeds (Inset: City Central)",
                                 leafletOutput("map_2", height=400)
                                 
                               )
                             ),
                             
                             fluidRow(
-                              box(
-                                width = 8, solidHeader = TRUE,
-                                title = "Analysis1"),
-                              
-                              box(
-                                width = 4, solidHeader = TRUE,
-                                title = "Analysis2")
+                              #valueBoxOutput("currentCount", "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
+                              # valueBoxOutput("currentCount"),
+                              # valueBoxOutput("todayaverage"), #itemRequested
+                              # valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
                               
                               
-                              #plotOutput("chart22"))
+                              # valueBoxOutput("currentCount"),
+                              # valueBoxOutput("todayaverage"), #itemRequested
+                              # valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
+                              
+                              infoBox("1st", 10 * 2, icon = icon("arrow-circle-down")),
+                              infoBox("2nd", 10 * 2, icon = icon("credit-card")),
+                              infoBox("3rd", 10 * 2, icon = icon("credit-card")),
+                              infoBox("4th", 10 * 2, icon = icon("credit-card"))
                             )
-                    ),
+                            
+                            
+                          
                     
+                    ),
+                            
+                              
                     
                     # tabItem(tabName = "map",
                     #     h1("City of Leeds, United Kingdom"),
@@ -153,7 +210,7 @@ shinyUI(
                                 tabPanel(title = "Temperature", status = "primary", solidHeader = T, background = "aqua",
                                          plotOutput("histogram", width = "900px", height = "400px")),
                                 tabPanel(title = "Rainfall rate", status = "warning", solidHeader = T, background = "red",
-                                         "Use this controls to fine-tune your dashboard", br(),br(),
+                                         "Use this controls to fine-tune your dashboard", br(), br(),
                                          "Do not use lot of control as it confuses the user",
                                          sliderInput("bins","Number of breaks", 1, 50, 10),
                                          textInput("text_input", "Search Opportunities", value = "123456")),
