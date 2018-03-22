@@ -81,7 +81,7 @@ shinyServer(function(input, output, session){
     #hist(rnorm(input$n))
     #hist(rnorm(30))
     x <- 1:25
-    y <- x^2
+    y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
   })
@@ -95,7 +95,7 @@ shinyServer(function(input, output, session){
     #hist(rnorm(input$n))
     #hist(rnorm(30))
     x <- 1:25
-    y <- x^2
+    y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
     #lines(x,y, cex = 1.5)
@@ -110,7 +110,8 @@ shinyServer(function(input, output, session){
     #hist(rnorm(input$n))
     #hist(rnorm(30))
     x <- 1:25
-    y <- x^2
+    #generate some random number
+    y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
   })
