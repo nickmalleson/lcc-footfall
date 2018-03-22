@@ -35,7 +35,8 @@ auc_plot <- function(y){
   plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
   polygon(x.poly, y.poly, col="lightblue", border=NA)          # Show the polygon fill only
   lines(s, col="blue", lwd=2)
-  points(x.poly[1:length(x.poly)-2], y.poly[1:length(y.poly)-2], pch=16, col="blue") # (Optional)
+  points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
+  points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
 }
 
 
