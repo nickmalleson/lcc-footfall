@@ -103,7 +103,7 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 20px; }"))),
+                                tags$style(HTML(".fa{font-size: 30px; }"))),
                               
                               # box(
                               #   title = p(tags$h4("Footfall Count (hours)"), 
@@ -121,7 +121,7 @@ shinyUI(
                                   #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
                                           tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "19%",
+                                          actionButton("hourlyId", tags$b("19%"),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 7,140 (prev)"))), 
                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), br(),
@@ -133,7 +133,7 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Footfall Count (last days)")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
                                           tags$head(tags$style("#lastDayCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "23%",
+                                          actionButton("hourlyId", tags$b("23%"),
                                                        icon=icon("arrow-circle-up"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 47,124 (prev)"))), 
                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), br(),
@@ -146,7 +146,7 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Footfall Count (last weeks)")),
                                           tags$b(tags$h1(textOutput("lastWeekCount"))),
                                           tags$head(tags$style("#lastWeekCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", "43%",
+                                          actionButton("hourlyId", tags$b("43%"),
                                                        icon=icon("arrow-circle-up"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 352,488 (prev)"))),  
                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), br(),

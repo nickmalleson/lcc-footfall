@@ -15,8 +15,7 @@ library(DT)
 library(maptools)
 
 
-#initiali.
-canceller = 0
+
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
@@ -43,14 +42,14 @@ auc_plot <- function(y){
 shinyServer(function(input, output, session){
   
   #every 2 seconds
-  #autoInvalidate <- reactiveTimer(1000, session)
-  autoInvalidate <- reactiveTimer(5000)
+  autoInvalidate1 <- reactiveTimer(5000, session)
+  #autoInvalidate1 <- reactiveTimer(5000)
   
   #display date and time on the header
   output$headersTime <- renderText({
     #using the zone
     date_time <- system.time()
-    invalidateLater(1000, session)
+    #invalidateLater(1000, session)
     print(paste(as.character(date_time), "GMT", sep=" "))
     #print(date_time)
   })
@@ -152,8 +151,8 @@ shinyServer(function(input, output, session){
   output$lastHourCount <- renderText({
     
     #numberBleep <-  
-    autoInvalidate()
-    Sys.sleep(1)
+    autoInvalidate1()
+    Sys.sleep(2)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
@@ -164,8 +163,8 @@ shinyServer(function(input, output, session){
   output$lastDayCount <- renderText({
     
     #numberBleep <-  
-    #autoInvalidate()
-    #Sys.sleep(2)
+    #autoInvalidate1()
+    #Sys.sleep(1)
     #valueBox(
       #print(th_separator(30*200)), 
       #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
@@ -176,7 +175,7 @@ shinyServer(function(input, output, session){
     
     #numberBleep <-  
     #autoInvalidate()
-    #Sys.sleep(3)
+    #Sys.sleep(1)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
