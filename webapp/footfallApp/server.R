@@ -24,7 +24,7 @@ EventTime <- Sys.time() - 1*1
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
 
 #function to plot line graph with filled area-under-curve
-auc_plot <- function(y){
+auc_plot <- function(y, t=1){
   #autoInvalidate1 <- reactiveTimer(5000, session)
   x <- 1:length(y)
   n <- length(y)
@@ -33,39 +33,46 @@ auc_plot <- function(y){
   m <- length(xy$x)                         
   x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
   y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
+  #plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
   plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-  polygon(x.poly, y.poly, col="lightblue", border=NA)          # Show the polygon fill only
+  #axis(1, at = 1:length(x.poly), labels= letters[1:length(x.poly)])
+  polygon(x.poly, y.poly, col="lightblue", border=NA)  
+  #box(lty=='1373', col='red')
+  # Show the polygon fill only
   lines(s, col="blue", lwd=2)
   points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
-  #autoInvalidate1()
-  #Sys.sleep(1)
   points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+  
+  #plot histogram instead of line graph
+  if(t==2){
+    hist(y, breaks = 100)
+  }
   
 }
 
 shinyServer(function(input, output, session){
   
   #every 2 seconds
-  autoInvalidate1 <- reactiveTimer(1000, session)
-  #autoInvalidate1 <- reactiveTimer(5000)
+  #autoInvalidate1 <- reactiveTimer(1000, session)
+  autoInvalidate1 <- reactiveTimer(5000)
   
   #display date and time on the header
   output$headersTime <- renderText({
     #using the zone
-    date_time <- system.time()
-    #invalidateLater(1000, session)
+    date_time <- Sys.time()
+    invalidateLater(1000, session)
     print(paste(as.character(date_time), "GMT", sep=" "))
     #print(date_time)
   })
 
-  output$headersLogo <- renderText({
-    #using the zone
-    #date_time <- Sys.time()
-    #invalidateLater(1000, session)
-    #HTML(paste("<div class= man_made_class>","Last updated at", filetime, "</div>")) #
-    print("Powered by:")
-  })
-  
+  # output$headersLogo <- renderText({
+  #   #using the zone
+  #   #date_time <- Sys.time()
+  #   #invalidateLater(1000, session)
+  #   #HTML(paste("<div class= man_made_class>","Last updated at", filetime, "</div>")) #
+  #   print("Powered by:")
+  # })
+  # # 
   ##output$histogram <- renderPlot({
     #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
     #hist(faithful$eruptions, breaks = input$bins, main = "")
@@ -116,7 +123,7 @@ shinyServer(function(input, output, session){
     x <- 1:25
     #generate some random number
     y <- sample(x^2)
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y)
   })
   
@@ -156,8 +163,8 @@ shinyServer(function(input, output, session){
   output$lastHourCount <- renderText({
     
     #numberBleep <-  
-    autoInvalidate1()
-    Sys.sleep(1)
+    #autoInvalidate1()
+    #Sys.sleep(1)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
@@ -234,6 +241,47 @@ shinyServer(function(input, output, session){
     
   })
   
+  #temperature trend
+  output$temp_patterns <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot(y)
+  })
+  
+  #holiday
+  output$holidays <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
+    auc_plot(y)
+  })
+  
+  output$rainfall_patterns <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
+    auc_plot(y)
+  })
+  
+  output$humidity_patterns <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
+    auc_plot(y)
+  })
+  
+  output$wind_patterns <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
+    auc_plot(y)
+  })
   #output$chart
   
 })

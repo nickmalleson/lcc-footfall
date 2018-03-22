@@ -12,7 +12,6 @@ library(shinydashboard)
 library(leaflet)
 library(ggplot2)
 library(DT)
-library(maptools)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 
@@ -27,21 +26,19 @@ shinyUI(
                 
                 #header of the app
                 # dashboardHeader(
-                #   title = "LCC Footfall Predictor",
+                #   title = "Leeds CC Footfall Predictor",
                 #   tags$li(class = "dropdown", tags$a((htmlOutput("headersTime"))))
                 #   
-                  dashboardHeader(title = 'LCC Footfall Predictor',
+                dashboardHeader(title = tags$b('LEEDS FOOTFALL'), 
+                 #dashboardHeader(title = tags$p(class = "dropdown", style="text-align:left", tags$b('LEEDS FOOTFALL')),
                                   
-                                  #tags$li(class = "dropdown", tags$a((htmlOutput("headersTime")))),
-                                  #tags$style(HTML(".man_made_class{color:#f2f205; text-align: center;}")),
-                                  # div(style="text-align:center","This application is based on",br(), "Quandl Data")
-                                  tags$li(class = "dropdown", style="text-align:bottom", tags$a((htmlOutput("headersLogo")))),
-                                  
+                                  tags$li(class = "dropdown", style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))),
+                               
                                   tags$li(class = "dropdown",
-                                          tags$a(href="https://en.wikipedia.org/wiki/University_of_Leeds", target="_blank", 
+                                          tags$a(href="https://en.wikipedia.org/wiki/University_of_Leeds", target="_blank",
                                                  tags$img(height = "20px", alt="SNAP Logo", src="https://upload.wikimedia.org/wikipedia/en/a/a8/Logo_of_University_of_Leeds.png")
-                                          )
-                                  ) 
+                                          ))
+                                  
                                   
                   
                   #((htmlOutput("headersTime"))))
@@ -54,19 +51,20 @@ shinyUI(
                     #sidebarSearchForm("searchText", "buttonSearch", "Search"),
                     
                     
-                    menuItem("  DASHBOARD", tabName ="dashboard", icon = icon("braille")),
-                    
-
-                      #adding a slider to specify how often should the predictions be updated
-                      sliderInput("m", "Update current footfall in:", 5, 60, 30),
-                    
+                    menuItem( 
+                      
+                      "DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
+                  
+                    menuItem("    Settings", tabName ="historySetting", 
+                      #sidebarPanel(width = "100", skin = "blue",
+                      sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
                       sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
-                    
-                      #adding slider to view the length of footfall to predict
-                      sliderInput("q", "Length of footfall (to predict)", 0, 30, 1),
-                    
 
+                      #adding slider to view the length of footfall to predict
+                      sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
+                      #),
+                      ),
                     
                     #menuItem("Map", tabName = "map", icon=icon("map")),
                     
@@ -103,7 +101,7 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 20px; }"))),
+                                tags$style(HTML(".fa{font-size: 15px; }"))),
                               
                               # box(
                               #   title = p(tags$h4("Footfall Count (hours)"), 
@@ -118,13 +116,13 @@ shinyUI(
                               
                               box(
                                 title = p(tags$h4(tags$b("Footfall Count (last hours)")),
-                                  #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                          #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
                                           tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("19%"),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 7,140 (prev)"))), 
-                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), br(),
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), 
                                 plotOutput("hour_footfall", width = "100%", height = "50px")
 
                               ),
@@ -136,7 +134,7 @@ shinyUI(
                                           actionButton("hourlyId", tags$b("23%"),
                                                        icon=icon("arrow-circle-up"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 47,124 (prev)"))), 
-                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), br(),
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
                                 
                                 plotOutput("daily_footfall", width = "100%", height = "50px")
                                 
@@ -149,7 +147,7 @@ shinyUI(
                                           actionButton("hourlyId", tags$b("43%"),
                                                        icon=icon("arrow-circle-up"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 352,488 (prev)"))),  
-                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), br(),
+                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
                                 
                                 plotOutput("week_footfall", width = "100%", height = "50px")
                                 
@@ -159,7 +157,7 @@ shinyUI(
  
                             fluidRow(
                               box(
-                                width = 8, status="primary", solidHeader = TRUE,
+                                width = 8, status="primary", solidHeader = FALSE,
                                 title = "Footfall history",
                                 plotOutput("chart")),
                               
@@ -169,14 +167,24 @@ shinyUI(
                               #   title = "Map of City of Leeds",
                               #   plotOutput("chart2"))
                               
+                              # box(
+                              #   width = 4, status = "primary", solidHeader = TRUE,
+                              #   title = "Map of City of Leeds (Inset: City Central)",
+                              #   leafletOutput("map_2", height=400)
+                              #   
+                              # )
                               box(
-                                width = 4, status = "primary", solidHeader = TRUE,
-                                title = "Map of City of Leeds (Inset: City Central)",
-                                leafletOutput("map_2", height=400)
+                                width = 4, status = "primary", solidHeader = FALSE,
+                                title = "Footfall forecast for the next x days",
+                                plotOutput("forecast")
+                                #leafletOutput("map_2", height=400)
                                 
                               )
+                            #)
                             ),
                             
+                            
+                          #tabItem(
                             fluidRow(
                               #valueBoxOutput("currentCount", "Current footfall count", icon=icon("hourglass-3"), color = "yellow"),
                               # valueBoxOutput("currentCount"),
@@ -188,17 +196,31 @@ shinyUI(
                               # valueBoxOutput("todayaverage"), #itemRequested
                               # valueBoxOutput("eventTimeRemaining") #eventTimeRemaining
                               
-                              infoBox("1st", 10 * 2, icon = icon("arrow-circle-down")),
-                              infoBox("2nd", 10 * 2, icon = icon("credit-card")),
-                              infoBox("3rd", 10 * 2, icon = icon("credit-card")),
-                              infoBox("4th", 10 * 2, icon = icon("credit-card"))
-                            )
-                            
-                            
-                          
+                              box(
+                                width = 4, status = "primary", solidHeader = FALSE,
+                                title = "Holidays"
+                                #plotOutput("forecast")
+                                #leafletOutput("map_2", height=400)
+                                
+                              ),
+                              box(
+                                width = 4, status = "primary", solidHeader = FALSE,
+                                title = "Weather forecast (www.bbc.co.uk)"
+                                #plotOutput("forecast")
+                                #leafletOutput("map_2", height=400)
+                                
+                              ),
+                              
+                              box(
+                                width = 4, status = "primary", solidHeader = TRUE,
+                                title = "Map of City of Leeds (Inset: City Central)",
+                                leafletOutput("map_2", height=400)
+
+                              )
+   
                     
-                    ),
-                            
+                    )
+                    ),       
                               
                     
                     # tabItem(tabName = "map",
@@ -221,17 +243,66 @@ shinyUI(
                             #h1("Explore datasets")
                             
                             fluidRow(
-                              tabBox(
-                                tabPanel(title = "Temperature", status = "primary", solidHeader = T, background = "aqua",
-                                         plotOutput("histogram", width = "900px", height = "400px")),
+                              tabBox(width = 13, height = 800,
+                                tabPanel(title = "Temperature", status = "warning", solidHeader = T, background = "aqua",
+                                         box(
+                                           title = p(tags$h4(tags$b("Holidays")),
+                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"),
+                                           plotOutput("temp_patterns", width = "500%", height = "400px")
+                                           
+                                         )),
+                                
                                 tabPanel(title = "Rainfall rate", status = "warning", solidHeader = T, background = "red",
-                                         "Use this controls to fine-tune your dashboard", br(), br(),
-                                         "Do not use lot of control as it confuses the user",
-                                         sliderInput("bins","Number of breaks", 1, 50, 10),
-                                         textInput("text_input", "Search Opportunities", value = "123456")),
-                                tabPanel(title = "Wind", status = "primary", solidHeader = T, background = "aqua"),
-                                tabPanel(title = "Humidity", status = "primary", solidHeader = T, background = "aqua"),
-                                tabPanel(title = "Holidays", status = "primary", solidHeader = T, background = "aqua")
+                                         box(
+                                           title = p(tags$h4(tags$b("Holidays")),
+                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI5"),
+                                           plotOutput("rainfall_patterns", width = "500%", height = "400px")
+                                           
+                                         )),
+                                
+                                tabPanel(title = "Wind", status = "primary", solidHeader = T, background = "aqua",
+                                         box(
+                                           title = p(tags$h4(tags$b("Holidays")),
+                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI6"),
+                                           plotOutput("wind_patterns", width = "500%", height = "400px")
+                                           
+                                         )),
+                                
+                                tabPanel(title = "Humidity", status = "primary", solidHeader = T, background = "aqua",
+                                         box(
+                                           title = p(tags$h4(tags$b("Holidays")),
+                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI7"),
+                                           plotOutput("humidity_patterns", width = "500%", height = "400px")
+                                           
+                                         )),
+                               
+                                 tabPanel(title = "Holidays", status = "primary", solidHeader = F, background = "aqua",
+                                         box(
+                                           title = p(tags$h4(tags$b("Holidays")),
+                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI8"),
+                                           plotOutput("holidays", width = "320%", height = "150px")
+
+                                         ) )
                                 
                               )
                               
@@ -248,3 +319,16 @@ shinyUI(
 
 
 #)
+
+# box(
+#   title = p(tags$h4(tags$b("Footfall Count (last hours)")),
+#             #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+#             tags$b(tags$h1(textOutput("lastHourCount"))),
+#             tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
+#             actionButton("hourlyId", tags$b("19%"),
+#                          icon=icon("arrow-circle-down"),
+#                          class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 7,140 (prev)"))), 
+#   width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), 
+#   plotOutput("hour_footfall", width = "100%", height = "50px")
+#   
+# )
