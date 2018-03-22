@@ -148,6 +148,16 @@ shinyServer(function(input, output, session){
   #     "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
   #   
   # }) 
+  output$lastHourCount <- renderText({
+    
+    #numberBleep <-  
+    autoInvalidate()
+    #Sys.sleep(1)
+    #valueBox(
+    #print(th_separator(30*200)), 
+    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+    paste(th_separator(30*200))
+  }) 
   
   #to update
   output$lastDayCount <- renderText({
@@ -158,7 +168,7 @@ shinyServer(function(input, output, session){
     #valueBox(
       #print(th_separator(30*200)), 
       #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-    paste(th_separator(30*200))
+    paste(th_separator(306*200))
   }) 
   
   output$lastWeekCount <- renderText({
@@ -169,19 +179,10 @@ shinyServer(function(input, output, session){
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-    paste(th_separator(309*200))
+    paste(th_separator(3092*200))
   }) 
   
-  output$lastHourCount <- renderText({
-    
-    #numberBleep <-  
-    autoInvalidate()
-    #Sys.sleep(1)
-    #valueBox(
-    #print(th_separator(30*200)), 
-    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-    paste(th_separator(3091*200))
-  }) 
+
   
   # output$todayaverage <- renderValueBox({
   #   valueBox(th_separator(20*100), "Today's Average (forecast)", icon = icon("arrow-circle-up"), color = "blue")
