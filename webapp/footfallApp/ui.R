@@ -103,7 +103,7 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 30px; }"))),
+                                tags$style(HTML(".fa{font-size: 20px; }"))),
                               
                               # box(
                               #   title = p(tags$h4("Footfall Count (hours)"), 

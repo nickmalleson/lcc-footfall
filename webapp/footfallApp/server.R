@@ -25,6 +25,7 @@ th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=
 
 #function to plot line graph with filled area-under-curve
 auc_plot <- function(y){
+  #autoInvalidate1 <- reactiveTimer(5000, session)
   x <- 1:length(y)
   n <- length(y)
   s = smooth.spline(x, y, spar=0.5)
@@ -36,14 +37,16 @@ auc_plot <- function(y){
   polygon(x.poly, y.poly, col="lightblue", border=NA)          # Show the polygon fill only
   lines(s, col="blue", lwd=2)
   points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
+  #autoInvalidate1()
+  #Sys.sleep(1)
   points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+  
 }
-
 
 shinyServer(function(input, output, session){
   
   #every 2 seconds
-  autoInvalidate1 <- reactiveTimer(5000, session)
+  autoInvalidate1 <- reactiveTimer(1000, session)
   #autoInvalidate1 <- reactiveTimer(5000)
   
   #display date and time on the header
@@ -154,13 +157,24 @@ shinyServer(function(input, output, session){
     
     #numberBleep <-  
     autoInvalidate1()
-    Sys.sleep(2)
+    Sys.sleep(1)
     #valueBox(
     #print(th_separator(30*200)), 
     #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
     paste(th_separator(30*200))
   }) 
   
+  # output$lastHourCount_comment <- renderText({
+  #   
+  #   #numberBleep <-  
+  #   autoInvalidate1()
+  #   Sys.sleep(1)
+  #   #valueBox(
+  #   #print(th_separator(30*200)), 
+  #   #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
+  #   paste("Footfall Count (last hours)")
+  # }) 
+  # 
   #to update
   output$lastDayCount <- renderText({
     
