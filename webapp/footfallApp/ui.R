@@ -11,6 +11,7 @@ library(shiny)
 library(shinydashboard)
 library(leaflet)
 library(ggplot2)
+library(scales)
 library(DT)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
@@ -30,10 +31,16 @@ shinyUI(
                                   tags$li(class = "dropdown", 
                                           tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
                                          tags$style("#headersTime{color: white;
-                                          font-size: 20px; text-align: left; font-style: italic;
+                                          font-size: 15px; text-align: bottom; font-style: italic;
                                                                }")
-                                          
                                           ),
+                                tags$li(class = "dropdown", 
+                                        tags$p(tags$b(h3(textOutput("headersTime2")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
+                                        tags$style("#headersTime2{color: white;
+                                                   font-size: 25px; text-align: left; font-style: bold;
+                                                   }")
+                                          ),
+                                
                                   tags$li(class = "dropdown",
                                           tags$a(href="https://en.wikipedia.org/wiki/University_of_Leeds", target="_blank",
                                                  tags$img(height = "20px", alt="SNAP Logo", src="https://upload.wikimedia.org/wikipedia/en/a/a8/Logo_of_University_of_Leeds.png")

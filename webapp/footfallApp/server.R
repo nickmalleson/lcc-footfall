@@ -13,8 +13,8 @@ library(leaflet)
 library(ggplot2)
 library(DT)
 library(maptools)
-
-
+library(ggplot2)
+library(scales)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
@@ -22,28 +22,60 @@ EventTime <- Sys.time() - 1*1
 #functions
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
+# 
+# #function to plot line graph with filled area-under-curve
+# auc_plot <- function(y, t=1, k=1){
+#   #autoInvalidate1 <- reactiveTimer(5000, session)
+#   x <- 1:length(y)
+#   n <- length(y)
+#   s = smooth.spline(x, y, spar=0.5)
+#   xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
+#   m <- length(xy$x)                         
+#   x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
+#   y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
+#   plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+#   #axis(1, at=seq(1:max(x),10), labels=x[seq(1:max(x),10)], las=0)#this would not work for real data
+#   if(k==2){plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+#     }#to label plot
+# 
+#   polygon(x.poly, y.poly, col="lightblue", border=NA)  
+#   # Show the polygon fill only
+#   lines(s, col="blue", lwd=2)
+#   points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
+#   points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+#   #plot histogram instead of line graph
+#   if(t==2){
+#     hist(y, breaks = 100)
+#   }
+# }
 
-#function to plot line graph with filled area-under-curve
-auc_plot <- function(y, t=1){
+
+auc_plot <- function(y, plotStyle=1){
   #autoInvalidate1 <- reactiveTimer(5000, session)
+
   x <- 1:length(y)
   n <- length(y)
-  s = smooth.spline(x, y, spar=0.5)
-  xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
-  m <- length(xy$x)                         
-  x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
-  y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
-  plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-  polygon(x.poly, y.poly, col="lightblue", border=NA)  
-  # Show the polygon fill only
-  lines(s, col="blue", lwd=2)
-  points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
-  points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
-  #plot histogram instead of line graph
-  if(t==2){
-    hist(y, breaks = 100)
+  
+  if(plotStyle==1){
+    xy_1 <- as.data.frame(cbind(x, y))
+    a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)
+   print(a)
   }
+  
+  if(plotStyle==2){
+    s = smooth.spline(x, y, spar=0.5)
+    xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
+    m <- length(xy$x)                         
+    x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
+    y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
+    plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+    lines(s, col="blue", lwd=2)
+    points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
+    points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+  }
+  
 }
+
 
 #function to display time
 date_function <- function(){
@@ -51,7 +83,14 @@ date_function <- function(){
   dateT <- substr(as.character(date_time), 1, 10)
   timeT <- substr(as.character(date_time), 11, 20)
   dayT <- weekdays(as.Date(dateT))
-  print(paste(dayT, "||", dateT, "||", timeT, "GMT", sep=" "))}
+  print(paste(dayT, ", ", dateT, ", ", sep=""))}
+
+date_function2 <- function(){
+  date_time <- Sys.time()
+  timeT <- substr(as.character(date_time), 11, 20)
+  #dayT <- weekdays(as.Date(dateT))
+  print(paste(" ",timeT, "GMT", sep=" "))}
+
 
 #function to display tomorrow's day in the forecast panels
 day_function <- function(){
@@ -66,12 +105,18 @@ shinyServer(function(input, output, session){
   
   autoInvalidate1 <- reactiveTimer(5000)
   
-  #display date and time on the header
+  #display today's date on the header
   output$headersTime <- renderText({
-    invalidateLater(1000, session)
+    #invalidateLater(1000, session)
     date_function()
   })
 
+  #display today's time on the header
+  output$headersTime2 <- renderText({
+    invalidateLater(1000, session)
+    date_function2()
+  })
+  
   #date to display on tomorrow forecast
   output$tomorrowDate <- renderText({
     date_function()
@@ -99,14 +144,14 @@ shinyServer(function(input, output, session){
     set.seed(11)
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
   })
   
   output$afternoon_footfall <- renderPlot({
     x <- 1:25
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
   })
   
   output$evening_footfall <- renderPlot({
@@ -114,7 +159,7 @@ shinyServer(function(input, output, session){
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
   })
   
   output$all_footfall <- renderPlot({
@@ -122,17 +167,17 @@ shinyServer(function(input, output, session){
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
   })
   
   #plot footfall history
   output$footfall_history <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     #generate some random number
     set.seed(1)
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=1)
     #autoInvalidate1()
     #Sys.sleep(1)
   })
@@ -200,7 +245,7 @@ shinyServer(function(input, output, session){
     set.seed(1)
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
     autoInvalidate1()
     Sys.sleep(1)
   })
@@ -212,7 +257,7 @@ shinyServer(function(input, output, session){
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
     autoInvalidate1()
     Sys.sleep(1)
   })
@@ -223,7 +268,7 @@ shinyServer(function(input, output, session){
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle=2)
     autoInvalidate1()
     Sys.sleep(1)
   })
@@ -233,8 +278,8 @@ shinyServer(function(input, output, session){
     set.seed(4)
     #generate some random number
     y <- sample(x^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    par(mar=c(0,0,0,2)+0.0, mgp=c(0,0,0))
+    auc_plot(y, plotStyle=2)
     autoInvalidate1()
     Sys.sleep(1)
   })
@@ -245,7 +290,7 @@ shinyServer(function(input, output, session){
     #generate some random number
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y)
+    auc_plot(y, plotStyle = 2)
     autoInvalidate1()
     Sys.sleep(1)
   })
