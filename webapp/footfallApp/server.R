@@ -57,9 +57,19 @@ auc_plot <- function(y, plotStyle=1){
   n <- length(y)
   
   if(plotStyle==1){
-    xy_1 <- as.data.frame(cbind(x, y))
-    a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)
-   print(a)
+     xy_1 <- as.data.frame(cbind(x, y))
+     xy_1Type <- rep(1, nrow(xy_1))
+     xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+     xy_1 <- data.frame(xy_1Type,  xy_1)
+    # a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)  #gam for n > 1000.
+    # print(a)
+    
+     print(ggplot(xy_1, aes(x, y, group=xy_1Type)) +
+             geom_line(colour="blue", size = 1) +
+             geom_point(color=xy_1Type, size = 2) +
+             geom_area(aes(ymin = 0,ymax = y),
+                       alpha = 0.3,fill = 'green')) 
+     
   }
   
   if(plotStyle==2){
@@ -69,6 +79,7 @@ auc_plot <- function(y, plotStyle=1){
     x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
     y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
     plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+    polygon(x.poly, y.poly, col="lightblue", border=NA)
     lines(s, col="blue", lwd=2)
     points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
     points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
@@ -140,32 +151,32 @@ shinyServer(function(input, output, session){
   })
   
   output$morning_footfall <- renderPlot({
-    x <- 1:25
+    c <- 1:25
     set.seed(11)
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
   })
   
   output$afternoon_footfall <- renderPlot({
-    x <- 1:25
-    y <- sample(x^2)
+    c <- 1:25
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
   })
   
   output$evening_footfall <- renderPlot({
-    x <- 1:25
+    c <- 1:25
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
   })
   
   output$all_footfall <- renderPlot({
-    x <- 1:25
+    c <- 1:25
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
   })
@@ -240,10 +251,10 @@ shinyServer(function(input, output, session){
   
   #temperature trend
   output$temp_patterns <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     #generate some random number
     set.seed(1)
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
     autoInvalidate1()
@@ -252,10 +263,10 @@ shinyServer(function(input, output, session){
   
   #holiday
   output$holidays <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     set.seed(2)
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
     autoInvalidate1()
@@ -263,10 +274,10 @@ shinyServer(function(input, output, session){
   })
   
   output$rainfall_patterns <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     set.seed(3)
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
     autoInvalidate1()
@@ -274,10 +285,10 @@ shinyServer(function(input, output, session){
   })
   
   output$humidity_patterns <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     set.seed(4)
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,2)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
     autoInvalidate1()
@@ -285,10 +296,10 @@ shinyServer(function(input, output, session){
   })
   
   output$wind_patterns <- renderPlot({
-    x <- 1:100
+    c <- 1:100
     set.seed(5)
     #generate some random number
-    y <- sample(x^2)
+    y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle = 2)
     autoInvalidate1()
