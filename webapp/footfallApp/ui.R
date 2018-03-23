@@ -62,16 +62,18 @@ shinyUI(
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       sliderInput("p", "Modify data length (months)", 0, 80, 24), #use calculation
                       
-                      radioButtons("timeOftheDayInput", "Modify 'time of the Day'",
+                      radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
                                    choices = c("Daytime", "Evening", "Night", "Whole Day"),
                                    selected = "Whole Day"),
                       
-                      radioButtons("chartType", "Change Chart type", 
+                      radioButtons("chartType", "Chart Type", 
                                    choices = c("Line", "Bar"),
                                    selected = "Line"),
                       
                       checkboxGroupInput("trendLine", "Add trend line", 
-                                   c("Yes"))
+                                   c("Yes")),
+                      
+                      sliderInput("q", "Length of Prediction (days)", 0, 7, 0)
                       ),
                     
                     
