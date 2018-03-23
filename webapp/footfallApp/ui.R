@@ -14,7 +14,8 @@ library(ggplot2)
 library(DT)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-
+vchoices <- 1:ncol(Cleaned_footfall)
+names(vchoices) <- names(Cleaned_footfall)
 
 # Define UI for application that ...
 shinyUI(
@@ -25,11 +26,11 @@ shinyUI(
   dashboardPage(title = "Demo App", skin = "green",
                 
                 #   
-                dashboardHeader(title = tags$b('Leeds Footfall Counts'), 
+                dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
                                   tags$li(class = "dropdown", 
                                           tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
                                          tags$style("#headersTime{color: white;
-                                          font-size: 20px; text-align:center; font-style: italic;
+                                          font-size: 20px; text-align: left; font-style: italic;
                                                                }")
                                           
                                           ),
@@ -52,21 +53,36 @@ shinyUI(
                       #adding slider to adjust the length (history) of footfall to view
                       #adding slider to view the length of footfall to predict
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
-                      sliderInput("p", "Set data length (months)", 0, 80, 24), #use calculation
+                      sliderInput("p", "Modify data length (months)", 0, 80, 24), #use calculation
                       
-                      radioButtons("timeOftheDayInput", "Time of the Day",
+                      radioButtons("timeOftheDayInput", "Modify 'time of the Day'",
                                    choices = c("Daytime", "Evening", "Night", "Whole Day"),
-                                   selected = "Whole Day")
+                                   selected = "Whole Day"),
+                      
+                      radioButtons("chartType", "Change Chart type", 
+                                   choices = c("Line", "Bar"),
+                                   selected = "Line"),
+                      
+                      checkboxGroupInput("trendLine", "Add trend line", 
+                                   c("Yes"))
                       ),
                     
                     
+                    # menuItem("View predictors (datasets)", tabName = "mytable", icon=icon("database"),
+                    #          fluidRow(
+                    #            dataTableOutput('mytable'))
+                    #          
+                    #          
+                    #          ),
+                    #         # dataTableOutput('mytable')), 
+                      
                     menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
-                      conditionalPanel(
-                        Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                        'input.dataset === "Cleaned_footfall"',
-                        checkboxGroupInput("show_vars", "Columns in the dataset:",
-                                         names(Cleaned_footfall), selected = names(Cleaned_footfall)))
                     
+                    conditionalPanel(
+                      Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                      #'input.dataset === "Cleaned_footfall"',
+                      checkboxGroupInput("show_vars", "List of predictors:",
+                                         names(Cleaned_footfall)[1:10], selected = names(Cleaned_footfall)))[1:10]
                   )
                 ),
                 

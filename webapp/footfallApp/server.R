@@ -170,9 +170,10 @@ shinyServer(function(input, output, session){
     
   })
   
+  
   Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
   
-  Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
+  #Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
   
   output$rawdata <- DT::renderDataTable({
     DT::datatable(Cleaned_footfall[, input$show_vars, drop=FALSE])
@@ -182,6 +183,15 @@ shinyServer(function(input, output, session){
     DT::datatable(Cleaned_footfall, options=list(orderClasses = TRUE))
     
   })
+  
+  # output$rawdata <- DT::renderDataTable({
+  #   DT::datatable(Cleaned_footfall[, input$show_vars, drop=FALSE])
+  # })
+  
+  # output$mytable2 <- DT::renderDataTable({
+  #   DT::datatable(Cleaned_footfall, options=list(orderClasses = TRUE))
+  #   
+  # })
   
   #temperature trend
   output$temp_patterns <- renderPlot({
