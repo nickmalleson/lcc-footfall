@@ -33,16 +33,12 @@ auc_plot <- function(y, t=1){
   m <- length(xy$x)                         
   x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
   y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
-  #plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
   plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-  #axis(1, at = 1:length(x.poly), labels= letters[1:length(x.poly)])
   polygon(x.poly, y.poly, col="lightblue", border=NA)  
-  #box(lty=='1373', col='red')
   # Show the polygon fill only
   lines(s, col="blue", lwd=2)
   points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
   points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
-  
   #plot histogram instead of line graph
   if(t==2){
     hist(y, breaks = 100)
@@ -52,8 +48,6 @@ auc_plot <- function(y, t=1){
 
 shinyServer(function(input, output, session){
   
-  #every 2 seconds
-  #autoInvalidate1 <- reactiveTimer(1000, session)
   autoInvalidate1 <- reactiveTimer(5000)
   
   #display date and time on the header
@@ -65,64 +59,30 @@ shinyServer(function(input, output, session){
     #print(date_time)
   })
 
-  # output$headersLogo <- renderText({
-  #   #using the zone
-  #   #date_time <- Sys.time()
-  #   #invalidateLater(1000, session)
-  #   #HTML(paste("<div class= man_made_class>","Last updated at", filetime, "</div>")) #
-  #   print("Powered by:")
-  # })
-  # # 
-  ##output$histogram <- renderPlot({
-    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
-    #hist(faithful$eruptions, breaks = input$bins, main = "")
-    ##autoInvalidate()
-    #hist(rnorm(isolate(input$n)))
-    #hist(rnorm(input$n))
-    #hist(rnorm(input$n))
-    ##hist(rnorm(30))
-  ##})
-  
-  output$hour_footfall <- renderPlot({
-    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
-    #hist(faithful$eruptions, breaks = input$bins, main = "")
-    ##autoInvalidate()
-    #hist(rnorm(isolate(input$n)))
-    #hist(rnorm(input$n))
-    #hist(rnorm(input$n))
-    #hist(rnorm(30))
+  output$morning_footfall <- renderPlot({
     x <- 1:25
     set.seed(11)
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
-    autoInvalidate1()
-    Sys.sleep(1)
   })
   
-  output$daily_footfall <- renderPlot({
-    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
-    #hist(faithful$eruptions, breaks = input$bins, main = "")
-    ##autoInvalidate()
-    #hist(rnorm(isolate(input$n)))
-    #hist(rnorm(input$n))
-    #hist(rnorm(input$n))
-    #hist(rnorm(30))
+  output$afternoon_footfall <- renderPlot({
     x <- 1:25
     y <- sample(x^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y)
-    #lines(x,y, cex = 1.5)
   })
   
-  output$week_footfall <- renderPlot({
-    #https://www.youtube.com/watch?v=KdvlxJaWWVQ 7:10
-    #hist(faithful$eruptions, breaks = input$bins, main = "")
-    ##autoInvalidate()
-    #hist(rnorm(isolate(input$n)))
-    #hist(rnorm(input$n))
-    #hist(rnorm(input$n))
-    #hist(rnorm(30))
+  output$evening_footfall <- renderPlot({
+    x <- 1:25
+    #generate some random number
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
+    auc_plot(y)
+  })
+  
+  output$all_footfall <- renderPlot({
     x <- 1:25
     #generate some random number
     y <- sample(x^2)
@@ -137,90 +97,22 @@ shinyServer(function(input, output, session){
     dropdownMenu(type = "messages", .list = msgs)
   })
   
-  # output$approvedSales <- renderInfoBox({
-  #   infoBox("Approval Sales", "10,000,000",
-  #            icon = icon("bar-chart-o"))
-  #  })
-  
-  #observe({
-  # output$currentCount <- renderValueBox({
-  #   #numberBleep <-  
-  #   autoInvalidate2()
-  #   Sys.sleep(1)
-  #   valueBox(
-  #     print(th_separator(30*200)), 
-  #     "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-  #   
-  # }) 
-  #})
-  
-  # output$currentCount <- renderText({
-  #   #numberBleep <-  
-  #   autoInvalidate2()
-  #   Sys.sleep(1)
-  #   valueBox(
-  #     print(th_separator(30*200)), 
-  #     "Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-  #   
-  # }) 
   output$lastHourCount <- renderText({
-    
-    #numberBleep <-  
-    #autoInvalidate1()
-    #Sys.sleep(1)
-    #valueBox(
-    #print(th_separator(30*200)), 
-    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
     paste(th_separator(30*200))
   }) 
   
-  # output$lastHourCount_comment <- renderText({
-  #   
-  #   #numberBleep <-  
-  #   autoInvalidate1()
-  #   Sys.sleep(1)
-  #   #valueBox(
-  #   #print(th_separator(30*200)), 
-  #   #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
-  #   paste("Footfall Count (last hours)")
-  # }) 
-  # 
-  #to update
+ 
   output$lastDayCount <- renderText({
-    
-    #numberBleep <-  
-    #autoInvalidate1()
-    #Sys.sleep(1)
-    #valueBox(
-      #print(th_separator(30*200)), 
-      #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
     paste(th_separator(306*200))
   }) 
   
   output$lastWeekCount <- renderText({
-    
-    #numberBleep <-  
-    #autoInvalidate()
-    #Sys.sleep(1)
-    #valueBox(
-    #print(th_separator(30*200)), 
-    #"Current footfall count (forecast)", icon = icon("arrow-circle-down"), color = "green") #yellow #icon("street-view")
     paste(th_separator(3092*200))
   }) 
   
-
-  
-  # output$todayaverage <- renderValueBox({
-  #   valueBox(th_separator(20*100), "Today's Average (forecast)", icon = icon("arrow-circle-up"), color = "blue")
-  # }) 
-  # 
-  # output$eventTimeRemaining <- renderValueBox({  #renderText
-  #   numberSequence <- rep(c(paste(rep(input$m:1, 1), "sec"), "forecast updated!"), 1000)
-  #   invalidateLater(1000, session)
-  #   time_to_update <- round(difftime(Sys.time(), EventTime, units='secs'))
-  #   valueBox(
-  #     print(paste(numberSequence[time_to_update], sep=" ")), icon = icon("clock-o"), paste("Remaining time to update forecast:", sep = " "), color = "blue")
-  # })
+  output$lastWeekCounty <- renderText({
+    paste(th_separator(309*200))
+  }) 
   
   output$map_2 <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
@@ -254,18 +146,7 @@ shinyServer(function(input, output, session){
     auc_plot(y)
     autoInvalidate1()
     Sys.sleep(1)
-    #points(x[length(x)], y[length(y)], pch=16, col="blue", cex=2) # (Optional)
   })
-  
-  #temperature trend
-  # output$temp_patterns <- renderPlot({
-  #   x <- 1:100
-  #   #generate some random number
-  #   set.seed(1)
-  #   y <- sample(x^2)
-  #   points(x[length(x)], y[length(y)], pch=16, col="blue", cex=2, add=TRUE) # (Optional)
-  # })
-  # 
   
   #holiday
   output$holidays <- renderPlot({
