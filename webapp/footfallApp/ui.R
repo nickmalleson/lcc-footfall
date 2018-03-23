@@ -46,7 +46,7 @@ shinyUI(
                     menuItem( 
                       "DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem("Display Settings", tabName ="historySetting", 
+                    menuItem("Footall history (Settings)", tabName ="historySetting", 
                       #sidebarPanel(width = "100", skin = "blue",
                       #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
@@ -54,9 +54,9 @@ shinyUI(
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       sliderInput("p", "Set data length (months)", 0, 80, 24), #use calculation
                       
-                      radioButtons("Time of the Day", "timeOftheDayInput",
+                      radioButtons("timeOftheDayInput", "Time of the Day",
                                    choices = c("Daytime", "Evening", "Night", "Whole Day"),
-                                   selected = "Daytime")
+                                   selected = "Whole Day")
                       ),
                     
                     
@@ -186,7 +186,7 @@ shinyUI(
                             
                             fluidRow(
                               tabBox(width = 13, height = 800,
-                                tabPanel(title = "Temperature", status = "warning", solidHeader = T, background = "aqua",
+                                tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                          box(
                                            title = p(tags$h4(tags$b("Holidays")),
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
@@ -198,7 +198,7 @@ shinyUI(
                                            
                                          )),
                                 
-                                tabPanel(title = "Rainfall rate", status = "warning", solidHeader = T, background = "red",
+                                tabPanel(title = "Last 1 month 'Rainfall' Information", status = "warning", solidHeader = T, background = "red",
                                          box(
                                            title = p(tags$h4(tags$b("Holidays")),
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
@@ -210,7 +210,7 @@ shinyUI(
                                            
                                          )),
                                 
-                                tabPanel(title = "Wind", status = "primary", solidHeader = T, background = "aqua",
+                                tabPanel(title = "Last 1 month Wind Information", status = "primary", solidHeader = T, background = "aqua",
                                          box(
                                            title = p(tags$h4(tags$b("Holidays")),
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
@@ -222,7 +222,7 @@ shinyUI(
                                            
                                          )),
                                 
-                                tabPanel(title = "Humidity", status = "primary", solidHeader = T, background = "aqua",
+                                tabPanel(title = "Last 1 month 'Humidity' Information", status = "primary", solidHeader = T, background = "aqua",
                                          box(
                                            title = p(tags$h4(tags$b("Holidays")),
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
@@ -234,7 +234,7 @@ shinyUI(
                                            
                                          )),
                                
-                                 tabPanel(title = "Holidays", status = "primary", solidHeader = F, background = "aqua",
+                                 tabPanel(title = "Last 1 month Holiday information", status = "primary", solidHeader = F, background = "aqua",
                                          box(
                                            title = p(tags$h4(tags$b("Holidays")),
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
