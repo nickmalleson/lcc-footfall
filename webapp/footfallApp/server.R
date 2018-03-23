@@ -15,6 +15,7 @@ library(DT)
 library(maptools)
 library(ggplot2)
 library(scales)
+library(shinyalert)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
@@ -40,10 +41,11 @@ auc_plot <- function(y, plotStyle=1){
     # print(a)
     
      print(ggplot(xy_1, aes(x, y, group=xy_1Type)) +
-             geom_line(colour="blue", size = 1) +
-             geom_point(color=xy_1Type, size = 2) +
+             geom_line(color="blue", size = 1) +
+             #geom_point(color=xy_1Type, size = 2) +
+             geom_point(color="blue", size = 2) +
              geom_area(aes(ymin = 0,ymax = y),
-                       alpha = 0.3,fill = 'green')) }
+                       alpha = 0.3,fill = "blue")) }
   #to generate regular plot
   if(plotStyle==2){
     s = smooth.spline(x, y, spar=0.5)
@@ -86,7 +88,16 @@ day_function <- function(){
 #----------------------------------------------------------
 
 shinyServer(function(input, output, session){
-  
+
+
+  #first check that footfall data is up-to-date
+  #utd <- 1
+  #if(utd == 1){
+    
+    observeEvent(input$preview,{
+      shinyalert("Action required!", tags$b("Historical footfall data NOT up-to-date, see 'Settings' page", br(), "Go to 'Settings' page"), type="warning") #default, message, warning, error
+    })
+
   autoInvalidate1 <- reactiveTimer(5000)
   
   #display today's date on the header

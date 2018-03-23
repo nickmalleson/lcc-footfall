@@ -13,19 +13,22 @@ library(leaflet)
 library(ggplot2)
 library(scales)
 library(DT)
+library(shinyalert)
 
 Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 vchoices <- 1:ncol(Cleaned_footfall)
 names(vchoices) <- names(Cleaned_footfall)
 
+
 # Define UI for application that ...
 shinyUI(
+
+# utd <- 1,
   
-     
-  
+ 
   #frame 
   dashboardPage(title = "Demo App", skin = "green",
-                
+  
                 #   
                 dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
                                   tags$li(class = "dropdown", 
@@ -73,7 +76,10 @@ shinyUI(
                       checkboxGroupInput("trendLine", "Add trend line", 
                                    c("Yes")),
                       
-                      sliderInput("q", "Length of Prediction (days)", 0, 7, 0)
+                      checkboxGroupInput("add 4cast", "Add 4cast based on RF algorit.", 
+                                         c("Yes")),
+                      
+                      sliderInput("q", "Length of future 4cast (d)", 0, 7, 0)
                       ),
                     
                     
@@ -115,11 +121,18 @@ shinyUI(
                   
                 tags$style(HTML(".box-header{background:#FFFFFF; color:#000000; text-align:center; font-size:20px}")),
                 #tag for icon
-                  
+                
+                
                   tabItems(
                     tabItem(tabName = "dashboard",
   
                             #)
+                            
+                            fluidPage(
+                              useShinyalert(),
+                              actionButton("preview", "preview")
+                            ),
+                            
                             fluidRow(
                               
                               tags$head(
@@ -305,7 +318,7 @@ shinyUI(
                               )
                               
                             )
-                            
+                
                    # )
                     
                     
