@@ -25,8 +25,14 @@ shinyUI(
   dashboardPage(title = "Demo App", skin = "green",
                 
                 #   
-                dashboardHeader(title = tags$b('LEEDS FOOTFALL'), 
-                                  tags$li(class = "dropdown", style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))),
+                dashboardHeader(title = tags$b('Leeds Footfall Counts'), 
+                                  tags$li(class = "dropdown", 
+                                          tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
+                                         tags$style("#headersTime{color: white;
+                                          font-size: 20px; text-align:center; font-style: italic;
+                                                               }")
+                                          
+                                          ),
                                   tags$li(class = "dropdown",
                                           tags$a(href="https://en.wikipedia.org/wiki/University_of_Leeds", target="_blank",
                                                  tags$img(height = "20px", alt="SNAP Logo", src="https://upload.wikimedia.org/wikipedia/en/a/a8/Logo_of_University_of_Leeds.png")
@@ -40,14 +46,17 @@ shinyUI(
                     menuItem( 
                       "DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem("    Settings", tabName ="historySetting", 
+                    menuItem("Display Settings", tabName ="historySetting", 
                       #sidebarPanel(width = "100", skin = "blue",
-                      sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
+                      #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
-                      sliderInput("p", "Adjust footfall history (to View)", 0, 365, 30),
                       #adding slider to view the length of footfall to predict
-                      sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
-                      #),
+                      #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
+                      sliderInput("p", "Set data length (months)", 0, 80, 24), #use calculation
+                      
+                      radioButtons("Time of the Day", "timeOftheDayInput",
+                                   choices = c("Daytime", "Evening", "Night", "Whole Day"),
+                                   selected = "Daytime")
                       ),
                     
                     
@@ -74,10 +83,10 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 15px; }"))),
+                                tags$style(HTML(".fa{font-size: 20px; }"))),
 
                               box(
-                                title = p(tags$h4(tags$b("Expected footfall count in the next 1hr.")),
+                                title = p(tags$h4(tags$b("Daytime (8am-6pm)")), tags$h4(textOutput("tomorrowDay_1")), 
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
                                           tags$head(tags$style("#lastHourCount{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("19%"),
@@ -89,7 +98,7 @@ shinyUI(
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Expected footfall count tomorrow")),
+                                title = p(tags$h4(tags$b("Evening (6pm-9pm)")), tags$h4(textOutput("tomorrowDay_2")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
                                           tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("23%"),
@@ -101,7 +110,7 @@ shinyUI(
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Footfall Count (last weeks)")),
+                                title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
                                           tags$b(tags$h1(textOutput("lastWeekCount"))),
                                           tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
                                           actionButton("hourlyId", tags$b("43%"),
@@ -113,7 +122,7 @@ shinyUI(
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Expected footfall count tomorrow")),
+                                title = p(tags$h4(tags$b("Whole Day")), tags$h4(textOutput("tomorrowDay_4")),
                                           tags$b(tags$h1(textOutput("lastWeekCounty"))),
                                           tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("23%"),
@@ -126,10 +135,22 @@ shinyUI(
                               
  
                             fluidRow(
-                              box(
-                                width = 12, height = "300px", status="primary", solidHeader = FALSE,
-                                title = "Footfall history",
-                                plotOutput("chart"))
+                              # box(
+                              #   width = 12, height = "300px", status="primary", solidHeader = FALSE,
+                              #   title = "Footfall history",
+                              #   plotOutput("chart"))
+                              
+                              tabPanel(title = "foot_history", status = "primary", solidHeader = TRUE, 
+                                       box(width = 12, height = "300px",
+                                         title = p(tags$h4(tags$b("sdfsdf")),
+                                                   #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                   #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                   #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                   tags$b(tags$h4("historical...."))),
+                                         solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"),
+                                         plotOutput("footfall_history", width = "100%", height = "150px")
+                                         
+                                       ))
       
                             ),
                             

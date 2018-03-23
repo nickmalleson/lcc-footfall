@@ -43,8 +43,24 @@ auc_plot <- function(y, t=1){
   if(t==2){
     hist(y, breaks = 100)
   }
-  
 }
+
+#function to display time
+date_function <- function(){
+  date_time <- Sys.time()
+  dateT <- substr(as.character(date_time), 1, 10)
+  timeT <- substr(as.character(date_time), 11, 20)
+  dayT <- weekdays(as.Date(dateT))
+  print(paste(dayT, "||", dateT, "||", timeT, "GMT", sep=" "))}
+
+#function to display tomorrow's day in the forecast panels
+day_function <- function(){
+  dateD <- Sys.Date() + 1
+  dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()+1), sep = "")
+  print(dayT)}
+#print(date_time)
+
+#----------------------------------------------------------
 
 shinyServer(function(input, output, session){
   
@@ -52,13 +68,32 @@ shinyServer(function(input, output, session){
   
   #display date and time on the header
   output$headersTime <- renderText({
-    #using the zone
-    date_time <- Sys.time()
     invalidateLater(1000, session)
-    print(paste(substr(as.character(date_time), 1, 10), "||", substr(as.character(date_time), 11, 20), "GMT", sep=" "))
-    #print(date_time)
+    date_function()
   })
 
+  #date to display on tomorrow forecast
+  output$tomorrowDate <- renderText({
+    date_function()
+  })
+  
+  #day of tomorrow
+  output$tomorrowDay_1 <- renderText({
+    day_function()
+  })
+  
+  output$tomorrowDay_2 <- renderText({
+    day_function()
+  })
+  
+  output$tomorrowDay_3 <- renderText({
+    day_function()
+  })
+  
+  output$tomorrowDay_4 <- renderText({
+    day_function()
+  })
+  
   output$morning_footfall <- renderPlot({
     x <- 1:25
     set.seed(11)
@@ -90,6 +125,18 @@ shinyServer(function(input, output, session){
     auc_plot(y)
   })
   
+  #plot footfall history
+  output$footfall_history <- renderPlot({
+    x <- 1:100
+    #generate some random number
+    set.seed(1)
+    y <- sample(x^2)
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot(y)
+    #autoInvalidate1()
+    #Sys.sleep(1)
+  })
+  
   output$msgOutput = renderMenu({
     msgs <- apply(read.csv(file = "C:/Users/monsu/Desktop/RShinyDashboard/dash12/misc/messages.csv"), 1, function(row){
       messageItem(from = row[["from"]], message = row[["message"]])
@@ -98,7 +145,7 @@ shinyServer(function(input, output, session){
   })
   
   output$lastHourCount <- renderText({
-    paste(th_separator(30*200))
+    paste(th_separator(301*200))
   }) 
   
  
@@ -107,11 +154,11 @@ shinyServer(function(input, output, session){
   }) 
   
   output$lastWeekCount <- renderText({
-    paste(th_separator(3092*200))
+    paste(th_separator(302*200))
   }) 
   
   output$lastWeekCounty <- renderText({
-    paste(th_separator(309*200))
+    paste(th_separator(39*200))
   }) 
   
   output$map_2 <- renderLeaflet({
