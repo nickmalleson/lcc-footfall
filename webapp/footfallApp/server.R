@@ -23,39 +23,14 @@ EventTime <- Sys.time() - 1*1
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
 # 
-# #function to plot line graph with filled area-under-curve
-# auc_plot <- function(y, t=1, k=1){
-#   #autoInvalidate1 <- reactiveTimer(5000, session)
-#   x <- 1:length(y)
-#   n <- length(y)
-#   s = smooth.spline(x, y, spar=0.5)
-#   xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
-#   m <- length(xy$x)                         
-#   x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
-#   y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
-#   plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-#   #axis(1, at=seq(1:max(x),10), labels=x[seq(1:max(x),10)], las=0)#this would not work for real data
-#   if(k==2){plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-#     }#to label plot
-# 
-#   polygon(x.poly, y.poly, col="lightblue", border=NA)  
-#   # Show the polygon fill only
-#   lines(s, col="blue", lwd=2)
-#   points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
-#   points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
-#   #plot histogram instead of line graph
-#   if(t==2){
-#     hist(y, breaks = 100)
-#   }
-# }
 
-
+# function to plot line graph with filled area-under-curve
 auc_plot <- function(y, plotStyle=1){
   #autoInvalidate1 <- reactiveTimer(5000, session)
 
   x <- 1:length(y)
   n <- length(y)
-  
+  #using ggplot2
   if(plotStyle==1){
      xy_1 <- as.data.frame(cbind(x, y))
      xy_1Type <- rep(1, nrow(xy_1))
@@ -68,10 +43,8 @@ auc_plot <- function(y, plotStyle=1){
              geom_line(colour="blue", size = 1) +
              geom_point(color=xy_1Type, size = 2) +
              geom_area(aes(ymin = 0,ymax = y),
-                       alpha = 0.3,fill = 'green')) 
-     
-  }
-  
+                       alpha = 0.3,fill = 'green')) }
+  #to generate regular plot
   if(plotStyle==2){
     s = smooth.spline(x, y, spar=0.5)
     xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
@@ -227,26 +200,27 @@ shinyServer(function(input, output, session){
   })
   
   
-  Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+ 
   
-  #Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
-  
-  output$rawdata <- DT::renderDataTable({
-    DT::datatable(Cleaned_footfall[, input$show_vars, drop=FALSE])
-  })
-  
-  output$mytable2 <- DT::renderDataTable({
-    DT::datatable(Cleaned_footfall, options=list(orderClasses = TRUE))
-    
-  })
-  
-  # output$rawdata <- DT::renderDataTable({
-  #   DT::datatable(Cleaned_footfall[, input$show_vars, drop=FALSE])
+  # #Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
+  # diamonds2 = diamonds[sample(nrow(diamonds),1000),]
+  # 
+  # output$mytable1 <- DT::renderDataTable({
+  #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
   # })
+  # 
+  Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #Cleaned_footfall2 =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
+  output$mytable1_1 <- DT::renderDataTable({
+    DT::datatable(Cleaned_footfall[, input$show_vars2, drop=FALSE])
+  })
   
   # output$mytable2 <- DT::renderDataTable({
-  #   DT::datatable(Cleaned_footfall, options=list(orderClasses = TRUE))
-  #   
+  #   DT::datatable(mtcars, options=list(orderClasses = TRUE))
+  # })
+  # 
+  # output$mytable3 <- DT::renderDataTable({
+  #   DT::datatable(iris, options=list(orderClasses = TRUE))
   # })
   
   #temperature trend

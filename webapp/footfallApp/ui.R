@@ -54,7 +54,7 @@ shinyUI(
                     menuItem( 
                       "DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem("Footall history (Settings)", tabName ="historySetting", 
+                    menuItem("Footfall history (Settings)", tabName ="historySetting", 
                       #sidebarPanel(width = "100", skin = "blue",
                       #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
@@ -75,21 +75,36 @@ shinyUI(
                       ),
                     
                     
-                    # menuItem("View predictors (datasets)", tabName = "mytable", icon=icon("database"),
-                    #          fluidRow(
-                    #            dataTableOutput('mytable'))
-                    #          
-                    #          
-                    #          ),
-                    #         # dataTableOutput('mytable')), 
-                      
                     menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
                     
+                    #sidebarPanel(id="tableCol", width = 13, skin="blue",
+                    # conditionalPanel(
+                    #   #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   'input.dataset === "diamonds"',
+                    #   checkboxGroupInput("show_vars", "List of predictors:",
+                    #                      names(diamonds), selected = names(diamonds))),
+                    menuItem("View predictors", tabName ="predictors", 
+                             
                     conditionalPanel(
                       Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                       #'input.dataset === "Cleaned_footfall"',
-                      checkboxGroupInput("show_vars", "List of predictors:",
-                                         names(Cleaned_footfall)[1:10], selected = names(Cleaned_footfall)))[1:10]
+                      checkboxGroupInput("show_vars2", "List of predictors:",
+                                         names(Cleaned_footfall)[1:14], selected = names(Cleaned_footfall)[1:14]))
+                    
+                    # conditionalPanel(
+                    #   #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   'input.dataset === "mtcars"',
+                    #   helpText("Click the column header to sort a column")
+                    # ),
+                  #     conditionalPanel(
+                  #       #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                  #       'input.dataset === "iris"',
+                  #       helpText("Display 5 records by default")
+                  # )
+                    #)
+                    ),
+                  
+                  menuItem(" Settings", tabName = "settings", icon=icon("cogs")) 
                   )
                 ),
                 
@@ -202,10 +217,14 @@ shinyUI(
                               
                     
                     tabItem(tabName = "rawdata",
-                            tabPanel("diamonds", DT::dataTableOutput("mytable1")),
-                            tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                             
-                            #h1("Explore datasets")
+                            tabsetPanel(
+                              id='dataset',
+                            #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
+                            tabPanel("Cleaned_footfall", DT::dataTableOutput("mytable1_1"))
+                            #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                            #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                            ),
                             
                             fluidRow(
                               tabBox(width = 13, height = 800,
@@ -273,7 +292,20 @@ shinyUI(
                               
                             )
                             
-                    )
+                    ),
+                    
+                    tabItem(tabName = "settings",
+                            
+                            
+                            fluidRow(
+   
+                                     
+                              )
+                              
+                            )
+                            
+                   # )
+                    
                     
                   )
                 )
