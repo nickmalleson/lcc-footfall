@@ -15,9 +15,9 @@ library(scales)
 library(DT)
 library(shinyalert)
 
-Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-vchoices <- 1:ncol(Cleaned_footfall)
-names(vchoices) <- names(Cleaned_footfall)
+sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+vchoices <- 1:ncol(sample_footfall)
+names(vchoices) <- names(sample_footfall)
 
 
 # Define UI for application that ...
@@ -87,25 +87,25 @@ shinyUI(
                     
                     #sidebarPanel(id="tableCol", width = 13, skin="blue",
                     # conditionalPanel(
-                    #   #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                     #   'input.dataset === "diamonds"',
                     #   checkboxGroupInput("show_vars", "List of predictors:",
                     #                      names(diamonds), selected = names(diamonds))),
                     menuItem("View predictors", tabName ="predictors", 
                              
                     conditionalPanel(
-                      Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                      #'input.dataset === "Cleaned_footfall"',
+                      sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                      #'input.dataset === "sample_footfall"',
                       checkboxGroupInput("show_vars2", "List of predictors:",
-                                         names(Cleaned_footfall)[1:14], selected = names(Cleaned_footfall)[1:14]))
+                                         names(sample_footfall)[1:14], selected = names(sample_footfall)[1:14]))
                     
                     # conditionalPanel(
-                    #   #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                     #   'input.dataset === "mtcars"',
                     #   helpText("Click the column header to sort a column")
                     # ),
                   #     conditionalPanel(
-                  #       #Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                  #       #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                   #       'input.dataset === "iris"',
                   #       helpText("Display 5 records by default")
                   # )
@@ -239,7 +239,7 @@ shinyUI(
                             tabsetPanel(
                               id='dataset',
                             #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
-                            tabPanel("Cleaned_footfall", DT::dataTableOutput("mytable1_1"))
+                            tabPanel("sample_footfall", DT::dataTableOutput("mytable1_1"))
                             #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                             #tabPanel("iris", DT::dataTableOutput("mytable3"))
                             ),

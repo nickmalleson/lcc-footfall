@@ -214,17 +214,17 @@ footfallData <-
   
  
   
-  # #Cleaned_footfall =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
+  # #sample_footfall =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
   # diamonds2 = diamonds[sample(nrow(diamonds),1000),]
   # 
   # output$mytable1 <- DT::renderDataTable({
   #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
   # })
   # 
-  Cleaned_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/Cleaned_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-  #Cleaned_footfall2 =   Cleaned_footfall[sample(nrow(  Cleaned_footfall), 1000),]
+  sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #sample_footfall2 =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
   output$mytable1_1 <- DT::renderDataTable({
-    DT::datatable(Cleaned_footfall[, input$show_vars2, drop=FALSE])
+    DT::datatable(sample_footfall[, input$show_vars2, drop=FALSE])
   })
   
   # output$mytable2 <- DT::renderDataTable({
