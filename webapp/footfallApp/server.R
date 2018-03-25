@@ -90,13 +90,14 @@ day_function <- function(){
 shinyServer(function(input, output, session){
 
 
-  #first check that footfall data is up-to-date
-  #utd <- 1
-  #if(utd == 1){
+#first check that footfall data is up-to-date
+#append all footfall files in the directory 
+footfallData <- 
+  
     
-    observeEvent(input$preview,{
-      shinyalert("Action required!", tags$b("Historical footfall data NOT up-to-date, see 'Settings' page", br(), "Go to 'Settings' page"), type="warning") #default, message, warning, error
-    })
+    # observeEvent(input$preview,{
+    #   shinyalert("Action required!", tags$b("Historical footfall data NOT up-to-date, see 'Settings' page", br(), "Go to 'Settings' page"), type="warning") #default, message, warning, error
+    # })
 
   autoInvalidate1 <- reactiveTimer(5000)
   

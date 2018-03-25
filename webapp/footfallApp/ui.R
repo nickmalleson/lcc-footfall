@@ -32,7 +32,7 @@ shinyUI(
                 #   
                 dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
                                   tags$li(class = "dropdown", 
-                                          tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
+                                         tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
                                          tags$style("#headersTime{color: white;
                                           font-size: 15px; text-align: bottom; font-style: italic;
                                                                }")
@@ -128,10 +128,13 @@ shinyUI(
   
                             #)
                             
-                            fluidPage(
-                              useShinyalert(),
-                              actionButton("preview", "preview")
-                            ),
+                            # fluidPage(
+                            # utd <- 1,
+                            # if(utd == 1){
+                            #   useShinyalert()
+                            #   #actionButton("preview", "preview")
+                            # }
+                            # ),
                             
                             fluidRow(
                               
@@ -193,14 +196,14 @@ shinyUI(
                               #   title = "Footfall history",
                               #   plotOutput("chart"))
                               
-                              tabPanel(title = "foot_history", status = "primary", solidHeader = TRUE, 
+                              tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
                                        box(width = 12, height = "300px",
-                                         title = p(tags$h4(tags$b("sdfsdf")),
-                                                   #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                   #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                         title = p(tags$h4(tags$b("Footfall information is not 'up-to-date!")),
+                                                   #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
+                                                   ##tags$b(tags$h1(textOutput("lastHourCount"))),
                                                    #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                   tags$b(tags$h4("historical...."))),
-                                         solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"),
+                                                   tags$b(tags$h4("Go to 'Settings' page..."))),
+                                         solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
                                          plotOutput("footfall_history", width = "100%", height = "150px")
                                          
                                        ))
