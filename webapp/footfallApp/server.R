@@ -186,20 +186,20 @@ footfallData <-
   })
   
   output$lastHourCount <- renderText({
-    paste(th_separator(301*200))
+    paste(th_separator(36*200))
   }) 
   
  
   output$lastDayCount <- renderText({
-    paste(th_separator(306*200))
+    paste(th_separator(30*200))
   }) 
   
   output$lastWeekCount <- renderText({
-    paste(th_separator(302*200))
+    paste(th_separator(32*200))
   }) 
   
   output$lastWeekCounty <- renderText({
-    paste(th_separator(39*200))
+    paste(th_separator(27*200))
   }) 
   
   output$map_2 <- renderLeaflet({

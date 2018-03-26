@@ -147,7 +147,7 @@ shinyUI(
                                           tags$head(tags$style("#lastHourCount{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("19%"),
                                                        icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 7,140 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 8,888 (today)"))), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), 
                                 plotOutput("morning_footfall", width = "100%", height = "50px")
 
@@ -159,7 +159,7 @@ shinyUI(
                                           tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("23%"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 47,124 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,787 (today)"))), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
                                 plotOutput("afternoon_footfall", width = "100%", height = "50px")
                                 
@@ -171,7 +171,7 @@ shinyUI(
                                           tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
                                           actionButton("hourlyId", tags$b("43%"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 352,488 (today)"))),  
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,475 (today)"))),  
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
                                 plotOutput("evening_footfall", width = "100%", height = "50px")
                                 
@@ -183,7 +183,7 @@ shinyUI(
                                           tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("23%"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 47,124 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,390 (today)"))), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
                                 plotOutput("all_footfall", width = "100%", height = "50px")
                                 
