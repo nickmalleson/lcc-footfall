@@ -95,8 +95,6 @@ shinyServer(function(input, output, session){
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
   
-  #hide calender after selecting date to predict
-  
   
     
     # observeEvent(input$preview,{

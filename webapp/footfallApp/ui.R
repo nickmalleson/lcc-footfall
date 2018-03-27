@@ -67,16 +67,16 @@ shinyUI(
                       #adding slider to view the length of footfall to predict
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       # value is always yyyy-mm-dd, even if the display format is different
-                      dateInput("dateToPredict", "Show estimated footfall for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
-                      tags$style(HTML(".dateToPredict {z-index:99999 !important;}"))),
-                
+                      dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy")
+                    ),
                     
-                    menuItem("History and Forecast (Settings)", tabName ="historyAndForecastSetting", 
-                      sliderInput("p", "Modify data length (months)", 0, 80, 24), #use calculation
+                    menuItem("History and Forecast combined", tabName ="historyAndForecastSetting", 
                       
                       radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
                                    choices = c("Daytime", "Evening", "Night", "Whole Day"),
                                    selected = "Whole Day"),
+                      
+                      sliderInput("p", "Start date (months)", 0, 80, 24), #use calculation
                       
                       radioButtons("chartType", "Chart Type", 
                                    choices = c("Line", "Bar"),
@@ -85,10 +85,10 @@ shinyUI(
                       checkboxGroupInput("trendLine", "Add trend line", 
                                    c("Yes")),
                       
-                      checkboxGroupInput("add 4cast", "Add 4cast based on RF algorit.", 
-                                         c("Yes")),
+                      radioButtons("algorithm", "Change Forecast Algorithm", 
+                                   choices = c("Random Forest", "XGBoost","Regression"),
+                                   selected = "Random Forest")
                       
-                      sliderInput("q", "Length of future 4cast (d)", 0, 7, 0)
                     ),
                     
                     
