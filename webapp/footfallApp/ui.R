@@ -154,9 +154,9 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Daytime (8am-6pm)")), tags$h4(textOutput("tomorrowDay_1")), 
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
                                           tags$head(tags$style("#lastHourCount{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("19%"),
+                                          actionButton("hourlyId", tags$b("19%, from"),
                                                        icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 8,888 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), 
                                 plotOutput("morning_footfall", width = "100%", height = "50px")
 
@@ -166,9 +166,9 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Evening (6pm-9pm)")), tags$h4(textOutput("tomorrowDay_2")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
                                           tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("23%"),
+                                          actionButton("hourlyId", tags$b("23%, from"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,787 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard2"))) ), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
                                 plotOutput("afternoon_footfall", width = "100%", height = "50px")
                                 
@@ -178,9 +178,9 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
                                           tags$b(tags$h1(textOutput("lastWeekCount"))),
                                           tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
-                                          actionButton("hourlyId", tags$b("43%"),
+                                          actionButton("hourlyId", tags$b("43%, from"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,475 (today)"))),  
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
                                 plotOutput("evening_footfall", width = "100%", height = "50px")
                                 
@@ -190,9 +190,9 @@ shinyUI(
                                 title = p(tags$h4(tags$b("Whole Day")), tags$h4(textOutput("tomorrowDay_4")),
                                           tags$b(tags$h1(textOutput("lastWeekCounty"))),
                                           tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("23%"),
+                                          actionButton("hourlyId", tags$b("23%, from"),
                                                        icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4("vs. 4,390 (today)"))), 
+                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
                                 width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
                                 plotOutput("all_footfall", width = "100%", height = "50px")
                                 
@@ -223,12 +223,12 @@ shinyUI(
                             fluidRow(
                               box(
                                 width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Next holidays"
+                                title = "Accuracy summary of algorithms"
                               ),
                               
                               box(
                                 width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Weather information"
+                                title = "Predictors (Importance)"
                               ),
                               
                               box(
@@ -257,11 +257,12 @@ shinyUI(
                               tabBox(width = 13, height = 800,
                                 tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                          box(
-                                           title = p(tags$h4(tags$b("Holidays")),
+                                           title = p(tags$h4(tags$b("Holidays"))
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                      #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                     ),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI5"),
                                            plotOutput("temp_patterns", width = "320%", height = "150px")
                                            
@@ -269,11 +270,12 @@ shinyUI(
                                 
                                 tabPanel(title = "Last 1 month 'Rainfall' Information", status = "warning", solidHeader = T, background = "red",
                                          box(
-                                           title = p(tags$h4(tags$b("Holidays")),
+                                           title = p(tags$h4(tags$b("Holidays"))
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                      #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                     ),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI6"),
                                            plotOutput("rainfall_patterns", width = "320%", height = "150px")
                                            
@@ -281,11 +283,12 @@ shinyUI(
                                 
                                 tabPanel(title = "Last 1 month Wind Information", status = "primary", solidHeader = T, background = "aqua",
                                          box(
-                                           title = p(tags$h4(tags$b("Holidays")),
+                                           title = p(tags$h4(tags$b("Holidays"))
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                      #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                     ),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI7"),
                                            plotOutput("wind_patterns", width = "320%", height = "150px")
                                            
@@ -293,11 +296,12 @@ shinyUI(
                                 
                                 tabPanel(title = "Last 1 month 'Humidity' Information", status = "primary", solidHeader = T, background = "aqua",
                                          box(
-                                           title = p(tags$h4(tags$b("Holidays")),
+                                           title = p(tags$h4(tags$b("Holidays"))
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                      #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                     ),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI8"),
                                            plotOutput("humidity_patterns", width = "320%", height = "150px")
                                            
@@ -305,11 +309,12 @@ shinyUI(
                                
                                  tabPanel(title = "Last 1 month Holiday information", status = "primary", solidHeader = F, background = "aqua",
                                          box(
-                                           title = p(tags$h4(tags$b("Holidays")),
+                                           title = p(tags$h4(tags$b("Holidays"))
                                                      #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                      #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                      #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     tags$b(tags$h4("vs. 7,140 (prev)"))),
+                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                     ),
                                            width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI9"),
                                            plotOutput("holidays", width = "320%", height = "150px")
 

@@ -78,6 +78,15 @@ date_function2 <- function(){
   #dayT <- weekdays(as.Date(dateT))
   print(paste(" ",timeT, "GMT", sep=" "))}
 
+#function to display time
+date_function3 <- function(){
+  date_time <- Sys.time()
+  dateT <- substr(as.character(date_time), 1, 10)
+  timeT <- substr(as.character(date_time), 11, 20)
+  dayT <- weekdays(as.Date(dateT))
+  print(paste(dayT, ", ", dateT, sep=""))}
+
+
 
 #function to display tomorrow's day in the forecast panels
 day_function <- function(){
@@ -115,6 +124,29 @@ shinyServer(function(input, output, session){
     date_function2()
   })
   
+  #display today's date on the header
+  output$dateOnPredictionBoard1 <- renderText({
+    #invalidateLater(1000, session)
+    date_function3()
+  })
+  
+  #display today's date on the header
+  output$dateOnPredictionBoard2 <- renderText({
+    #invalidateLater(1000, session)
+    date_function3()
+  })
+  
+  #display today's date on the header
+  output$dateOnPredictionBoard3 <- renderText({
+    #invalidateLater(1000, session)
+    date_function3()
+  })
+  
+  #display today's date on the header
+  output$dateOnPredictionBoard4 <- renderText({
+    #invalidateLater(1000, session)
+    date_function3()
+  })
   #date to display on tomorrow forecast
   output$tomorrowDate <- renderText({
     date_function()
