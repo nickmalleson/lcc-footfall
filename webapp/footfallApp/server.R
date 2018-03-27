@@ -16,6 +16,7 @@ library(maptools)
 library(ggplot2)
 library(scales)
 library(shinyalert)
+library(shinyjs)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
@@ -83,7 +84,8 @@ day_function <- function(){
   dateD <- Sys.Date() + 1
   dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()+1), sep = "")
   print(dayT)}
-#print(date_time)
+
+
 
 #----------------------------------------------------------
 
@@ -92,7 +94,9 @@ shinyServer(function(input, output, session){
 
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
-footfallData <- 
+  
+  #hide calender after selecting date to predict
+  
   
     
     # observeEvent(input$preview,{

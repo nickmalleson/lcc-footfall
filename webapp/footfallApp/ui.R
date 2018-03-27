@@ -14,6 +14,7 @@ library(ggplot2)
 library(scales)
 library(DT)
 library(shinyalert)
+library(shinyjs)
 
 sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 vchoices <- 1:ncol(sample_footfall)
@@ -52,17 +53,25 @@ shinyUI(
                 
                 dashboardSidebar( 
                   
+                  useShinyjs(),
+                  
                   sidebarMenu(
                     
                     menuItem( 
-                      "DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
+                      "FOOTFALL DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem("Footfall history (Settings)", tabName ="historySetting", 
+                    menuItem("Footfall Forecast (Settings)", tabName ="forecastSetting", 
                       #sidebarPanel(width = "100", skin = "blue",
                       #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
                       #adding slider to view the length of footfall to predict
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
+                      # value is always yyyy-mm-dd, even if the display format is different
+                      dateInput("dateToPredict", "Show estimated footfall for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
+                      tags$style(HTML(".dateToPredict {z-index:99999 !important;}"))),
+                
+                    
+                    menuItem("History and Forecast (Settings)", tabName ="historyAndForecastSetting", 
                       sliderInput("p", "Modify data length (months)", 0, 80, 24), #use calculation
                       
                       radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
@@ -80,7 +89,7 @@ shinyUI(
                                          c("Yes")),
                       
                       sliderInput("q", "Length of future 4cast (d)", 0, 7, 0)
-                      ),
+                    ),
                     
                     
                     menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
