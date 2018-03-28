@@ -17,6 +17,7 @@ library(ggplot2)
 library(scales)
 library(shinyalert)
 library(shinyjs)
+library(lubridate)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1

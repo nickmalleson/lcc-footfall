@@ -15,6 +15,7 @@ library(scales)
 library(DT)
 library(shinyalert)
 library(shinyjs)
+library(lubridate)
 
 sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
 vchoices <- 1:ncol(sample_footfall)
@@ -70,7 +71,7 @@ shinyUI(
                       dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy")
                     ),
                     
-                    menuItem("History and Forecast combined", tabName ="historyAndForecastSetting", 
+                    menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
                       
                       radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
                                    choices = c("Daytime", "Evening", "Night", "Whole Day"),
@@ -327,6 +328,9 @@ shinyUI(
                     ),
                     
                     tabItem(tabName = "settings",
+                            #baseline historical records...
+                            baseline_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall.csv", sep=",", head=TRUE),
+                            #we are interested in three columns: "Date", "Hour", "InCount"
                             
                             
                             fluidRow(
