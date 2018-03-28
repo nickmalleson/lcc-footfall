@@ -29,6 +29,7 @@ library(lubridate)
 data <- read.table(file="footfall.csv", sep=",", head=TRUE)
 
 #To ensure "Date" column conform to the format "yyyy-mm-dd"
+#dateField <- matrix(data,,1)
 dateField <- matrix(data$Date,,1)
 colnames(dateField) <- c("Date") # data[1:10000,] head(data)
 #to detect dates not in right format (i.e. yyyy-mm-dd)
@@ -48,6 +49,122 @@ subsetmatrix(data$Hour)
 #To remove any data with no "Hour" information.. 
 
 
+seq(as.Date("2018-03-20"), Sys.Date(), by="day")
+
+
+
+seq(as.Date("2000/1/1"), as.Date("2003/1/1"), by = "quarter")
+missingDate <- as.character(c("01/02/2001"))
+#colnames(missingDate) <- c("Date") 
+converDate1 <- as.Date(parse_date_time((missingDate),"ymd"))
+
+#data <- as.character(c("2015-03-12","14-03-2015","2015-04-23","23-04-2015"))
+
+data <- read.table(file="footfall.csv", sep=",", head=TRUE)
+
+data <- as.character(c("2015-03-12","14-03-2015","2015-04-23","23-04-2015"))
+
+data <- 
+
+
+dataValues <- "01/02/2001"
+missingDate <- as.character(dataValues)
+#To ensure "Date" column conform to the format "yyyy-mm-dd"
+dateField <- matrix(missingDate,,1)
+colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+#to detect dates not in right format (i.e. yyyy-mm-dd)
+converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+listInconvertible <- which(!is.na(converDate1))
+dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+#append back to the dataset
+dataValues <- dateField
+
+
+
+library(data.table) 
+setDT(df1)[,.(date = seq(as.Date("2015-03-12"), as.Date("2015-04-23"), by = "1 day")) ,.(id1, id2)]
+
+as.Date(as.Date("2011-12-30"):as.Date("2012-01-04"), origin="1970-01-01")
+
+find.missing.dates<-function(data){
+out<-sapply(2:nrow(data),function(i){data$sdate[i]-data$sdate[i-1]})
+out<-c(NA,out)
+out
+}
+
+
+ #detecting missing data
+  historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+  #create a list dates occuring in the dataset
+  dataValues <- historical_footfall$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  dataValues <- dateField   
+  #append current date to the list..
+  dataValues <- rbind(dataValues, as.character(Sys.Date()))
+  #to identify gaps in the dataset.
+  DF <- as.Date(dataValues)
+  DF_Dates <- diff(DF)
+
+  data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1))
+  ) 
+
+
+dataValues[length(dataValues)]
+
+aaaa[length(dataValues)-1]
+
+
+
+DF <- matrix(as.character(c("2015-03-12","2015-04-23","2015-04-24","2015-06-09")),,1)
+colnames(DF)<- c("V2")
+DF <- as.Date(dataValues)    #diff(DF)  head(dataValues)
+diff(DF$V2) 
+
+dfgaps <-data.frame(start= DF[c(1, diff(dataValues))>1, ]$V2, end=   
+DF[diff(DF$V2)>1, ]$V2) 
+
+
+
+>
+
+At this point an alternative approach: 
+
+# Scan for differences > 1 
+ > 
+Time differences in days 
+  [1]  1  1  1  1  1  1  1  1  1  8 61  1  1  1 
+
+#Records at the start of gaps 
+ > dtdta[diff(dtdta)>1, ] 
+      V1         V2   V3 
+10 2925 2002-02-26 20.5 
+11 2926 2002-03-06  0.0 
+
+$Records at the end of gaps 
+ > dtdta[c(1, diff(dtdta$V2))>1, ] 
+      V1         V2 V3 
+11 2926 2002-03-06  0 
+12 2927 2002-05-06  0 
+
+#Gap dataframe 
+ > dfgaps <-data.frame( start= DF[c(1, diff(DF$V2))>1, ]$V2, end=   
+DF[diff(DF$V2)>1, ]$V2) 
+ > dfgaps 
+
+
+
+
+df1 %>%
+   rowwise() %>% 
+   do(data.frame(.[1:2], date = seq(.$min_date, .$max_date, by = "1 day")))
 
 
 

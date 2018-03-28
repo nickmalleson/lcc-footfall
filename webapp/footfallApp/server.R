@@ -87,14 +87,35 @@ date_function3 <- function(){
   dayT <- weekdays(as.Date(dateT))
   print(paste(dayT, ", ", dateT, sep=""))}
 
-
-
 #function to display tomorrow's day in the forecast panels
 day_function <- function(){
   dateD <- Sys.Date() + 1
   dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()+1), sep = "")
   print(dayT)}
 
+#function to show missing dates in the historical datasets
+
+missingData <- function(data){
+  dataValues <- data$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  #dataValues <- cbind(min(dateField), "missing dates(months)")
+  dataValues <- dateField   
+  #append current date to the list..
+  dataValues <- rbind(dataValues, as.character(Sys.Date()))
+  #to identify gaps in the dataset.
+  DF <- as.Date(dataValues)
+  DF_Dates <- diff(DF)
+  missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days_missing = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
+  return(missing_Dates)
+}
 
 
 #----------------------------------------------------------
@@ -326,7 +347,19 @@ shinyServer(function(input, output, session){
     autoInvalidate1()
     Sys.sleep(1)
   })
-  #output$chart
+  #detecting missing data
+  historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+  #create a list dates occuring in the dataset
+  missData <- missingData(historical_footfall)
   
+  #missing_dates <-  as.matrix(seq(min(as.Dates(historical_footfall$Date)), Sys.Date(), by="day"))
+  # missing_dates <-  as.matrix(seq(min(as.Dates(historical_footfall$Date)), Sys.Date(), by="day"))
+  #print(missing_dates)
+  #sample_footfall2 =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
+  output$historical_Foot <- DT::renderDataTable({
+    #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
+    DT::datatable(missData)
+    #DT::datatable(missing_dates)
+  })
 })
 

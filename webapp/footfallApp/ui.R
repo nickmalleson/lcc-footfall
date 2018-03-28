@@ -54,7 +54,7 @@ shinyUI(
                 
                 dashboardSidebar( 
                   
-                  useShinyjs(),
+                  #useShinyjs(),
                   
                   sidebarMenu(
                     
@@ -122,8 +122,28 @@ shinyUI(
                     #)
                     ),
                   
-                  menuItem(" Settings", tabName = "settings", icon=icon("cogs")) 
-                  )
+                  menuItem("Settings", tabName = "settings", icon=icon("cogs")),
+                           
+  
+                          checkboxGroupInput("new", "Add trend line", 
+                                                       c("Yes"))
+                                    
+                           )
+                           
+                           
+                           
+                           # conditionalPanel(
+                           #   #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
+                           #   box(
+                           #     checkboxGroupInput("show_vars3", " :",
+                           #                        c("Date","Hour","InCount"), selected = c("Date","Hour","InCount"))
+                           #     
+                           #   )
+                           # )
+                  #)
+                  
+                  #)
+   
                 ),
                 
   
@@ -328,15 +348,34 @@ shinyUI(
                     ),
                     
                     tabItem(tabName = "settings",
-                            #baseline historical records...
-                            baseline_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall.csv", sep=",", head=TRUE),
-                            #we are interested in three columns: "Date", "Hour", "InCount"
-                            
-                            
                             fluidRow(
-   
-                                     
-                              )
+                              #tabBox(width = 13, height = 800,
+                                     #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
+                                              box(
+                                                title = "Missing Historical Data",
+                                                          #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                          #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                          #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                          #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                tabPanel("historical_footfall", DT::dataTableOutput("historical_Foot")),
+                                                #),
+                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15")
+                                                ##plotOutput("temp_patterns", width = "320%", height = "150px")
+                                                
+                                              )))#)#)
+                    # tabsetPanel(
+                    #   id='history',
+                    #   #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
+                    #   tabPanel("historical_footfall", DT::dataTableOutput("historical_Foot"))
+                    #   #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                    #   #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                    # )
+                  #   
+                  # 
+                  #   
+                  # )   
+                                         
+
                               
                             )
                 
@@ -348,4 +387,5 @@ shinyUI(
                 
   )
   
-)
+#)
+
