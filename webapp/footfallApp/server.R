@@ -113,7 +113,7 @@ missingData <- function(data){
   #to identify gaps in the dataset.
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
-  missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days_missing = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
+  missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
   return(missing_Dates)
 }
 
@@ -351,15 +351,59 @@ shinyServer(function(input, output, session){
   historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
   #create a list dates occuring in the dataset
   missData <- missingData(historical_footfall)
+
+  #to hide "missing data" warning
+  if(nrow(missData)>=1){
+    output$notify <- renderText({
+      print("Issues")
+    }) 
+  }
+   
+  #message for "missing data" warning
+  if(nrow(missData)>=1){
+    output$msg <- renderText({
+      print("No missing data detected")
+    }) 
+  }
   
-  #missing_dates <-  as.matrix(seq(min(as.Dates(historical_footfall$Date)), Sys.Date(), by="day"))
-  # missing_dates <-  as.matrix(seq(min(as.Dates(historical_footfall$Date)), Sys.Date(), by="day"))
-  #print(missing_dates)
-  #sample_footfall2 =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
-  output$historical_Foot <- DT::renderDataTable({
-    #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
-    DT::datatable(missData)
-    #DT::datatable(missing_dates)
+  #run this if there are missing dataset
+  if(nrow(missData)>=1){
+    
+    output$historical_Foot <- DT::renderDataTable({
+      #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
+      DT::datatable(missData)
+      #DT::datatable(missing_dates)
+    })
+    
+  output$testHTML1 <- renderText({paste("<b>Above table shows the list of data ranges in which footfall data are missing.", "<br>")})
+  output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
+  output$testHTML3 <- renderText({paste("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
+  output$testHTML4 <- renderText({paste("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
+  output$text5 <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:")})
+  output$text6 <- renderText({paste("   (a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'")})
+  output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
+  output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
+  output$text9 <- renderText({paste("Upload a .csv file to update the database")})  
+  }
+
+  output$contents <- renderTable({
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, head of that data file by default,
+    # or all rows if selected, will be shown.
+    req(input$file1)
+    df <- read.csv(input$file1$datapath,
+                   header = input$header,
+                   sep = input$sep,
+                   quote = input$quote)
+    
+    if(input$disp == "head") {
+      return(head(df))
+    }
+    else {
+      return(df)
+    }
   })
+  
+
 })
 

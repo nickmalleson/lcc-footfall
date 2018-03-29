@@ -62,6 +62,9 @@ shinyUI(
                       "FOOTFALL DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
                     menuItem("Footfall Forecast (Settings)", tabName ="forecastSetting", 
+                             
+                      sliderInput("n", "Number of points:",
+                                         min = 10, max = 200, value = 50, step = 10),
                       #sidebarPanel(width = "100", skin = "blue",
                       #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
@@ -121,12 +124,9 @@ shinyUI(
                   # )
                     #)
                     ),
-                  
-                  menuItem("Settings", tabName = "settings", icon=icon("cogs")),
-                           
-  
-                          checkboxGroupInput("new", "Add trend line", 
-                                                       c("Yes"))
+                
+                  menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs"))
+                           #menuItem("Detailed Analysis", badgeLabel="New", badgeColor = "green"),
                                     
                            )
                            
@@ -348,6 +348,11 @@ shinyUI(
                     ),
                     
                     tabItem(tabName = "settings",
+                            
+                         # print(DT::dataTableOutput("historical_Foot")),
+                          #print(textOutput("lengthOfMissing")),
+                            # Only show this panel if there are missing historical data
+
                             fluidRow(
                               #tabBox(width = 13, height = 800,
                                      #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
@@ -359,22 +364,84 @@ shinyUI(
                                                           #tags$b(tags$h4("vs. 7,140 (prev)"))
                                                 tabPanel("historical_footfall", DT::dataTableOutput("historical_Foot")),
                                                 #),
-                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15")
+                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
                                                 ##plotOutput("temp_patterns", width = "320%", height = "150px")
-                                                
-                                              )))#)#)
-                    # tabsetPanel(
-                    #   id='history',
-                    #   #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
-                    #   tabPanel("historical_footfall", DT::dataTableOutput("historical_Foot"))
-                    #   #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                    #   #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                    # )
-                  #   
-                  # 
-                  #   
-                  # )   
-                                         
+                                              "  ",
+                                              htmlOutput("testHTML1"),
+                                              textOutput("text2"),
+                                              textOutput("testHTML3"),
+                                              textOutput("testHTML4"),
+                                              textOutput("text5"),
+                                              textOutput("text6"),
+                                              textOutput("text7"),
+                                              textOutput("text8"),
+                                              textOutput("text9")
+                                              
+                                              )
+                                              ),
+                         
+                         fileInput('file1', 'Choose file to upload',
+                                   accept = c(
+                                     'text/csv',
+                                     'text/comma-separated-values',
+                                     'text/tab-separated-values',
+                                     'text/plain',
+                                     '.csv',
+                                     '.tsv'
+                                   )
+                         ),
+                         tags$hr(),
+                         
+                         # Input: Checkbox if file has header ----
+                         checkboxInput("header", "Header", TRUE),
+                        
+                         # Input: Select separator ----
+                         radioButtons("sep", "Separator",
+                                      choices = c(Comma = ",",
+                                                  Semicolon = ";",
+                                                  Tab = "\t"),
+                                      selected = ","),
+                         
+                         # Input: Select quotes ----
+                         radioButtons("quote", "Quote",
+                                      choices = c(None = "",
+                                                  "Double Quote" = '"',
+                                                  "Single Quote" = "'"),
+                                      selected = '"'),
+                         
+                         # Horizontal line ----
+                         tags$hr(),
+                         
+                         # Input: Select number of rows to display ----
+                         radioButtons("disp", "Display",
+                                      choices = c(Head = "head",
+                                                  All = "all"),
+                                      selected = "head"),
+                         
+                        
+                         fluidRow(
+                           #tabBox(width = 13, height = 800,
+                           #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
+                           box(
+                             title = "Missing Historical Data",
+                             width = 8, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16"),
+                             ##plotOutput("temp_patterns", width = "320%", height = "150px")
+                             tableOutput("contents")
+                            
+                           )
+                         )
+                         
+                         
+                         
+                          
+                         # tabsetPanel(
+                         #   id='uploaded_D',
+                         #   #tabPanel("sample_footfall", DT::dataTableOutput("mytable1_1"))
+                         #   tableOutput("contents")
+                         # )
+                          #)###end of condi.
+                         
+                    )               
 
                               
                             )
