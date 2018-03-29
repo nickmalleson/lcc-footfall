@@ -130,6 +130,8 @@ shinyServer(function(input, output, session){
   historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
   sample_footfall <- historical_footfall
   
+  output$table <- renderDataTable(sample_footfall)
+  
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
     # })

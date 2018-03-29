@@ -110,11 +110,15 @@ shinyUI(
                     conditionalPanel(
                       #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
                       historical_footCopy <- dataTableOutput('table'),
-                      #head(historical_footCopy),#sample_footfall <- historical_footfall,
+                      #print(head(historical_footCopy)),#sample_footfall <- historical_footfall,
                       #'input.dataset === "sample_footfall"',
+                      #'
                       checkboxGroupInput("show_vars2", "List of predictors:",
                               c("Date", "Hour", "InCount"), selected = c("Date", "Hour", "InCount")))
                     
+                      # checkboxGroupInput("show_vars2", "List of predictors:",
+                      #                  names(historical_footCopy)[1:14], selected = names(historical_footCopy)[1:14]))
+                      # 
                      #checkboxGroupInput("show_vars2", "List of predictors:",
                                         #c("Date"), selected = c("Date")))
                     # 
