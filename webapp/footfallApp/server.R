@@ -127,7 +127,22 @@ shinyServer(function(input, output, session){
 #append all footfall files in the directory 
   
   
+  historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+  sample_footfall <- historical_footfall
+  
+  #output$mytable1 <- DT::renderDataTable({
+    #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
+    # })
     
+    
+  # output$table.output <- renderText({
+  #   #input$tbl^2
+  #   names(sample_footfall)
+  # })
+  #output$table.output <- renderTable({
+    #input$tbl^2
+  #})
+  
     # observeEvent(input$preview,{
     #   shinyalert("Action required!", tags$b("Historical footfall data NOT up-to-date, see 'Settings' page", br(), "Go to 'Settings' page"), type="warning") #default, message, warning, error
     # })
@@ -258,7 +273,7 @@ shinyServer(function(input, output, session){
     paste(th_separator(27*200))
   }) 
   
-  output$map_2 <- renderLeaflet({
+  output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     city_central =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/city_central.csv", sep=",", head=TRUE)
     city_Boundary = readShapePoly("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/leeds_City.shp")
@@ -277,12 +292,18 @@ shinyServer(function(input, output, session){
   #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
   # })
   # 
-  sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+  #sample_footfall <- historical_footfall
   #sample_footfall2 =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
   output$mytable1_1 <- DT::renderDataTable({
     DT::datatable(sample_footfall[, input$show_vars2, drop=FALSE])
   })
   
+  #A copy of the footfall data
+  #output$mytable1_2 <- DT::renderDataTable({
+  #output$tableCopy <- renderDataTable(iris)
+  #})
   # output$mytable2 <- DT::renderDataTable({
   #   DT::datatable(mtcars, options=list(orderClasses = TRUE))
   # })
@@ -348,7 +369,7 @@ shinyServer(function(input, output, session){
     Sys.sleep(1)
   })
   #detecting missing data
-  historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+
   #create a list dates occuring in the dataset
   missData <- missingData(historical_footfall)
 
@@ -369,13 +390,13 @@ shinyServer(function(input, output, session){
   #run this if there are missing dataset
   if(nrow(missData)>=1){
     
-    output$historical_Foot <- DT::renderDataTable({
+    output$missed_Foot <- DT::renderDataTable({
       #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
       DT::datatable(missData)
       #DT::datatable(missing_dates)
     })
     
-  output$testHTML1 <- renderText({paste("<b>Above table shows the list of data ranges in which footfall data are missing.", "<br>")})
+  output$testHTML1 <- renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
   output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
   output$testHTML3 <- renderText({paste("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
   output$testHTML4 <- renderText({paste("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
@@ -383,7 +404,7 @@ shinyServer(function(input, output, session){
   output$text6 <- renderText({paste("   (a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'")})
   output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
   output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
-  output$text9 <- renderText({paste("Upload a .csv file to update the database")})  
+  output$text9 <- renderText({paste("Upload a .csv file to update the database")})
   }
 
   output$contents <- renderTable({
@@ -392,18 +413,28 @@ shinyServer(function(input, output, session){
     # or all rows if selected, will be shown.
     req(input$file1)
     df <- read.csv(input$file1$datapath,
-                   header = input$header,
-                   sep = input$sep,
-                   quote = input$quote)
-    
-    if(input$disp == "head") {
-      return(head(df))
-    }
-    else {
-      return(df)
-    }
+                   header = TRUE,
+                   sep = ",")#,
+                   #quote = input$quote)
+    summary_Table <- summary(df)
+    #if(input$disp == "head") {
+      #return(head(df))
+    #}
+    #else {
+      return(summary_Table)
+    #}
   })
   
+#  
+#check whether there is a conflict between the uploaded data and the existing data
+#if there is, retain the original dataset, if not append the uploaded dataset
+  #Check that the three field required are present
+  #check the dates...just pick the required dates from the data...
+  #upload them those with no conflict
+  #Update the missing data table...
+  #give report....certain dates have been resolved.
+  
 
+  
 })
 

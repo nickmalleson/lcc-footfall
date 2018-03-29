@@ -17,9 +17,10 @@ library(shinyalert)
 library(shinyjs)
 library(lubridate)
 
-sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-vchoices <- 1:ncol(sample_footfall)
-names(vchoices) <- names(sample_footfall)
+# historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+# sample_footfall <- historical_footfall
+# vchoices <- 1:ncol(sample_footfall)
+# names(vchoices) <- names(sample_footfall)
 
 
 # Define UI for application that ...
@@ -63,8 +64,8 @@ shinyUI(
                   
                     menuItem("Footfall Forecast (Settings)", tabName ="forecastSetting", 
                              
-                      sliderInput("n", "Number of points:",
-                                         min = 10, max = 200, value = 50, step = 10),
+                      # sliderInput("n", "Number of points:",
+                      #                    min = 10, max = 200, value = 50, step = 10),
                       #sidebarPanel(width = "100", skin = "blue",
                       #sliderInput("m", "Update current footfall in:", 5, 60, 30), #)
                       #adding slider to adjust the length (history) of footfall to view
@@ -96,7 +97,7 @@ shinyUI(
                     ),
                     
                     
-                    menuItem("View predictors (datasets)", tabName = "rawdata", icon=icon("database")), 
+                    menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")), 
                     
                     #sidebarPanel(id="tableCol", width = 13, skin="blue",
                     # conditionalPanel(
@@ -104,14 +105,19 @@ shinyUI(
                     #   'input.dataset === "diamonds"',
                     #   checkboxGroupInput("show_vars", "List of predictors:",
                     #                      names(diamonds), selected = names(diamonds))),
-                    menuItem("View predictors", tabName ="predictors", 
+                    menuItem("Footfall details", tabName ="predictors", 
                              
                     conditionalPanel(
-                      sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                      #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
+                      historical_footCopy <- dataTableOutput('table'),
+                      #head(historical_footCopy),#sample_footfall <- historical_footfall,
                       #'input.dataset === "sample_footfall"',
                       checkboxGroupInput("show_vars2", "List of predictors:",
-                                         names(sample_footfall)[1:14], selected = names(sample_footfall)[1:14]))
+                              c("Date", "Hour", "InCount"), selected = c("Date", "Hour", "InCount")))
                     
+                     #checkboxGroupInput("show_vars2", "List of predictors:",
+                                        #c("Date"), selected = c("Date")))
+                    # 
                     # conditionalPanel(
                     #   #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                     #   'input.dataset === "mtcars"',
@@ -255,7 +261,7 @@ shinyUI(
                               box(
                                 width = 4, status = "primary", solidHeader = TRUE,
                                 title = "Map of City of Leeds (Inset: City Central)",
-                                leafletOutput("map_2", height=400)
+                                leafletOutput("mapLeeds", height=400)
 
                               )
    
@@ -352,17 +358,21 @@ shinyUI(
                          # print(DT::dataTableOutput("historical_Foot")),
                           #print(textOutput("lengthOfMissing")),
                             # Only show this panel if there are missing historical data
-
-                            fluidRow(
-                              #tabBox(width = 13, height = 800,
+                         fluidRow(
+                           
+                         tabBox(width = 13, height = 800,
+                                tabPanel(title = "Missing Dates", status = "warning", solidHeader = T, background = "aqua",
+                                         
+                               
+                                #tabBox(width = 13, height = 800,
                                      #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                               box(
-                                                title = "Missing Historical Data",
+                                                title = "List of missing dates",
                                                           #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
                                                           #tags$b(tags$h1(textOutput("lastHourCount"))),
                                                           #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
                                                           #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                tabPanel("historical_footfall", DT::dataTableOutput("historical_Foot")),
+                                                tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 #),
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
                                                 ##plotOutput("temp_patterns", width = "320%", height = "150px")
@@ -376,75 +386,48 @@ shinyUI(
                                               textOutput("text7"),
                                               textOutput("text8"),
                                               textOutput("text9")
-                                              
-                                              )
+                                              # p("<b>Above table shows the list of date ranges in which footfall data are missing."),
+                                              # p("Search for the missing data from either of the following sources:"),
+                                              # p("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data"),
+                                              # p("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data"),
+                                              # p("Note: Ensure that the file to be uploaded contains the following three columns:"),
+                                              # p("(a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'"),
+                                              # p("(b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23."),
+                                              # p("(c) 'InCount' - Hourly aggregate of footfall count"),
+                                              # p("Upload a .csv file to update the database")
                                               ),
-                         
-                         fileInput('file1', 'Choose file to upload',
-                                   accept = c(
-                                     'text/csv',
-                                     'text/comma-separated-values',
-                                     'text/tab-separated-values',
-                                     'text/plain',
-                                     '.csv',
-                                     '.tsv'
-                                   )
-                         ),
-                         tags$hr(),
-                         
-                         # Input: Checkbox if file has header ----
-                         checkboxInput("header", "Header", TRUE),
-                        
-                         # Input: Select separator ----
-                         radioButtons("sep", "Separator",
-                                      choices = c(Comma = ",",
-                                                  Semicolon = ";",
-                                                  Tab = "\t"),
-                                      selected = ","),
-                         
-                         # Input: Select quotes ----
-                         radioButtons("quote", "Quote",
-                                      choices = c(None = "",
-                                                  "Double Quote" = '"',
-                                                  "Single Quote" = "'"),
-                                      selected = '"'),
-                         
-                         # Horizontal line ----
-                         tags$hr(),
-                         
-                         # Input: Select number of rows to display ----
-                         radioButtons("disp", "Display",
-                                      choices = c(Head = "head",
-                                                  All = "all"),
-                                      selected = "head"),
-                         
-                        
-                         fluidRow(
-                           #tabBox(width = 13, height = 800,
-                           #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
-                           box(
-                             title = "Missing Historical Data",
-                             width = 8, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16"),
-                             ##plotOutput("temp_patterns", width = "320%", height = "150px")
-                             tableOutput("contents")
-                            
-                           )
-                         )
-                         
-                         
-                         
-                          
-                         # tabsetPanel(
-                         #   id='uploaded_D',
-                         #   #tabPanel("sample_footfall", DT::dataTableOutput("mytable1_1"))
-                         #   tableOutput("contents")
-                         # )
-                          #)###end of condi.
-                         
-                    )               
+                                
+                                fileInput('file1', 'Choose file to upload',
+                                          accept = c(
+                                            'text/csv',
+                                            'text/comma-separated-values',
+                                            'text/tab-separated-values',
+                                            'text/plain',
+                                            '.csv',
+                                            '.tsv'
+                                          )
+                                )
+                                
+                                #show conflict or possible upgrade
+                                #textOutput("contents")
+                                              ),
 
-                              
-                            )
+                         tabPanel(title = "View uploaded data", status = "warning", solidHeader = T, background = "aqua",
+                                 
+                                 box(
+                                   title = "Summary of uploaded data",
+                                   width = 6, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16"),
+                                   tableOutput("contents")
+                                 )
+                        ),
+                                
+                         tags$hr()
+                         
+
+                    )
+                         )
+                    )
+                         
                 
                    # )
                     
@@ -454,5 +437,5 @@ shinyUI(
                 
   )
   
-#)
+)
 
