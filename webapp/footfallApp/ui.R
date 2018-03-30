@@ -96,6 +96,8 @@ shinyUI(
                       
                     ),
                     
+                    #Setting menu
+                    menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs")),
                     
                     menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")), 
                     
@@ -133,26 +135,9 @@ shinyUI(
                   #       helpText("Display 5 records by default")
                   # )
                     #)
-                    ),
-                
-                  menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs"))
-                           #menuItem("Detailed Analysis", badgeLabel="New", badgeColor = "green"),
-                                    
+                    )
+                        
                            )
-                           
-                           
-                           
-                           # conditionalPanel(
-                           #   #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
-                           #   box(
-                           #     checkboxGroupInput("show_vars3", " :",
-                           #                        c("Date","Hour","InCount"), selected = c("Date","Hour","InCount"))
-                           #     
-                           #   )
-                           # )
-                  #)
-                  
-                  #)
    
                 ),
                 
@@ -273,6 +258,90 @@ shinyUI(
                     )
                     ),       
                               
+                    tabItem(tabName = "settings",
+                            
+                            # print(DT::dataTableOutput("historical_Foot")),
+                            #print(textOutput("lengthOfMissing")),
+                            # Only show this panel if there are missing historical data
+                            fluidRow(
+                              
+                              tabBox(width = 13, height = 800,
+                                     tabPanel(title = "Missing Dates", status = "warning", solidHeader = T, background = "aqua",
+                                              
+                                              
+                                              #tabBox(width = 13, height = 800,
+                                              #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
+                                              box(
+                                                title = "List of missing dates",
+                                                #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
+                                                #tags$b(tags$h1(textOutput("lastHourCount"))),
+                                                #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
+                                                #tags$b(tags$h4("vs. 7,140 (prev)"))
+                                                tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
+                                                #),
+                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
+                                                ##plotOutput("temp_patterns", width = "320%", height = "150px")
+                                                "  ",
+                                                htmlOutput("testHTML1"),
+                                                textOutput("text2"),
+                                                textOutput("testHTML3"),
+                                                textOutput("testHTML4"),
+                                                textOutput("text5"),
+                                                textOutput("text6"),
+                                                textOutput("text7"),
+                                                textOutput("text8"),
+                                                textOutput("text9"),
+                                                textOutput("text10")
+                                                # p("<b>Above table shows the list of date ranges in which footfall data are missing."),
+                                                # p("Search for the missing data from either of the following sources:"),
+                                                # p("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data"),
+                                                # p("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data"),
+                                                # p("Note: Ensure that the file to be uploaded contains the following three columns:"),
+                                                # p("(a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'"),
+                                                # p("(b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23."),
+                                                # p("(c) 'InCount' - Hourly aggregate of footfall count"),
+                                                # p("Upload a .csv file to update the database")
+                                              ),
+                                              
+                                              fileInput('file1', 'Choose file to upload',
+                                                        accept = c(
+                                                          'text/csv',
+                                                          'text/comma-separated-values',
+                                                          'text/tab-separated-values',
+                                                          'text/plain',
+                                                          '.csv',
+                                                          '.tsv'
+                                                        )
+                                              ),
+                                              
+                                              #button to append an uploaded file..
+                                              #fluidPage(
+                                              useShinyjs(),
+                                              fluidRow(column(1, align="center", offset = 0, actionButton("upload", "Upload..")))
+                                               # textInput("element", "Watch what happens to me")
+                                             # )
+                                              
+                                     ),
+                                     
+
+                                     tabPanel(title = "view the uploaded data", status = "warning", solidHeader = T, background = "aqua",
+                                              id='gaps_missingData',
+                                              box(
+                                                tabPanel("sample_footfall", DT::dataTableOutput("gaps"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                             
+                                     ),
+                                     
+                                     tags$hr() # 
+                                     
+                                     
+                                     
+                              )
+                            )
+                    ),
                     
                     tabItem(tabName = "rawdata",
                             
@@ -355,82 +424,8 @@ shinyUI(
                               
                             )
                             
-                    ),
+                    )
                     
-                    tabItem(tabName = "settings",
-                            
-                         # print(DT::dataTableOutput("historical_Foot")),
-                          #print(textOutput("lengthOfMissing")),
-                            # Only show this panel if there are missing historical data
-                         fluidRow(
-                           
-                         tabBox(width = 13, height = 800,
-                                tabPanel(title = "Missing Dates", status = "warning", solidHeader = T, background = "aqua",
-                                         
-                               
-                                #tabBox(width = 13, height = 800,
-                                     #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
-                                              box(
-                                                title = "List of missing dates",
-                                                          #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                          #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                          #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                          #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
-                                                #),
-                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
-                                                ##plotOutput("temp_patterns", width = "320%", height = "150px")
-                                              "  ",
-                                              htmlOutput("testHTML1"),
-                                              textOutput("text2"),
-                                              textOutput("testHTML3"),
-                                              textOutput("testHTML4"),
-                                              textOutput("text5"),
-                                              textOutput("text6"),
-                                              textOutput("text7"),
-                                              textOutput("text8"),
-                                              textOutput("text9")
-                                              # p("<b>Above table shows the list of date ranges in which footfall data are missing."),
-                                              # p("Search for the missing data from either of the following sources:"),
-                                              # p("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data"),
-                                              # p("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data"),
-                                              # p("Note: Ensure that the file to be uploaded contains the following three columns:"),
-                                              # p("(a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'"),
-                                              # p("(b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23."),
-                                              # p("(c) 'InCount' - Hourly aggregate of footfall count"),
-                                              # p("Upload a .csv file to update the database")
-                                              ),
-                                
-                                fileInput('file1', 'Choose file to upload',
-                                          accept = c(
-                                            'text/csv',
-                                            'text/comma-separated-values',
-                                            'text/tab-separated-values',
-                                            'text/plain',
-                                            '.csv',
-                                            '.tsv'
-                                          )
-                                )
-                                
-                                #show conflict or possible upgrade
-                                #textOutput("contents")
-                                              ),
-
-                         tabPanel(title = "View uploaded data", status = "warning", solidHeader = T, background = "aqua",
-                                 
-                                 box(
-                                   title = "Summary of uploaded data",
-                                   width = 6, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16"),
-                                   tableOutput("contents")
-                                 )
-                        ),
-                                
-                         tags$hr()
-                         
-
-                    )
-                         )
-                    )
                          
                 
                    # )

@@ -93,8 +93,7 @@ day_function <- function(){
   dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()+1), sep = "")
   print(dayT)}
 
-#function to show missing dates in the historical datasets
-
+#function to show gaps in the dates in the historical datasets
 missingData <- function(data){
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
@@ -122,7 +121,10 @@ missingData <- function(data){
 
 shinyServer(function(input, output, session){
 
-
+#initialisation
+issue1 = 0
+issue2 = 0
+issue13 = 0
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
   
@@ -407,27 +409,46 @@ shinyServer(function(input, output, session){
   output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
   output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
   output$text9 <- renderText({paste("Upload a .csv file to update the database")})
+  output$text10 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
   }
 
-  output$contents <- renderTable({
-    # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, head of that data file by default,
-    # or all rows if selected, will be shown.
+  #read the uploaded data to fill in the gap in historical footfall. Purpose: to display
+  output$gaps <- DT::renderDataTable({
     req(input$file1)
-    df <- read.csv(input$file1$datapath,
+    file_For_Missing_Data <- read.csv(input$file1$datapath,
                    header = TRUE,
                    sep = ",")#,
-                   #quote = input$quote)
-    summary_Table <- summary(df)
-    #if(input$disp == "head") {
-      #return(head(df))
-    #}
-    #else {
-      return(summary_Table)
-    #}
+    uploaded_Table <- DT::datatable(file_For_Missing_Data)
+      return(uploaded_Table)
   })
   
-#  
+  #uploaded data.....: Purpose: to be used in other part vis a vis below.
+  observe({
+  req(input$file1)
+  #To check the gaps that an uploaded file fill
+  file_For_Missing_Data2 <- read.csv(input$file1$datapath,
+                                    header = TRUE,
+                                    sep = ",")#,
+  })
+  
+  #to upload the file...
+  observe({
+    shinyjs::hide("upload")
+    
+    if(issue1==0) #locationSpecified()
+      shinyjs::show("upload")
+  })
+    
+
+#list all unique dates (Note: not "days" - bcos, "days might take too much time")
+  ##uniquefile_For_Missing_Data$Date  
+    
+  ##})
+
+
+  
+  
+
 #check whether there is a conflict between the uploaded data and the existing data
 #if there is, retain the original dataset, if not append the uploaded dataset
   #Check that the three field required are present
