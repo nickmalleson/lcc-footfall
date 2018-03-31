@@ -18,9 +18,9 @@ library(shinyjs)
 library(lubridate)
 
 # historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-# sample_footfall <- historical_footfall
-# vchoices <- 1:ncol(sample_footfall)
-# names(vchoices) <- names(sample_footfall)
+# history_footfall <- historical_footfall
+# vchoices <- 1:ncol(history_footfall)
+# names(vchoices) <- names(history_footfall)
 
 
 # Define UI for application that ...
@@ -84,7 +84,7 @@ shinyUI(
                       sliderInput("p", "Start date (months)", 0, 80, 24), #use calculation
                       
                       radioButtons("chartType", "Chart Type", 
-                                   choices = c("Line", "Bar"),
+                                   choices = c("Line", "Bar", "Dot"),
                                    selected = "Line"),
                       
                       checkboxGroupInput("trendLine", "Add trend line", 
@@ -103,7 +103,7 @@ shinyUI(
                     
                     #sidebarPanel(id="tableCol", width = 13, skin="blue",
                     # conditionalPanel(
-                    #   #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                     #   'input.dataset === "diamonds"',
                     #   checkboxGroupInput("show_vars", "List of predictors:",
                     #                      names(diamonds), selected = names(diamonds))),
@@ -111,9 +111,9 @@ shinyUI(
                              
                     conditionalPanel(
                       #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
-                      historical_footCopy <- dataTableOutput('table'),
-                      #print(head(historical_footCopy)),#sample_footfall <- historical_footfall,
-                      #'input.dataset === "sample_footfall"',
+                      historical_footCopy <- dataTableOutput('history'),
+                      #print(head(historical_footCopy)),#history_footfall <- historical_footfall,
+                      #'input.dataset === "history_footfall"',
                       #'
                       checkboxGroupInput("show_vars2", "List of predictors:",
                               c("Date", "Hour", "InCount"), selected = c("Date", "Hour", "InCount")))
@@ -125,12 +125,12 @@ shinyUI(
                                         #c("Date"), selected = c("Date")))
                     # 
                     # conditionalPanel(
-                    #   #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                    #   #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                     #   'input.dataset === "mtcars"',
                     #   helpText("Click the column header to sort a column")
                     # ),
                   #     conditionalPanel(
-                  #       #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE),
+                  #       #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
                   #       'input.dataset === "iris"',
                   #       helpText("Display 5 records by default")
                   # )
@@ -312,27 +312,49 @@ shinyUI(
                                                           '.csv',
                                                           '.tsv'
                                                         )
+                                                #print("checking....")
                                               ),
                                               
+                                              
+                                              htmlOutput("Uploaded_file_checks_Passed"),
+                                              tags$hr(), # 
+                                              htmlOutput("issues"),
+                                              textOutput("fields_absent"),
+                                              textOutput("fall_outside_daterange"),
+                                              textOutput("date_Overlapping"),
+                                              tags$hr(), # 
+                                              htmlOutput("resolve_issue"),
+                                              #htmlOutput("msgAppend"),
                                               #button to append an uploaded file..
                                               #fluidPage(
                                               useShinyjs(),
-                                              fluidRow(column(1, align="center", offset = 0, actionButton("upload", "Upload..")))
+                                              fluidRow(column(1, align="center", offset = 0, 
+                                                              actionButton("append", "Append records")
+                                                              ))
                                                # textInput("element", "Watch what happens to me")
                                              # )
                                               
-                                     ),
+                                     ), #htmlOutput("testHTML1"),
                                      
 
-                                     tabPanel(title = "view the uploaded data", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View uploaded data here", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
                                               box(
-                                                tabPanel("sample_footfall", DT::dataTableOutput("gaps"))
+                                                tabPanel("history_footfall", DT::dataTableOutput("gaps"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+    
+                                     ),
+                                     
+                                     tabPanel(title = "View appended (new) dataset here", status = "warning", solidHeader = T, background = "aqua",
+                                              id='testing append',
+                                              box(
+                                                tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
                                               )
                                               
-                                             
                                      ),
                                      
                                      tags$hr() # 
@@ -348,7 +370,7 @@ shinyUI(
                             tabsetPanel(
                               id='dataset',
                             #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
-                            tabPanel("sample_footfall", DT::dataTableOutput("mytable1_1"))
+                            tabPanel("history_footfall", DT::dataTableOutput("mytable1_1"))
                             #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                             #tabPanel("iris", DT::dataTableOutput("mytable3"))
                             ),

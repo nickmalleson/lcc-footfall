@@ -158,9 +158,12 @@ missingData <- function(data){
 
 getwd()
 setwd("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/")
-data <- read.table(file="Copy of Monthly Data Feed-January 2017 - 20170208.csv", sep=",", head=TRUE)
 
-  file_For_Missing_Data2 
+historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+#data <- read.table(file="Copy of Monthly Data Feed-January 2017 - 20170208.csv", sep=",", head=TRUE)
+data <- read.table(file="copyy_222.csv", sep=",", head=TRUE) #3623 & 3624
+
+#file_For_Missing_Data2 
 
 head(data)
 
@@ -189,6 +192,7 @@ uploaded_fieldnames <- function(data){
 		return(leng_name)
 }
 
+#function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time
 dateRange_Checker <- function(historical_footfall, data){
 	#unique dates in the footfall (database) data
 	uniqueDate_footfallDatabase <- uniq_Dates(historical_footfall)
@@ -210,8 +214,7 @@ dateOverlap_Checker <- function(historical_footfall, data){
 	uniqueDate_uploaded <- uniq_Dates(data)
 	#check that there is no overlap between the dates dates
 	overlap_Dates <- which(uniqueDate_uploaded %in% uniqueDate_footfallDatabase)
-	overlap_Dates <- length(which(overlap_Dates=="TRUE"))
-      return(overlap_Dates)
+      return(length(overlap_Dates))
 }
 
 
@@ -238,6 +241,49 @@ if(issue3==1){
 print("Some dates in the uploaded file overlap with the footfall database")
 }
 
+
+  #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
+  observe({
+  req(input$file1)
+  #To check the gaps that an uploaded file fill
+  uploaded_file <- read.csv(input$file1$datapath,
+                                    header = TRUE,
+                                    sep = ",")#,
+	shinyjs::hide("upload")
+
+	if((leng_name<-uploaded_fieldnames(data))!=3){issue1=1}
+	if((out_Len<-dateRange_Checker(historical_footfall, data))>0){issue2=1}
+	if((overlap_Dates<-dateOverlap_Checker(historical_footfall, data))>0){issue3=1}
+
+	if(issue1==1){
+		print("The uploaded file does not contain one of the following field names")}
+	if(issue2==1){
+		print("One or some of the uploaded dates fall outside the expected range (i.e. earliest date of footfall (database) and the current date")}
+	if(issue3==1){
+		print("Some dates in the uploaded file overlap with the footfall database")}
+
+	total_issues <- issue1 + issue2 + issue3
+
+	#if there is no issues, then show "Upload" button 
+	if(total_issues==0)
+      	shinyjs::show("upload")
+
+	})
+
+
+#NOW CODES TO PLOT..
+#-----------------------------------------#RSHINY.....
+  #to upload the file...
+  observe({
+    shinyjs::hide("upload")
+    
+    if(issue1==0) #locationSpecified()
+      shinyjs::show("upload")
+  })
+    
+
+
+Date ranges where "Hourly" footfall aggregation is not available.. 
 
 if(issue1
 ...THE UPLOAD CANNOT BE PROCESSED!

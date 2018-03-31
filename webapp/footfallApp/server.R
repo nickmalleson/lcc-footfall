@@ -116,23 +116,70 @@ missingData <- function(data){
   return(missing_Dates)
 }
 
+#function to return list of unique dates in a dataset
+uniq_Dates <- function(data){
+  #first convert the data to the right format i.e. "yyyy-mm-dd"
+  dataValues <- data$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  #dataValues <- cbind(min(dateField), "missing dates(months)")
+  dataValues <- unique(dateField)
+  return(dataValues)
+}
+
+#function to check that uploaded contains the three fields, "Date","Hour","InCount"
+uploaded_fieldnames <- function(data){
+  names_uploaded <- c("Date","Hour","InCount") %in% colnames(data)
+  leng_name <- length(which(names_uploaded=="TRUE"))
+  #return(leng_name)
+}
+
+#function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time
+dateRange_Checker <- function(historical_footfall, data){
+  #unique dates in the footfall (database) data
+  uniqueDate_footfallDatabase <- uniq_Dates(historical_footfall)
+  #unique dates in the uploaded data
+  uniqueDate_uploaded <- uniq_Dates(data)
+  #check that all dates fall with range (from the start of footfall data and the current time)
+  outside_Dates1 <- which(uniqueDate_uploaded < min(uniqueDate_footfallDatabase))
+  outside_Dates2 <- which(uniqueDate_uploaded > Sys.Date())
+  outside_Dates <- c(outside_Dates1, outside_Dates2)
+  out_Len <- length(outside_Dates)#first check to implement
+  return(out_Len)
+}
+
+#now to check where there is overlap in the dates:
+dateOverlap_Checker <- function(historical_footfall, data){
+  #unique dates in the footfall (database) data
+  uniqueDate_footfallDatabase <- uniq_Dates(historical_footfall)
+  #unique dates in the uploaded data
+  uniqueDate_uploaded <- uniq_Dates(data)
+  #check that there is no overlap between the dates dates
+  overlap_Dates <- which(uniqueDate_uploaded %in% uniqueDate_footfallDatabase)
+  return(length(overlap_Dates))
+}
+
 
 #----------------------------------------------------------
 
 shinyServer(function(input, output, session){
 
-#initialisation
-issue1 = 0
-issue2 = 0
-issue13 = 0
+
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
   
   
   historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-  sample_footfall <- historical_footfall
+  history_footfall <- historical_footfall
   
-  output$table <- renderDataTable(sample_footfall)
+  output$history <- renderDataTable(history_footfall)
   
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
@@ -141,7 +188,7 @@ issue13 = 0
     
   # output$table.output <- renderText({
   #   #input$tbl^2
-  #   names(sample_footfall)
+  #   names(history_footfall)
   # })
   #output$table.output <- renderTable({
     #input$tbl^2
@@ -289,19 +336,19 @@ issue13 = 0
   
  
   
-  # #sample_footfall =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
-  # diamonds2 = diamonds[sample(nrow(diamonds),1000),]
+  # #history_footfall =   history_footfall[history(nrow(  history_footfall), 1000),]
+  # diamonds2 = diamonds[history(nrow(diamonds),1000),]
   # 
   # output$mytable1 <- DT::renderDataTable({
   #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
   # })
   # 
-  #sample_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/sample_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE)
   #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-  #sample_footfall <- historical_footfall
-  #sample_footfall2 =   sample_footfall[sample(nrow(  sample_footfall), 1000),]
+  #history_footfall <- historical_footfall
+  #history_footfall2 =   history_footfall[history(nrow(  history_footfall), 1000),]
   output$mytable1_1 <- DT::renderDataTable({
-    DT::datatable(sample_footfall[, input$show_vars2, drop=FALSE])
+    DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
   })
   
   #A copy of the footfall data
@@ -402,10 +449,10 @@ issue13 = 0
     
   output$testHTML1 <- renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
   output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
-  output$testHTML3 <- renderText({paste("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
-  output$testHTML4 <- renderText({paste("2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
+  output$testHTML3 <- renderText({paste("<b>1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
+  output$testHTML4 <- renderText({paste("<b>2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
   output$text5 <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:")})
-  output$text6 <- renderText({paste("   (a) 'Date' - in either of these formats: 'dd/mm/yyyy' OR 'yyyy-mm-dd'")})
+  output$text6 <- renderText({paste("   (a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'")})
   output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
   output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
   output$text9 <- renderText({paste("Upload a .csv file to update the database")})
@@ -422,42 +469,115 @@ issue13 = 0
       return(uploaded_Table)
   })
   
-  #uploaded data.....: Purpose: to be used in other part vis a vis below.
   observe({
-  req(input$file1)
-  #To check the gaps that an uploaded file fill
-  file_For_Missing_Data2 <- read.csv(input$file1$datapath,
-                                    header = TRUE,
-                                    sep = ",")#,
+    #to hide upload button
+    shinyjs::hide("append")
+  })
+  #uploaded data.....: Purpose: observe command is used where no output is returned.
+  #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
+  observe({
+    
+    #initialisation
+    issue1 = 0
+    issue2 = 0
+    issue3 = 0
+    
+    req(input$file1)
+    #To check the gaps that an uploaded file fill
+    uploaded_file <- read.csv(input$file1$datapath,
+                              header = TRUE,
+                              sep = ",")#,
+    #to delay the display...
+    ##output$checking <- renderText({paste("checking...... ")})
+    
+    #shinyjs::hide("upload")
+    #checking whether the uploaded file contain essential fields
+    leng_name <- uploaded_fieldnames(uploaded_file) #checking essential field names
+    out_Len <- dateRange_Checker(historical_footfall, uploaded_file) #checking if dates falls outsides desired range 
+    overlap_Dates <- dateOverlap_Checker(historical_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
+  
+    if(as.numeric(leng_name)!=3){
+      issue1<-1}
+    
+    if(out_Len>0){
+      issue2<-1}
+    
+    if(overlap_Dates>0){
+      issue3<-1}
+    
+      #print((leng_name))
+      
+    # #if((out_Len<-dateRange_Checker(historical_footfall, data))>0){issue2=1}
+    # #if((overlap_Dates<-dateOverlap_Checker(historical_footfall, data))>0){issue3=1}
+    # 
+    # #if(issue1==1){
+    #   #print("The uploaded file does not contain one of the following field names")}
+    # #if(issue2==1){
+    #   #print("One or some of the uploaded dates fall outside the expected range (i.e. earliest date of footfall (database) and the current date")}
+    # #if(issue3==1){
+    #   #print("Some dates in the uploaded file overlap with dates in the footfall database")}
+    # 
+    total_issues <- issue1 + issue2 + issue3
+    
+    #if there is no issues, then show "Upload" button
+    if(total_issues==0){
+      #turn off
+      output$issues <- renderText({paste(" ")})
+      output$fields_absent <- renderText({print(" ")})
+      output$fall_outside_daterange <- renderText({print(" ")})
+      output$date_Overlapping <- renderText({print("")})
+      output$resolve_issue <- renderText({paste(" ")})
+      
+      #turn on
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Checks' passed!")})
+      shinyjs::show("append")}
+    # 
+    if(total_issues!=0){
+      #turn off
+      output$Uploaded_file_checks_Passed <- renderText({paste(" ")})
+      
+      #turn on
+      #shinyjs::show("append")}
+      output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:")})
+      if(issue1==1){
+      output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount'")})}
+      if(issue2==1){
+        output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
+      if(issue3==1){
+        output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
+      shinyjs::hide("append")
+      output$resolve_issue <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
+    }
+    
   })
   
-  #to upload the file...
-  observe({
-    shinyjs::hide("upload")
+  #perform the following upon clicking 'append' button
+  output$table_Appended <- DT::renderDataTable({
+  observeEvent(input$append, {
+    #create two files
+    historicalData_Subset <- history_footfall[,c("Date","Hour","InCount")]
+    print(historicalData_Subset)
+    req(input$file1)
+    #To check the gaps that an uploaded file fill
+    uploaded_file <- read.csv(input$file1$datapath,
+                              header = TRUE,
+                              sep = ",")#,
+    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount")]
+    #new historical data
+    updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
+    colnames(updated_FootfallDataset) <- c("Date","Hour","InCount")
+    DT::datatable(updated_FootfallDataset)
+    #sorting
+    ##updated_FootfallDataset <- updated_FootfallDataset[
+      ##with(updated_FootfallDataset, order(Date,Hour))
+      ##]
+    #implement error catching here..
+    ##updated_FootfallDataset <- updated_FootfallDataset[,c("Date","Hour","InCount")]
+    #print(updated_FootfallDataset[(length(updated_FootfallDataset)-10):length(updated_FootfallDataset),])
     
-    if(issue1==0) #locationSpecified()
-      shinyjs::show("upload")
+    #DT::datatable(updated_FootfallDataset[,c("Date","Hour","InCount"), drop=FALSE] )
   })
-    
-
-#list all unique dates (Note: not "days" - bcos, "days might take too much time")
-  ##uniquefile_For_Missing_Data$Date  
-    
-  ##})
-
-
-  
-  
-
-#check whether there is a conflict between the uploaded data and the existing data
-#if there is, retain the original dataset, if not append the uploaded dataset
-  #Check that the three field required are present
-  #check the dates...just pick the required dates from the data...
-  #upload them those with no conflict
-  #Update the missing data table...
-  #give report....certain dates have been resolved.
-  
-
+  })
   
 })
 
