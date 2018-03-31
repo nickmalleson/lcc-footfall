@@ -166,6 +166,18 @@ dateOverlap_Checker <- function(historical_footfall, data){
   return(length(overlap_Dates))
 }
 
+#function to identify outliers
+outliers <- function(data){
+  med <- median(x)
+  MAD <-median(abs(med-x))
+  dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=abs(x-med)>3.5*(MAD/0.6745))
+  #dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier= ((0.6745 * abs(x-med))/MAD>3.5))
+  midp <<- med
+  lower <<- med-2*(MAD/0.6745)
+  upper <<- med+2*(MAD/0.6745)
+  outliern <<- length(which(dtf=="TRUE"))
+  return(dft)
+} 
 
 #----------------------------------------------------------
 
@@ -537,8 +549,8 @@ shinyServer(function(input, output, session){
       output$Uploaded_file_checks_Passed <- renderText({paste(" ")})
       
       #turn on
-      #shinyjs::show("append")}
-      output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:")})
+      #shinyjs::show("append")}  ###renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
+      output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1==1){
       output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount'")})}
       if(issue2==1){
@@ -552,8 +564,8 @@ shinyServer(function(input, output, session){
   })
   
   #perform the following upon clicking 'append' button
-  output$table_Appended <- DT::renderDataTable({
   observeEvent(input$append, {
+    #output$msg_tableAppended <- renderText({paste("Tables appended. See the remaining missing dates below:  ")})
     #create two files
     historicalData_Subset <- history_footfall[,c("Date","Hour","InCount")]
     print(historicalData_Subset)
@@ -563,21 +575,55 @@ shinyServer(function(input, output, session){
                               header = TRUE,
                               sep = ",")#,
     uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount")]
+    
+    #cleaning the uploaded file; remove outliers
+    uploadedData_Subset 
+    
+    
     #new historical data
     updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
     colnames(updated_FootfallDataset) <- c("Date","Hour","InCount")
-    DT::datatable(updated_FootfallDataset)
     #sorting
-    ##updated_FootfallDataset <- updated_FootfallDataset[
-      ##with(updated_FootfallDataset, order(Date,Hour))
-      ##]
+    #updated_FootfallDataset <- updated_FootfallDataset[
+      #with(updated_FootfallDataset, order(Date,Hour))
+      #]
+    #write the appended files for different aggregation
+    
+    
+    #export appended data
+    output$table_Appended <- DT::renderDataTable({
+      result_appended <- DT::datatable(updated_FootfallDataset)
+      return(result_appended)
     #implement error catching here..
     ##updated_FootfallDataset <- updated_FootfallDataset[,c("Date","Hour","InCount")]
     #print(updated_FootfallDataset[(length(updated_FootfallDataset)-10):length(updated_FootfallDataset),])
     
     #DT::datatable(updated_FootfallDataset[,c("Date","Hour","InCount"), drop=FALSE] )
   })
+    
+    #gaps after append
+    missData_after_append <- missingData(updated_FootfallDataset)
+      #result missing data table after the append
+      output$missed_Foot_after_Append <- DT::renderDataTable({
+        #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
+        DT::datatable(missData_after_append)
+        #DT::datatable(missing_dates)
+      })
+      #title of table after append
+      output$table_after_append <- renderText({
+        paste("List of missing dates after append")
+      })
+      
+      #create files for each time aggregation.
+      #create .csv of footfall in morning (6-9pm) over time 
+      
+      
+      
   })
+  
+  
+  
+  
   
 })
 

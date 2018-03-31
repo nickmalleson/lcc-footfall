@@ -266,17 +266,13 @@ shinyUI(
                             fluidRow(
                               
                               tabBox(width = 13, height = 800,
-                                     tabPanel(title = "Missing Dates", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "Update historical data", status = "warning", solidHeader = T, background = "aqua",
                                               
                                               
                                               #tabBox(width = 13, height = 800,
                                               #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                               box(
                                                 title = "List of missing dates",
-                                                #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                #tags$b(tags$h4("vs. 7,140 (prev)"))
                                                 tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 #),
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
@@ -311,9 +307,7 @@ shinyUI(
                                                           'text/plain',
                                                           '.csv',
                                                           '.tsv'
-                                                        )
-                                                #print("checking....")
-                                              ),
+                                                        )),
                                               
                                               
                                               htmlOutput("Uploaded_file_checks_Passed"),
@@ -324,15 +318,19 @@ shinyUI(
                                               textOutput("date_Overlapping"),
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue"),
-                                              #htmlOutput("msgAppend"),
-                                              #button to append an uploaded file..
-                                              #fluidPage(
                                               useShinyjs(),
                                               fluidRow(column(1, align="center", offset = 0, 
-                                                              actionButton("append", "Append records")
-                                                              ))
+                                                              actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                                                              )),
+                                              tags$hr(), # 
+                                              htmlOutput("msg_tableAppended"),
+                                              box(
+                                                title =  textOutput("table_after_append"),
+                                                tabPanel("missedFootfallafterAppend", DT::dataTableOutput("missed_Foot_after_Append")),
+                                                #),
+                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16")
                                                # textInput("element", "Watch what happens to me")
-                                             # )
+                                              )
                                               
                                      ), #htmlOutput("testHTML1"),
                                      
@@ -347,7 +345,7 @@ shinyUI(
     
                                      ),
                                      
-                                     tabPanel(title = "View appended (new) dataset here", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View result: appended dataset ('Date','Hour','InCount')", status = "warning", solidHeader = T, background = "aqua",
                                               id='testing append',
                                               box(
                                                 tabPanel("appended_data", DT::dataTableOutput("table_Appended"))

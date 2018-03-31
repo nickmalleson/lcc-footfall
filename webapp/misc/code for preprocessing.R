@@ -217,6 +217,186 @@ dateOverlap_Checker <- function(historical_footfall, data){
       return(length(overlap_Dates))
 }
 
+#function to check that uploaded contains the three fields, "Date","Hour","InCount"
+uploaded_fieldnames <- function(data){
+  names_uploaded <- c("Date","Hour","InCount") %in% colnames(data)
+  leng_name <- length(which(names_uploaded=="TRUE"))
+  #return(leng_name)
+}
+
+
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#Removing the outliers using Median absolute deviation method
+outliersMAD <- function(data, MADCutOff = 3.5, replace = NA, values = FALSE, bConstant = 1.4826, digits = 2) {
+    #compute number of absolute MADs away for each value
+    #formula: abs( ( x - median(x) ) )/ mad(x)
+    absMADAway <- abs((data - median(data, na.rm = T))/mad(data, constant = bConstant, na.rm = T))
+    #subset data that has absMADAway greater than the MADCutOff and replace them with replace
+    #can also replace values other than replace
+    data[absMADAway > MADCutOff] <- replace
+    
+    if (values == TRUE) { 
+        return(round(absMADAway, digits)) #if values == TRUE, return number of mads for each value
+    } else {
+        return(round(data, digits)) #otherwise, return values with outliers replaced
+    }
+}
+
+http://cainarchaeology.weebly.com/r-function-for-univariate-outliers-detection.html
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+outlier <- function (x,method="mean",addthres=FALSE){
+  if (method=="mean") {
+    avrg <- mean(x)
+    stdev <-sd(x)
+    dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=abs(x-avrg)>2*stdev)
+    midp <<- avrg
+    lower <<- avrg-2*stdev
+    upper <<- avrg+2*stdev
+    outliern <<- length(which(dtf=="TRUE"))
+  } else {}
+  if (method=="median") {
+    med <- median(x)
+    MAD <-median(abs(med-x))
+    dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=abs(x-med)>2*(MAD/0.6745))
+    midp <<- med
+    lower <<- med-2*(MAD/0.6745)
+    upper <<- med+2*(MAD/0.6745)
+    outliern <<- length(which(dtf=="TRUE"))
+    } else {}
+  if (method=="boxplot") {
+    Q1 <- quantile(x, 0.25)
+    Q3 <- quantile(x, 0.75)
+    IntQ <-Q3-Q1
+    dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=x<Q1-1.5*IntQ | x>Q3+1.5*IntQ)
+    midp <<- median(x)
+    lower <<- Q1-1.5*IntQ
+    upper <<- Q3+1.5*IntQ
+    outliern <<- length(which(dtf=="TRUE"))
+    } else {}
+  if (addthres==TRUE) {
+    p <- ggplot(dtf, aes(x=ID, y=obs, label=ID)) + geom_point(aes(colour=outlier)) + geom_text_repel(data = subset(dtf, outlier=="TRUE"), aes(label = ID), size = 2.7, colour="black", box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines")) + labs(x=paste("observation ID number\n number of outliers detected=", outliern, "\n( outlier detection method=", method, ")"), y="observation value") + geom_hline(yintercept = midp, colour="black", linetype = "longdash") + geom_hline(yintercept = lower, colour="black", linetype = "longdash") + geom_hline(yintercept = upper, colour="black", linetype = "longdash")
+    } else {
+  p <- ggplot(dtf, aes(x=ID, y=obs, label=ID)) + geom_point(aes(colour=outlier)) + geom_text_repel(data = subset(dtf, outlier=="TRUE"), aes(label = ID), size = 2.7, colour="black", box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines")) + labs(x=paste("observation ID number\n( outlier detection method=", method, ")"), y="observation value") #requires 'ggrepel'
+  }
+  return(outliern)
+}
+
+require("ggrepel") 
+
+x <- x$InCount
+
+#---------------------------------
+#function to identify outliers
+outliers <- function(data){
+    med <- median(x)
+    MAD <-median(abs(med-x))
+    dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=abs(x-med)>3.5*(MAD/0.6745))
+    #dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier= ((0.6745 * abs(x-med))/MAD>3.5))
+    midp <<- med
+    lower <<- med-2*(MAD/0.6745)
+    upper <<- med+2*(MAD/0.6745)
+    outliern <<- length(which(dtf=="TRUE"))
+    return(dft)
+    } 
+#---------------------------------
+historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+
+#create list of all days between two range (i.e. start and end date of historical footfall dataset)
+start_date <- min(uniq_Dates(historical_footfall)) #library(lubridate)
+end_date <- max(uniq_Dates(historical_footfall))
+allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
+#allDays_listed <- seq(as.Date("2011-01-01"), as.Date("2011-01-03"), by=1)
+
+#n_days <- interval(start_date,end_date)/days(1)
+#allDays_listed <- as.Date(start_date) + days(0:n_days)
+
+#how do you approximate it..forward or back
+
+hours_of_the_Day <- 0:23
+hours_of_the_Day <- 8:17
+hours_of_the_Day <- 18:20
+hours_of_the_Day <- c(21,22,23, 0, 1, 2, 3, 4, 5)
+
+#create list of days and time.
+allDays_Time_listed <- merge(allDays_listed, hours_of_the_Day, all = TRUE, sort = FALSE)
+allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
+
+#combine date and time to create a unique field
+unique_allDays_Time_listed <- paste(allDays_Time_listed$x, allDays_Time_listed$y, sep="-")
+
+unique_allDays_Time_listed_join <- cbind(allDays_Time_listed, unique_allDays_Time_listed)
+
+colnames(unique_allDays_Time_listed_join) <- c("Date","Hour","Id")
+
+
+
+
+
+
+
+
+#for each day, create list of hours
+
+days_time_merged <- NULL
+for(i in 1:length(allDays_listed)){
+	
+
+}
+
+
+
+
+
+
+
+#function 
+footfall_data_listed <- seq(as.vector(min(uniq_Dates(historical_footfall))), as.vector(max(uniq_Dates(historical_footfall))), by="days")
+
+
+seq(as.Date("2011-12-30"), as.Date("2012-01-04"), by="days")
+
+
+
+ggplot(dtf, aes(x=ID, y=obs, label=ID)) + geom_point(aes(colour=outlier))
+
+
+ if (addthres==TRUE) {#dev.new()
+method="median"
+    p <- ggplot(dtf, aes(x=ID, y=obs, label=ID)) + geom_point(aes(colour=outlier)) + 
+		#geom_text_repel(data = subset(dtf, outlier=="TRUE"), aes(label = ID), size = 2.7, colour="black", 
+		#box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines")) + 
+		labs(x=paste("observation ID number\n number of outliers detected=", outliern, "\n( outlier detection method=", method, ")"), 
+		y="observation value") + geom_hline(yintercept = midp, colour="black", linetype = "longdash") #+ 
+		geom_hline(yintercept = lower, colour="black", linetype = "longdash") + 
+		geom_hline(yintercept = upper, colour="black", linetype = "longdash")
+    } else {
+  p <- ggplot(dtf, aes(x=ID, y=obs, label=ID)) + geom_point(aes(colour=outlier)) + 
+		geom_text_repel(data = subset(dtf, outlier=="TRUE"), aes(label = ID), size = 2.7, colour="black", 
+		box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines")) + 
+		labs(x=paste("observation ID number\n( outlier detection method=", method, ")"), 
+		y="observation value") #requires 'ggrepel'
+  }
+
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+x <- read.table(file="file_with_issues.csv", sep=",", head=TRUE) #3623 & 3624
+x <- read.table(file="footfall_31_12_2016.csv", sep=",", head=TRUE) #3623 & 3624
+
+
+#x <- c(2,3,1,5,2,1,1.5,2,9,2,4,1,3,2,2,5,12,1,2,3,2,3,4,2,3,7,13,1,20)
+
+outliersMAD(x) 
+result <- outlier(x$InCount, method="median",addthres=TRUE)
+
+
+names(result[1,])
+
+aaaa <- uploaded_fieldnames(data)
 
 if(length() <- length()
 #if appended the resulting missing table is reduced to the following:
