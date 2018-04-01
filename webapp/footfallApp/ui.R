@@ -298,7 +298,7 @@ shinyUI(
                                                 # p("(c) 'InCount' - Hourly aggregate of footfall count"),
                                                 # p("Upload a .csv file to update the database")
                                               ),
-                                              
+                                              tags$style(".shiny-file-input-progress {display: none}"),
                                               fileInput('file1', 'Choose file to upload',
                                                         accept = c(
                                                           'text/csv',
@@ -309,7 +309,7 @@ shinyUI(
                                                           '.tsv'
                                                         )),
                                               
-                                              
+                                              #htmlOutput("processing"),
                                               htmlOutput("Uploaded_file_checks_Passed"),
                                               tags$hr(), # 
                                               htmlOutput("issues"),

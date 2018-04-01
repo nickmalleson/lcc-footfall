@@ -134,6 +134,28 @@ uniq_Dates <- function(data){
   return(dataValues)
 }
 
+#function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, but with date format changed
+convert_Date <- function(data){
+  #first convert the data to the right format i.e. "yyyy-mm-dd"
+  dataValues <- data$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  #dataValues <- cbind(min(dateField), "missing dates(months)")
+  data$Date <- dateField
+  return(data)
+}
+
+
+
+
+
 #function to check that uploaded contains the three fields, "Date","Hour","InCount"
 uploaded_fieldnames <- function(data){
   names_uploaded <- c("Date","Hour","InCount") %in% colnames(data)
@@ -471,6 +493,9 @@ shinyServer(function(input, output, session){
   output$text10 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
   }
 
+  #observe({
+    #req(input$file1)
+    #output$processing <- renderText({print("processing.....wait!")})
   #read the uploaded data to fill in the gap in historical footfall. Purpose: to display
   output$gaps <- DT::renderDataTable({
     req(input$file1)
@@ -480,6 +505,7 @@ shinyServer(function(input, output, session){
     uploaded_Table <- DT::datatable(file_For_Missing_Data)
       return(uploaded_Table)
   })
+ #})
   
   observe({
     #to hide upload button
@@ -616,7 +642,8 @@ shinyServer(function(input, output, session){
       
       #create files for each time aggregation.
       #create .csv of footfall in morning (6-9pm) over time 
-      
+      #aggregate first and remove outlier
+      #footfall_data_listed <- seq(min(updated_FootfallDataset$Date), max(updated_FootfallDataset$Date), by="days")
       
       
   })
