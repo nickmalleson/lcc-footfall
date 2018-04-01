@@ -18,6 +18,7 @@ library(scales)
 library(shinyalert)
 library(shinyjs)
 library(lubridate)
+library(shinyWidgets)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
@@ -153,9 +154,6 @@ convert_Date <- function(data){
 }
 
 
-
-
-
 #function to check that uploaded contains the three fields, "Date","Hour","InCount"
 uploaded_fieldnames <- function(data){
   names_uploaded <- c("Date","Hour","InCount") %in% colnames(data)
@@ -188,18 +186,27 @@ dateOverlap_Checker <- function(historical_footfall, data){
   return(length(overlap_Dates))
 }
 
-#function to identify outliers
-outliers <- function(data){
-  med <- median(x)
-  MAD <-median(abs(med-x))
-  dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier=abs(x-med)>3.5*(MAD/0.6745))
-  #dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier= ((0.6745 * abs(x-med))/MAD>3.5))
-  midp <<- med
-  lower <<- med-2*(MAD/0.6745)
-  upper <<- med+2*(MAD/0.6745)
-  outliern <<- length(which(dtf=="TRUE"))
-  return(dft)
+#function to identify outliers#, returns 0 as "na" datapoint, "1" for outliers and  "2" for not outlier
+outliers <- function(data=result1){
+  hold_result <- matrix(0, length(x), 1)
+  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  ind_hold.na <- which(is.na(x))
+  ind_hold.not.na  <- which(!is.na(x))
+  # hold.not.na <- matrix(0, length(ind_not_na),1)
+  x_2 <- x[ind_hold.not.na]
+  med <- median(x_2)
+  MAD <-median(abs(med-x_2))
+  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
+  dtf <- as.data.frame(cbind(dtf, ind_hold.not.na))
+  colnames(dtf) <- c("id","obs","outlier","ind")
+  outlier_ind <- which(dtf$outlier=="TRUE")
+  not_outlier_ind <- which(dtf$outlier!="TRUE")
+  hold_result[dtf$ind[outlier_ind],1] <- 1  #'1' for outliers
+  hold_result[dtf$ind[not_outlier_ind],1] <- 2  #'2' for not outlier
+  hold_result[ind_hold.na,1] <- 0
+  return(hold_result)
 } 
+
 
 #----------------------------------------------------------
 
@@ -209,7 +216,7 @@ shinyServer(function(input, output, session){
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
   
-  
+
   historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
   history_footfall <- historical_footfall
   
@@ -218,8 +225,27 @@ shinyServer(function(input, output, session){
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
     # })
-    
-    
+  # observe({
+  #   shinyjs::hide("UI") #hide the processbar first
+  # }) 
+  
+  disable("slider")
+  observeEvent(input$file1, priority=10, {
+    #shinyjs::hide("UI")
+    js$play()
+    #Sys.sleep(1) # simulate computation
+    })
+    #showNotification("File uploaded!", type="error")})
+  output$processingbar1 = renderUI({
+    shinyjs::show("processingbar1")
+    sliderInput("slider", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
+                animate = animationOptions(
+                  interval = (8*8), #5 seconds
+                  playButton = "",
+                  pauseButton = ""))})
+
+  #to hide upload button
+
   # output$table.output <- renderText({
   #   #input$tbl^2
   #   names(history_footfall)
@@ -510,11 +536,14 @@ shinyServer(function(input, output, session){
   observe({
     #to hide upload button
     shinyjs::hide("append")
+    shinyjs::hide("processingbar2")
   })
   #uploaded data.....: Purpose: observe command is used where no output is returned.
   #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
   observe({
     
+    shinyjs::show("processingbar1")
+    shinyjs::hide("processingbar2")
     #initialisation
     issue1 = 0
     issue2 = 0
@@ -568,10 +597,31 @@ shinyServer(function(input, output, session){
       
       #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Checks' passed!")})
-      shinyjs::show("append")}
+      shinyjs::show("append")
+      shinyjs::show("processingbar1")
+      shinyjs::show("processingbar2")
+      
+      disable("slider")
+      observeEvent(input$append, priority=10, {
+        js$play()
+        #Sys.sleep(1) # simulate computation
+      })
+      #showNotification("File uploaded!", type="error")})
+      
+      
+      output$processingbar2 = renderUI({
+        shinyjs::show("processingbar2")
+        sliderInput("slider2", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
+                    animate = animationOptions(
+                      interval = (8*8), #5 seconds
+                      playButton = "",
+                      pauseButton = ""))})
+      }
     # 
     if(total_issues!=0){
       #turn off
+      shinyjs::hide("processingbar1")
+      shinyjs::hide("processingbar2")
       output$Uploaded_file_checks_Passed <- renderText({paste(" ")})
       
       #turn on

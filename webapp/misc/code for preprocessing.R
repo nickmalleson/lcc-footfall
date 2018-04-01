@@ -303,6 +303,23 @@ outliers <- function(data){
     return(dft)
     } 
 
+#function to identify outliers
+outliers <- function(data=result1){
+  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  ind_na <- which(is.na(x))
+  ind_not_na <- which(!is.na(x))
+  x_2 <- x[ind_not_na]
+  med <- median(x_2)
+  MAD <-median(abs(med-x_2))
+  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
+  #dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier= ((0.6745 * abs(x-med))/MAD>3.5))
+  midp <<- med
+  lower <<- med-2*(MAD/0.6745)
+  upper <<- med+2*(MAD/0.6745)
+  outliern <<- length(which(dtf=="TRUE"))
+  return(dft)
+} 
+
 #function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, but with date format changed
 convert_Date <- function(data=orig_Data){
   #first convert the data to the right format i.e. "yyyy-mm-dd"
@@ -464,7 +481,35 @@ aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_
 }
 #------------------------
 
-for(i in 1:4){ #i<-3
+#function to identify outliers
+outliers <- function(data=result1){
+  hold_result <- matrix(0, length(x), 1)
+  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  ind_hold.na <- which(is.na(x))
+  ind_hold.not.na  <- which(!is.na(x))
+  hold.na <- matrix(0,length(ind_na),1)
+#  hold.not.na <- matrix(0, length(ind_not_na),1)
+  x_2 <- x[ind_not_na]
+  med <- median(x_2)
+  MAD <-median(abs(med-x_2))
+  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
+  dtf <- as.data.frame(cbind(dtf, ind_hold.not.na))
+  colnames(dtf) <- c("id","obs","outlier","ind")
+  #dtf <<- data.frame(ID=seq.int(length(x)), obs=x, outlier= ((0.6745 * abs(x-med))/MAD>3.5))
+  #midp <<- med
+  #lower <<- med-2*(MAD/0.6745)
+  #upper <<- med+2*(MAD/0.6745)
+  #outliern <<- length(which(dtf=="TRUE"))
+  outlier_ind <- which(dtf$outlier=="TRUE")
+  not_outlier_ind <- which(dtf$outlier!="TRUE")
+  hold_result[dtf$ind[outlier_ind],1] <- 1  #'1' for outliers
+  hold_result[dtf$ind[not_outlier_ind],1] <- 2  #'2' for not outlier
+  hold_result[ind_hold.na,1] <- 0
+  return(hold_result)
+} 
+
+
+for(i in 1:4){ #i<-1
 
 inputData <- read.table(file="file_3daysData.csv", sep=",", head=TRUE)  #head(orig_Data)
 orig_Data <- inputData
@@ -473,6 +518,7 @@ hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 
 if(i==1){
 result1 <- aggregate_Data_for_Plot(orig_Data, cameraLoc = "LocationName", time_aggre = hours_of_the_Day[[i]])
 #remove outliers
+outliersLoc <- outliers(result1) 
 #write.table(result1, file="wholeDay.csv", sep=",")
 print(result1)
 

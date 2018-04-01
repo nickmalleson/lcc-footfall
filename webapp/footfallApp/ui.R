@@ -16,12 +16,19 @@ library(DT)
 library(shinyalert)
 library(shinyjs)
 library(lubridate)
+library(shinyWidgets)
 
 # historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
 # history_footfall <- historical_footfall
 # vchoices <- 1:ncol(history_footfall)
 # names(vchoices) <- names(history_footfall)
 
+#for progressbar animation
+jscode <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
 
 # Define UI for application that ...
 shinyUI(
@@ -272,7 +279,7 @@ shinyUI(
                                               #tabBox(width = 13, height = 800,
                                               #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                               box(
-                                                title = "List of missing dates",
+                                                title = "List of missing dates in the historical footfall database",
                                                 tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 #),
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
@@ -309,6 +316,13 @@ shinyUI(
                                                           '.tsv'
                                                         )),
                                               
+                                              #actionButton("go", "Compute"),
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                                tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                                useShinyjs(), extendShinyjs(text = jscode),
+                                              #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                                uiOutput("processingbar1"), 
+                                                                                   
                                               #htmlOutput("processing"),
                                               htmlOutput("Uploaded_file_checks_Passed"),
                                               tags$hr(), # 
@@ -322,6 +336,9 @@ shinyUI(
                                               fluidRow(column(1, align="center", offset = 0, 
                                                               actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                                                               )),
+                                              
+                                              uiOutput("processingbar2"), #)),#)),
+                                              
                                               tags$hr(), # 
                                               htmlOutput("msg_tableAppended"),
                                               box(
