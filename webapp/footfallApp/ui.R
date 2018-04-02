@@ -369,7 +369,7 @@ shinyUI(
                                      ), #htmlOutput("testHTML1"),
                                      
 
-                                     tabPanel(title = "View 1: Uploaded data", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "Uploaded data", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
                                               box(
                                                 tabPanel("history_footfall", DT::dataTableOutput("gaps"))
@@ -379,17 +379,17 @@ shinyUI(
     
                                      ),
                                      
-                                     tabPanel(title = "View 2: Appended dataset - with selected fields", status = "warning", solidHeader = T, background = "aqua",
-                                              id='testing append',
-                                              box(
-                                                tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-                                              
-                                     ),
+                                     # tabPanel(title = "View 2: Appended dataset - with selected fields", status = "warning", solidHeader = T, background = "aqua",
+                                     #          id='testing append',
+                                     #          box(
+                                     #            tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
+                                     #            #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                     #            #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                     #          )
+                                     #          
+                                     # ),
                                      
-                                     tabPanel(title = "View 3: DayTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 1: DayTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
                                               id='dayTime',
                                               box(
                                                 ##tabPanel("dayTime_data", DT::dataTableOutput("table_Appended"))
@@ -399,7 +399,7 @@ shinyUI(
                                               
                                      ),
                                      
-                                     tabPanel(title = "View 4: EveningTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 2: EveningTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
                                               id='eveningTime',
                                               box(
                                                 ###tabPanel("eveningTime_data", DT::dataTableOutput("table_Appended"))
@@ -409,7 +409,7 @@ shinyUI(
                                               
                                      ),
                                      
-                                     tabPanel(title = "View 5: NightTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 3: NightTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
                                               id='nightTime',
                                               box(
                                                 ##tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
@@ -419,7 +419,7 @@ shinyUI(
                                               
                                      ),
                                      
-                                     tabPanel(title = "View 6: WholeDay Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 4: WholeDay Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
                                               id='wholeDay',
                                               box(
                                                 ##tabPanel("wholeDay_data", DT::dataTableOutput("table_Appended"))
@@ -428,14 +428,10 @@ shinyUI(
                                               )
                                               
                                      ),
-                                     
-                                     
-                                     
+
                                      
                                      tags$hr() # 
-                                     
-                                     
-                                     
+     
                               )
                             )
                     ),
