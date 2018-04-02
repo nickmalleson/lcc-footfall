@@ -28,6 +28,156 @@ EventTime <- Sys.time() - 1*1
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
 # 
 
+#Given a footfall dataframe, aggregate the 'InCount' column at specified time aggregation (scales) e.g. daily: 0:23 hours, dayTime: 8am:6pm, etc.
+#------------------------
+aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_aggre){ #if there are multiple camera Locations
+  
+  #create unique field for the dataset#
+  #convert date to appropriate format
+  orig_Data_Conv <- convert_Date(orig_Data) #### #head(orig_Data_Conv) #nrow(orig_Data_Conv)
+  
+  #create unique field (i.e. combination of date and time)
+  unique_field <- matrix(paste(orig_Data_Conv$Date, orig_Data_Conv$Hour, sep="-"),,1)
+  colnames(unique_field) <- c("Id")
+  
+  #if(!is.na(cameraLocation)){#1
+  cam_ID <- which(colnames(orig_Data)==cameraLoc)
+  #append to real data
+  orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data$Hour, unique_field, orig_Data$InCount, as.character(orig_Data[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
+  orig_Data_sub<-as.data.frame(orig_Data_sub)
+  colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id") #head(orig_Data_sub)
+  #}#1
+  
+  #aggregate 'InCount' values across all cameral location for each day and hour of the day, (i.e. using the 'Id' field). 
+  #detect whether any 
+  
+  cameraLoc <- as.vector(unique(orig_Data_sub$Loc_Id))
+  
+  #pick a unique Id
+  #sum 'InCount' across all stations.
+  
+  orig_Data_agg_Loc <- NULL
+  uniqId <- unique(orig_Data_sub$Id)
+  
+  #this is to ensure that all cameras are represented, otherwise "NA" is reported
+  loc_agg_data <-  matrix(0, 1, 4)
+  rownames(loc_agg_data) <- length(cameraLoc)
+  row.N <- "100" #just any number different from 'length(unique_Times)' 
+  appd_Row <- matrix(0, 1, 4)
+  rownames(appd_Row) <- length(cameraLoc)
+  
+  for(i in 1:length(uniqId)){ #i<-2
+    #for(i in 1:24){ #i<-24
+    
+    data_Sub <- orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),]
+    InCountN <- sum(as.numeric(as.vector(orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),c("InCount")])))
+    
+    #check if all the unique_times are present
+    true_Ct <- length((data_Sub$Loc_Id%in%cameraLoc)=="TRUE")
+    
+    orig_Data_agg_Loc <- rbind(orig_Data_agg_Loc, cbind(as.character(data_Sub$Date[1]), as.numeric(as.vector(data_Sub$Hour[1])), as.character(uniqId[i]), InCountN))
+    combine_Result <- cbind(as.character(data_Sub$Date[1]), as.numeric(as.vector(data_Sub$Hour[1])), as.character(uniqId[i]), InCountN)
+    loc_agg_data[which(rownames(loc_agg_data)==true_Ct),] <- as.vector(combine_Result)
+    rownames(loc_agg_data) <- rep("100", nrow(loc_agg_data))
+    
+    loc_agg_data <- rbind(loc_agg_data, appd_Row)
+  }
+  
+  #clean it up
+  loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]
+  rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
+  loc_agg_data <- as.data.frame(loc_agg_data)
+  colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
+  
+  
+  #---------------------allows all dates to be seen
+  #create list of all days between two range (i.e. start and end date of historical footfall dataset)
+  start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
+  end_date <- max(uniq_Dates(loc_agg_data))
+  
+  allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
+  
+  #how do you approximate it..forward or back
+  
+  #create list of days and time, covering the entire study period (start of the footfall database and its end).
+  allDays_Time_listed <- merge(allDays_listed, c(0:23), all = TRUE, sort = FALSE)#time_aggre
+  allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
+  
+  #combine date and time to create a unique field
+  unique_allDays_Time_listed <- paste(allDays_Time_listed$x, allDays_Time_listed$y, sep="-")
+  
+  unique_allDays_Time_listed_join <- cbind(allDays_Time_listed, unique_allDays_Time_listed)  #head(orig_Data)
+  unique_allDays_Time_listed_join <- as.data.frame(unique_allDays_Time_listed_join)
+  colnames(unique_allDays_Time_listed_join) <- c("Date","Hour","Id")
+  
+  #Join 'InCount' values from 'orig_Data' to 'unique_allDays_Time_listed_join', using the 'Id' fields
+  merge_Data <- merge(x = unique_allDays_Time_listed_join, y = loc_agg_data, by = "Id", all.x = TRUE)
+  merge_Data <- as.data.frame(merge_Data)
+  
+  #create a subset of the data with the fields: 'Date.x', 'Hour.x', and 'InCount'
+  data_subset <- merge_Data[, c("Date.x", "Hour.x", "InCount")]   
+  data_subset  <- as.data.frame(data_subset)
+  colnames(data_subset) <- c("Date","Hour","InCount")   #head(data_subset[1:10,])
+  
+  #create aggregated data to plot i.e. for each time scale; whole day, morning, evening & morning.
+  unique_dates <- unique(data_subset$Date)
+  unique_Times <- time_aggre 
+  
+  
+  time_agg_data <-  matrix(0, 1, 2)
+  rownames(time_agg_data) <- length(unique_Times)
+  row.N <- "100" #just any number different from 'length(unique_Times)' 
+  appd_Row <- matrix(0, 1, 2)
+  rownames(appd_Row) <- length(unique_Times)
+  
+  for(i in 1:length(unique_dates)){ #i<-1
+    timeT <- data_subset[which(data_subset$Date==unique_dates[i]),c("Hour")]
+    #InCt <- data_subset[which(data_subset$Date==unique_dates[i]),]
+    totalCt_allDay <- data_subset[which(data_subset$Date==unique_dates[i]),]
+    #sum the 'InCount values for the time selected aggregate'
+    totalCt <- sum(as.numeric(as.vector(totalCt_allDay[which(totalCt_allDay$Hour%in%unique_Times),c("InCount")])))
+    
+    #check if all the unique_times are present
+    true_Ct <- length((unique_Times%in%totalCt_allDay$Hour)=="TRUE")
+    combine_Result <- cbind(as.character(unique_dates[i]), totalCt)
+    time_agg_data[which(rownames(time_agg_data)==length(unique_Times)),] <- as.vector(combine_Result)
+    rownames(time_agg_data) <- rep("", nrow(time_agg_data))
+    
+    time_agg_data <- rbind(time_agg_data, appd_Row)
+  }
+  #clean it up
+  time_agg_data <- time_agg_data[-which(time_agg_data[,1]=="0"),]
+  rownames(time_agg_data) <- 1:nrow(time_agg_data)
+  time_agg_data <- as.data.frame(time_agg_data)
+  colnames(time_agg_data) <- c("Date","InCount")
+  
+  return(time_agg_data)
+}
+#------------------------
+
+#function to identify outliers
+outliers <- function(data=result1){
+  hold_result <- matrix(0, length(x), 1)
+  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  ind_hold.na <- which(is.na(x))
+  ind_hold.not.na  <- which(!is.na(x))
+  # hold.not.na <- matrix(0, length(ind_not_na),1)
+  x_2 <- x[ind_hold.not.na]
+  med <- median(x_2)
+  MAD <-median(abs(med-x_2))
+  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
+  dtf <- as.data.frame(cbind(dtf, ind_hold.not.na))
+  colnames(dtf) <- c("id","obs","outlier","ind")
+  outlier_ind <- which(dtf$outlier=="TRUE")
+  not_outlier_ind <- which(dtf$outlier!="TRUE")
+  hold_result[dtf$ind[outlier_ind],1] <- 1  #'1' for outliers
+  hold_result[dtf$ind[not_outlier_ind],1] <- 2  #'2' for not outlier
+  hold_result[ind_hold.na,1] <- 0
+  return(hold_result)
+} 
+#------------------------
+
+
 # function to plot line graph with filled area-under-curve
 auc_plot <- function(y, plotStyle=1){
   #autoInvalidate1 <- reactiveTimer(5000, session)
@@ -187,25 +337,6 @@ dateOverlap_Checker <- function(historical_footfall, data){
 }
 
 #function to identify outliers#, returns 0 as "na" datapoint, "1" for outliers and  "2" for not outlier
-outliers <- function(data=result1){
-  hold_result <- matrix(0, length(x), 1)
-  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
-  ind_hold.na <- which(is.na(x))
-  ind_hold.not.na  <- which(!is.na(x))
-  # hold.not.na <- matrix(0, length(ind_not_na),1)
-  x_2 <- x[ind_hold.not.na]
-  med <- median(x_2)
-  MAD <-median(abs(med-x_2))
-  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
-  dtf <- as.data.frame(cbind(dtf, ind_hold.not.na))
-  colnames(dtf) <- c("id","obs","outlier","ind")
-  outlier_ind <- which(dtf$outlier=="TRUE")
-  not_outlier_ind <- which(dtf$outlier!="TRUE")
-  hold_result[dtf$ind[outlier_ind],1] <- 1  #'1' for outliers
-  hold_result[dtf$ind[not_outlier_ind],1] <- 2  #'2' for not outlier
-  hold_result[ind_hold.na,1] <- 0
-  return(hold_result)
-} 
 
 
 #----------------------------------------------------------
@@ -537,6 +668,7 @@ shinyServer(function(input, output, session){
     #to hide upload button
     shinyjs::hide("append")
     shinyjs::hide("processingbar2")
+    shinyjs::hide("InCount_aggre_files")
   })
   #uploaded data.....: Purpose: observe command is used where no output is returned.
   #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
@@ -601,7 +733,7 @@ shinyServer(function(input, output, session){
       shinyjs::show("processingbar1")
       shinyjs::show("processingbar2")
       
-      disable("slider")
+      disable("slider1")
       observeEvent(input$append, priority=10, {
         js$play()
         #Sys.sleep(1) # simulate computation
@@ -609,13 +741,13 @@ shinyServer(function(input, output, session){
       #showNotification("File uploaded!", type="error")})
       
       
-      output$processingbar2 = renderUI({
-        shinyjs::show("processingbar2")
-        sliderInput("slider2", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
-                    animate = animationOptions(
-                      interval = (8*8), #5 seconds
-                      playButton = "",
-                      pauseButton = ""))})
+      # output$processingbar2 = renderUI({
+      #   shinyjs::show("processingbar1")
+      #   sliderInput("slider1", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
+      #               animate = animationOptions(
+      #                 interval = (8*8), #5 seconds
+      #                 playButton = "",
+      #                 pauseButton = ""))})
       }
     # 
     if(total_issues!=0){
@@ -639,7 +771,7 @@ shinyServer(function(input, output, session){
     
   })
   
-  #perform the following upon clicking 'append' button
+  #perform the following action upon clicking 'append' button
   observeEvent(input$append, {
     #output$msg_tableAppended <- renderText({paste("Tables appended. See the remaining missing dates below:  ")})
     #create two files
@@ -685,17 +817,27 @@ shinyServer(function(input, output, session){
         DT::datatable(missData_after_append)
         #DT::datatable(missing_dates)
       })
+      
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>New records appended successfully!")})
+      
       #title of table after append
       output$table_after_append <- renderText({
         paste("List of missing dates after append")
       })
       
-      #create files for each time aggregation.
-      #create .csv of footfall in morning (6-9pm) over time 
-      #aggregate first and remove outlier
-      #footfall_data_listed <- seq(min(updated_FootfallDataset$Date), max(updated_FootfallDataset$Date), by="days")
+      shinyjs::show("InCount_aggre_files")
       
-      
+      disable("slider1")
+      observeEvent(input$InCount_aggre_files, priority=10, {
+        js$play()
+        #Sys.sleep(1) # simulate computation
+      })
+      # output$processingbar1 = renderUI({
+      #   sliderInput("slider3", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
+      #               animate = animationOptions(
+      #                 interval = (8*8), #5 seconds
+      #                 playButton = "",
+      #                 pauseButton = ""))})
   })
   
   

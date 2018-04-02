@@ -273,7 +273,7 @@ shinyUI(
                             fluidRow(
                               
                               tabBox(width = 13, height = 800,
-                                     tabPanel(title = "Update historical data", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "Settings", status = "warning", solidHeader = T, background = "aqua",
                                               
                                               
                                               #tabBox(width = 13, height = 800,
@@ -335,24 +335,41 @@ shinyUI(
                                               useShinyjs(),
                                               fluidRow(column(1, align="center", offset = 0, 
                                                               actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-                                                              )),
+                                                              )),hr(),
+                                              fluidRow(column(1, align="center", offset = 0, 
+                                                        actionButton("InCount_aggre_files", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                                                       )),
+                                                       #),
                                               
-                                              uiOutput("processingbar2"), #)),#)),
+                                              #uiOutput("processingbar2"), #)),#)),
+                                              
+                                              htmlOutput("msg_data_appended"),
                                               
                                               tags$hr(), # 
+                                              
                                               htmlOutput("msg_tableAppended"),
+                                              
                                               box(
                                                 title =  textOutput("table_after_append"),
                                                 tabPanel("missedFootfallafterAppend", DT::dataTableOutput("missed_Foot_after_Append")),
                                                 #),
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16")
-                                               # textInput("element", "Watch what happens to me")
-                                              )
+                                              
+                                              ),
+                                              
+                                              tags$hr() #
+      
+                                              
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                                             # actionButton("InCount_aggre_files", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                                              #))
+                                              
+
                                               
                                      ), #htmlOutput("testHTML1"),
                                      
 
-                                     tabPanel(title = "View uploaded data here", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 1: Uploaded data", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
                                               box(
                                                 tabPanel("history_footfall", DT::dataTableOutput("gaps"))
@@ -362,7 +379,7 @@ shinyUI(
     
                                      ),
                                      
-                                     tabPanel(title = "View result: appended dataset ('Date','Hour','InCount')", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = "View 2: Appended dataset - with selected fields", status = "warning", solidHeader = T, background = "aqua",
                                               id='testing append',
                                               box(
                                                 tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
@@ -371,6 +388,49 @@ shinyUI(
                                               )
                                               
                                      ),
+                                     
+                                     tabPanel(title = "View 3: DayTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                              id='dayTime',
+                                              box(
+                                                ##tabPanel("dayTime_data", DT::dataTableOutput("table_Appended"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = "View 4: EveningTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                              id='eveningTime',
+                                              box(
+                                                ###tabPanel("eveningTime_data", DT::dataTableOutput("table_Appended"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = "View 5: NightTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                              id='nightTime',
+                                              box(
+                                                ##tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = "View 6: WholeDay Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                              id='wholeDay',
+                                              box(
+                                                ##tabPanel("wholeDay_data", DT::dataTableOutput("table_Appended"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                     ),
+                                     
+                                     
+                                     
                                      
                                      tags$hr() # 
                                      
