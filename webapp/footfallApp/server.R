@@ -19,6 +19,7 @@ library(shinyalert)
 library(shinyjs)
 library(lubridate)
 library(shinyWidgets)
+library(foreign)
 
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
@@ -28,10 +29,8 @@ EventTime <- Sys.time() - 1*1
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
 # 
 
-#Given a footfall dataframe, aggregate the 'InCount' column at specified time aggregation (scales) e.g. daily: 0:23 hours, dayTime: 8am:6pm, etc.
-#------------------------
-aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_aggre){ #if there are multiple camera Locations
-  
+#subset data, colleting the necessary fields: 'Date', 'Hour', 'Id' & 'LocationName'
+subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   #create unique field for the dataset#
   #convert date to appropriate format
   orig_Data_Conv <- convert_Date(orig_Data) #### #head(orig_Data_Conv) #nrow(orig_Data_Conv)
@@ -40,16 +39,17 @@ aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_
   unique_field <- matrix(paste(orig_Data_Conv$Date, orig_Data_Conv$Hour, sep="-"),,1)
   colnames(unique_field) <- c("Id")
   
-  #if(!is.na(cameraLocation)){#1
   cam_ID <- which(colnames(orig_Data)==cameraLoc)
   #append to real data
   orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data$Hour, unique_field, orig_Data$InCount, as.character(orig_Data[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
   orig_Data_sub<-as.data.frame(orig_Data_sub)
   colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id") #head(orig_Data_sub)
-  #}#1
-  
-  #aggregate 'InCount' values across all cameral location for each day and hour of the day, (i.e. using the 'Id' field). 
-  #detect whether any 
+  return(orig_Data_sub)
+}
+
+#------------------------
+
+aggregate_Location <- function(orig_Data_sub){
   
   cameraLoc <- as.vector(unique(orig_Data_sub$Loc_Id))
   
@@ -65,8 +65,9 @@ aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_
   row.N <- "100" #just any number different from 'length(unique_Times)' 
   appd_Row <- matrix(0, 1, 4)
   rownames(appd_Row) <- length(cameraLoc)
-  
-  for(i in 1:length(uniqId)){ #i<-2
+flush.console()
+print("point1")
+  for(i in 1:length(uniqId)){ #i<-1
     #for(i in 1:24){ #i<-24
     
     data_Sub <- orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),]
@@ -81,6 +82,8 @@ aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_
     rownames(loc_agg_data) <- rep("100", nrow(loc_agg_data))
     
     loc_agg_data <- rbind(loc_agg_data, appd_Row)
+    flush.console()
+    print(paste("point2", i, length(uniqId)))
   }
   
   #clean it up
@@ -88,72 +91,11 @@ aggregate_Data_for_Plot <- function(orig_Data, cameraLoc = "LocationName", time_
   rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
   loc_agg_data <- as.data.frame(loc_agg_data)
   colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
+  return(loc_agg_data)
   
-  
-  #---------------------allows all dates to be seen
-  #create list of all days between two range (i.e. start and end date of historical footfall dataset)
-  start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
-  end_date <- max(uniq_Dates(loc_agg_data))
-  
-  allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
-  
-  #how do you approximate it..forward or back
-  
-  #create list of days and time, covering the entire study period (start of the footfall database and its end).
-  allDays_Time_listed <- merge(allDays_listed, c(0:23), all = TRUE, sort = FALSE)#time_aggre
-  allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
-  
-  #combine date and time to create a unique field
-  unique_allDays_Time_listed <- paste(allDays_Time_listed$x, allDays_Time_listed$y, sep="-")
-  
-  unique_allDays_Time_listed_join <- cbind(allDays_Time_listed, unique_allDays_Time_listed)  #head(orig_Data)
-  unique_allDays_Time_listed_join <- as.data.frame(unique_allDays_Time_listed_join)
-  colnames(unique_allDays_Time_listed_join) <- c("Date","Hour","Id")
-  
-  #Join 'InCount' values from 'orig_Data' to 'unique_allDays_Time_listed_join', using the 'Id' fields
-  merge_Data <- merge(x = unique_allDays_Time_listed_join, y = loc_agg_data, by = "Id", all.x = TRUE)
-  merge_Data <- as.data.frame(merge_Data)
-  
-  #create a subset of the data with the fields: 'Date.x', 'Hour.x', and 'InCount'
-  data_subset <- merge_Data[, c("Date.x", "Hour.x", "InCount")]   
-  data_subset  <- as.data.frame(data_subset)
-  colnames(data_subset) <- c("Date","Hour","InCount")   #head(data_subset[1:10,])
-  
-  #create aggregated data to plot i.e. for each time scale; whole day, morning, evening & morning.
-  unique_dates <- unique(data_subset$Date)
-  unique_Times <- time_aggre 
-  
-  
-  time_agg_data <-  matrix(0, 1, 2)
-  rownames(time_agg_data) <- length(unique_Times)
-  row.N <- "100" #just any number different from 'length(unique_Times)' 
-  appd_Row <- matrix(0, 1, 2)
-  rownames(appd_Row) <- length(unique_Times)
-  
-  for(i in 1:length(unique_dates)){ #i<-1
-    timeT <- data_subset[which(data_subset$Date==unique_dates[i]),c("Hour")]
-    #InCt <- data_subset[which(data_subset$Date==unique_dates[i]),]
-    totalCt_allDay <- data_subset[which(data_subset$Date==unique_dates[i]),]
-    #sum the 'InCount values for the time selected aggregate'
-    totalCt <- sum(as.numeric(as.vector(totalCt_allDay[which(totalCt_allDay$Hour%in%unique_Times),c("InCount")])))
-    
-    #check if all the unique_times are present
-    true_Ct <- length((unique_Times%in%totalCt_allDay$Hour)=="TRUE")
-    combine_Result <- cbind(as.character(unique_dates[i]), totalCt)
-    time_agg_data[which(rownames(time_agg_data)==length(unique_Times)),] <- as.vector(combine_Result)
-    rownames(time_agg_data) <- rep("", nrow(time_agg_data))
-    
-    time_agg_data <- rbind(time_agg_data, appd_Row)
-  }
-  #clean it up
-  time_agg_data <- time_agg_data[-which(time_agg_data[,1]=="0"),]
-  rownames(time_agg_data) <- 1:nrow(time_agg_data)
-  time_agg_data <- as.data.frame(time_agg_data)
-  colnames(time_agg_data) <- c("Date","InCount")
-  
-  return(time_agg_data)
 }
-#------------------------
+
+#-----------------------------------
 
 #function to identify outliers
 outliers <- function(data=result1){
@@ -304,17 +246,18 @@ convert_Date <- function(data){
 }
 
 
-#function to check that uploaded contains the three fields, "Date","Hour","InCount"
+#function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
 uploaded_fieldnames <- function(data){
-  names_uploaded <- c("Date","Hour","InCount") %in% colnames(data)
+  essential_Fields <- c("Date","Hour","InCount", "LocationName")
+  names_uploaded <- essential_Fields %in% colnames(data)
   leng_name <- length(which(names_uploaded=="TRUE"))
   #return(leng_name)
 }
 
 #function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time
-dateRange_Checker <- function(historical_footfall, data){
+dateRange_Checker <- function(history_footfall, data){
   #unique dates in the footfall (database) data
-  uniqueDate_footfallDatabase <- uniq_Dates(historical_footfall)
+  uniqueDate_footfallDatabase <- uniq_Dates(history_footfall)
   #unique dates in the uploaded data
   uniqueDate_uploaded <- uniq_Dates(data)
   #check that all dates fall with range (from the start of footfall data and the current time)
@@ -326,9 +269,9 @@ dateRange_Checker <- function(historical_footfall, data){
 }
 
 #now to check where there is overlap in the dates:
-dateOverlap_Checker <- function(historical_footfall, data){
+dateOverlap_Checker <- function(history_footfall, data){
   #unique dates in the footfall (database) data
-  uniqueDate_footfallDatabase <- uniq_Dates(historical_footfall)
+  uniqueDate_footfallDatabase <- uniq_Dates(history_footfall)
   #unique dates in the uploaded data
   uniqueDate_uploaded <- uniq_Dates(data)
   #check that there is no overlap between the dates dates
@@ -347,11 +290,26 @@ shinyServer(function(input, output, session){
 #first check that footfall data is up-to-date
 #append all footfall files in the directory 
   
-
-  historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-  history_footfall <- historical_footfall
+  
+  history_footfall <- do.call("rbind", lapply(list.files("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/",
+                                                  full=TRUE),read.csv, header=TRUE))
   
   output$history <- renderDataTable(history_footfall)
+  # historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_31_12_2016.csv", sep=",", head=TRUE)
+  # history_footfall <- historical_footfall
+  
+
+  
+  # output$gaps <- DT::renderDataTable({
+  #   req(input$file1)
+  #   file_For_Missing_Data <- read.csv(input$file1$datapath,
+  #                                     header = TRUE,
+  #                                     sep = ",")#,
+  #   uploaded_Table <- DT::datatable(file_For_Missing_Data)
+  #   return(uploaded_Table)
+  # })
+
+
   
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
@@ -613,7 +571,7 @@ shinyServer(function(input, output, session){
   #detecting missing data
 
   #create a list dates occuring in the dataset
-  missData <- missingData(historical_footfall)
+  missData <- missingData(history_footfall)
 
   #to hide "missing data" warning
   if(nrow(missData)>=1){
@@ -646,29 +604,31 @@ shinyServer(function(input, output, session){
   output$text6 <- renderText({paste("   (a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'")})
   output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
   output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
-  output$text9 <- renderText({paste("Upload a .csv file to update the database")})
-  output$text10 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
+  output$text9 <- renderText({paste("   (d) 'LocationName' - Containing the names assigned to camera locations")}) 
+  output$text10 <- renderText({paste("Upload a .csv file to update the database")})
+  output$text11 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
   }
 
   #observe({
     #req(input$file1)
     #output$processing <- renderText({print("processing.....wait!")})
   #read the uploaded data to fill in the gap in historical footfall. Purpose: to display
-  output$gaps <- DT::renderDataTable({
-    req(input$file1)
-    file_For_Missing_Data <- read.csv(input$file1$datapath,
-                   header = TRUE,
-                   sep = ",")#,
-    uploaded_Table <- DT::datatable(file_For_Missing_Data)
-      return(uploaded_Table)
-  })
+
+  # output$gaps <- DT::renderDataTable({
+  #   req(input$file1)
+  #   file_For_Missing_Data <- read.csv(input$file1$datapath,
+  #                  header = TRUE,
+  #                  sep = ",")#,
+  #   uploaded_Table <- DT::datatable(file_For_Missing_Data)
+  #     return(uploaded_Table)
+  # })
  #})
   
   observe({
     #to hide upload button
     shinyjs::hide("append")
     shinyjs::hide("processingbar2")
-    shinyjs::hide("InCount_aggre_files")
+    shinyjs::hide("generated_footfall_aggre_data")
   })
   #uploaded data.....: Purpose: observe command is used where no output is returned.
   #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
@@ -692,10 +652,12 @@ shinyServer(function(input, output, session){
     #shinyjs::hide("upload")
     #checking whether the uploaded file contain essential fields
     leng_name <- uploaded_fieldnames(uploaded_file) #checking essential field names
-    out_Len <- dateRange_Checker(historical_footfall, uploaded_file) #checking if dates falls outsides desired range 
-    overlap_Dates <- dateOverlap_Checker(historical_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
+    out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
+    overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
   
-    if(as.numeric(leng_name)!=3){
+    essential_Fields <- c("Date","Hour","InCount", "LocationName")
+    
+    if(as.numeric(leng_name)!=length(essential_Fields)){
       issue1<-1}
     
     if(out_Len>0){
@@ -728,7 +690,7 @@ shinyServer(function(input, output, session){
       output$resolve_issue <- renderText({paste(" ")})
       
       #turn on
-      output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Checks' passed!")})
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Successful!")})
       shinyjs::show("append")
       shinyjs::show("processingbar1")
       shinyjs::show("processingbar2")
@@ -760,7 +722,7 @@ shinyServer(function(input, output, session){
       #shinyjs::show("append")}  ###renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
       output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1==1){
-      output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount'")})}
+      output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
       if(issue2==1){
         output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
       if(issue3==1){
@@ -775,14 +737,14 @@ shinyServer(function(input, output, session){
   observeEvent(input$append, {
     #output$msg_tableAppended <- renderText({paste("Tables appended. See the remaining missing dates below:  ")})
     #create two files
-    historicalData_Subset <- history_footfall[,c("Date","Hour","InCount")]
+    historicalData_Subset <- history_footfall[,c("Date","Hour","InCount", "LocationName")]
     print(historicalData_Subset)
     req(input$file1)
     #To check the gaps that an uploaded file fill
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
-    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount")]
+    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
     
     #cleaning the uploaded file; remove outliers
     uploadedData_Subset 
@@ -790,25 +752,21 @@ shinyServer(function(input, output, session){
     
     #new historical data
     updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
-    colnames(updated_FootfallDataset) <- c("Date","Hour","InCount")
+    colnames(updated_FootfallDataset) <- c("Date","Hour","InCount", "LocationName")
     #sorting
     #updated_FootfallDataset <- updated_FootfallDataset[
       #with(updated_FootfallDataset, order(Date,Hour))
       #]
     #write the appended files for different aggregation
     
-    
-    #export appended data
-    output$table_Appended <- DT::renderDataTable({
-      result_appended <- DT::datatable(updated_FootfallDataset)
-      return(result_appended)
-    #implement error catching here..
-    ##updated_FootfallDataset <- updated_FootfallDataset[,c("Date","Hour","InCount")]
-    #print(updated_FootfallDataset[(length(updated_FootfallDataset)-10):length(updated_FootfallDataset),])
-    
-    #DT::datatable(updated_FootfallDataset[,c("Date","Hour","InCount"), drop=FALSE] )
-  })
-    
+
+    #export appended data#--------------------------------------------------
+  #   output$table_Appended <- DT::renderDataTable({
+  #     result_appended <- DT::datatable(updated_FootfallDataset)
+  #     return(result_appended)
+  # })
+
+   
     #gaps after append
     missData_after_append <- missingData(updated_FootfallDataset)
       #result missing data table after the append
@@ -818,17 +776,18 @@ shinyServer(function(input, output, session){
         #DT::datatable(missing_dates)
       })
       
-      output$Uploaded_file_checks_Passed <- renderText({paste("<b>New records appended successfully!")})
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>New records appended successfully! Click 'Generate aggregated data' button to complete the process")})
       
       #title of table after append
       output$table_after_append <- renderText({
         paste("List of missing dates after append")
       })
       
-      shinyjs::show("InCount_aggre_files")
+      shinyjs::show("generated_footfall_aggre_data")
+      shinyjs::hide("append")
       
       disable("slider1")
-      observeEvent(input$InCount_aggre_files, priority=10, {
+      observeEvent(input$generated_footfall_aggre_data, priority=10, {
         js$play()
         #Sys.sleep(1) # simulate computation
       })
@@ -838,11 +797,56 @@ shinyServer(function(input, output, session){
       #                 interval = (8*8), #5 seconds
       #                 playButton = "",
       #                 pauseButton = ""))})
+      #find the most recent date in the historical footfall dataset
+      max_Date <- max(uniq_Dates(updated_FootfallDataset))
+      write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
+      output$file_updated <- renderText({paste("<b> Historical footfall data updated! See the working directory.")})
+      
   })
   
-  
-  
-  
+  #export appended data
+  observeEvent(input$generated_footfall_aggre_data, {
+    #output$msg_tableAppended <- rend
+    
+    orig_Data <- do.call("rbind", lapply(list.files("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/",
+                                                 full=TRUE),read.csv, header=TRUE))
+    
+    max_Date <- max(uniq_Dates(orig_Data))
+    #write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
+    
+    #to generate aggregated dataset at varying temporal scales
+    print(max_Date)
+    #create a list of time aggregate
+    hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
+    
+    for(i in 1:length(hours_of_the_Day )){ #i<-1
+      
+      #inputData <- read.table(file="file_3daysData.csv", sep=",", head=TRUE)  #head(orig_Data)
+      #orig_Data <- inputData
+      
+      if(i==1){
+        print (hours_of_the_Day[[i]])
+        #result1 <- aggregate_Data_for_Plot(orig_Data=orig_Data, cameraLoc = "LocationName", time_aggre = hours_of_the_Day[[i]])
+        result1 <- subset_Dataset(orig_Data)
+        aggregate_across_location_by_Date <- aggregate_Location(result1)
+        #remove outliers
+        ##outliersLoc <- outliers(result1) 
+        #append the outlier list to the result
+        ##result1 <- cbind(result1, outliersLoc)
+        ##colnames(result1)<- c("Date","InCount","outlier")
+        head(aggregate_across_location_by_Date)
+        write.table(aggregate_across_location_by_Date, file="wholeDay.csv", sep=",")
+        ##print(time_aggre)
+        
+      }
+      
+    }
+    
+    
+    
+  })
+
+
   
 })
 

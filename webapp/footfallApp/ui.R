@@ -17,11 +17,8 @@ library(shinyalert)
 library(shinyjs)
 library(lubridate)
 library(shinyWidgets)
+library(foreign)
 
-# historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-# history_footfall <- historical_footfall
-# vchoices <- 1:ncol(history_footfall)
-# names(vchoices) <- names(history_footfall)
 
 #for progressbar animation
 jscode <- "
@@ -104,45 +101,22 @@ shinyUI(
                     ),
                     
                     #Setting menu
-                    menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs")),
+                    menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
                     
-                    menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")), 
+                    menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs"))
                     
-                    #sidebarPanel(id="tableCol", width = 13, skin="blue",
-                    # conditionalPanel(
-                    #   #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                    #   'input.dataset === "diamonds"',
-                    #   checkboxGroupInput("show_vars", "List of predictors:",
-                    #                      names(diamonds), selected = names(diamonds))),
-                    menuItem("Footfall details", tabName ="predictors", 
+
+
+                    # menuItem("Footfall details", tabName ="predictors"
                              
-                    conditionalPanel(
-                      #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE),
-                      historical_footCopy <- dataTableOutput('history'),
-                      #print(head(historical_footCopy)),#history_footfall <- historical_footfall,
-                      #'input.dataset === "history_footfall"',
-                      #'
-                      checkboxGroupInput("show_vars2", "List of predictors:",
-                              c("Date", "Hour", "InCount"), selected = c("Date", "Hour", "InCount")))
-                    
-                      # checkboxGroupInput("show_vars2", "List of predictors:",
-                      #                  names(historical_footCopy)[1:14], selected = names(historical_footCopy)[1:14]))
-                      # 
-                     #checkboxGroupInput("show_vars2", "List of predictors:",
-                                        #c("Date"), selected = c("Date")))
-                    # 
                     # conditionalPanel(
-                    #   #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                    #   'input.dataset === "mtcars"',
-                    #   helpText("Click the column header to sort a column")
-                    # ),
-                  #     conditionalPanel(
-                  #       #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE),
-                  #       'input.dataset === "iris"',
-                  #       helpText("Display 5 records by default")
-                  # )
-                    #)
-                    )
+                    # 
+                    #   historical_footCopy <- dataTableOutput('history'),
+                    # 
+                    #   checkboxGroupInput("show_vars2", "List of predictors:",
+                    #           c("Date", "Hour", "InCount"), selected = c("Date", "Hour", "InCount")))
+# 
+#                     )
                         
                            )
    
@@ -157,16 +131,7 @@ shinyUI(
                 
                   tabItems(
                     tabItem(tabName = "dashboard",
-  
-                            #)
-                            
-                            # fluidPage(
-                            # utd <- 1,
-                            # if(utd == 1){
-                            #   useShinyalert()
-                            #   #actionButton("preview", "preview")
-                            # }
-                            # ),
+
                             
                             fluidRow(
                               
@@ -273,7 +238,19 @@ shinyUI(
                             fluidRow(
                               
                               tabBox(width = 13, height = 800,
-                                     tabPanel(title = "Settings", status = "warning", solidHeader = T, background = "aqua",
+                                     
+                                     #tab1
+                                     tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
+                                              id='gaps_missingData',
+                                              box(
+                                                tabPanel("history_footfall", DT::dataTableOutput("history"))
+                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                              )
+                                              
+                                     ),
+                                     #tab2
+                                     tabPanel(title = "Update HF", status = "warning", solidHeader = T, background = "aqua",
                                               
                                               
                                               #tabBox(width = 13, height = 800,
@@ -287,14 +264,15 @@ shinyUI(
                                                 "  ",
                                                 htmlOutput("testHTML1"),
                                                 textOutput("text2"),
-                                                textOutput("testHTML3"),
-                                                textOutput("testHTML4"),
+                                                htmlOutput("testHTML3"),
+                                                htmlOutput("testHTML4"),
                                                 textOutput("text5"),
                                                 textOutput("text6"),
                                                 textOutput("text7"),
                                                 textOutput("text8"),
                                                 textOutput("text9"),
-                                                textOutput("text10")
+                                                textOutput("text10"),
+                                                textOutput("text11")
                                                 # p("<b>Above table shows the list of date ranges in which footfall data are missing."),
                                                 # p("Search for the missing data from either of the following sources:"),
                                                 # p("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data"),
@@ -337,7 +315,7 @@ shinyUI(
                                                               actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                                                               )),hr(),
                                               fluidRow(column(1, align="center", offset = 0, 
-                                                        actionButton("InCount_aggre_files", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                                                        actionButton("generated_footfall_aggre_data", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                                                        )),
                                                        #),
                                               
@@ -348,6 +326,8 @@ shinyUI(
                                               tags$hr(), # 
                                               
                                               htmlOutput("msg_tableAppended"),
+                                              
+                                              htmlOutput("file_updated"),
                                               
                                               box(
                                                 title =  textOutput("table_after_append"),
@@ -367,18 +347,19 @@ shinyUI(
 
                                               
                                      ), #htmlOutput("testHTML1"),
-                                     
-
-                                     tabPanel(title = "Uploaded data", status = "warning", solidHeader = T, background = "aqua",
-                                              id='gaps_missingData',
-                                              box(
-                                                tabPanel("history_footfall", DT::dataTableOutput("gaps"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-    
-                                     ),
-                                     
+                                    
+ 
+                                     tags$hr() # 
+     
+                              )
+                            )
+                    ),
+                    
+                    tabItem(tabName = "rawdata",
+                            
+ 
+                            fluidRow(
+                              tabBox(width = 13, height = 800,
                                      # tabPanel(title = "View 2: Appended dataset - with selected fields", status = "warning", solidHeader = T, background = "aqua",
                                      #          id='testing append',
                                      #          box(
@@ -386,8 +367,8 @@ shinyUI(
                                      #            #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                      #            #tabPanel("iris", DT::dataTableOutput("mytable3"))
                                      #          )
-                                     #          
-                                     # ),
+                                              
+                                      #     ),
                                      
                                      tabPanel(title = "View 1: DayTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
                                               id='dayTime',
@@ -427,91 +408,7 @@ shinyUI(
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
                                               )
                                               
-                                     ),
-
-                                     
-                                     tags$hr() # 
-     
-                              )
-                            )
-                    ),
-                    
-                    tabItem(tabName = "rawdata",
-                            
-                            tabsetPanel(
-                              id='dataset',
-                            #tabPanel("diamonds", DT::dataTableOutput("mytable1")),
-                            tabPanel("history_footfall", DT::dataTableOutput("mytable1_1"))
-                            #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                            #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                            ),
-                            
-                            fluidRow(
-                              tabBox(width = 13, height = 800,
-                                tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
-                                         box(
-                                           title = p(tags$h4(tags$b("Holidays"))
-                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                     ),
-                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI5"),
-                                           plotOutput("temp_patterns", width = "320%", height = "150px")
-                                           
-                                         )),
-                                
-                                tabPanel(title = "Last 1 month 'Rainfall' Information", status = "warning", solidHeader = T, background = "red",
-                                         box(
-                                           title = p(tags$h4(tags$b("Holidays"))
-                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                     ),
-                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI6"),
-                                           plotOutput("rainfall_patterns", width = "320%", height = "150px")
-                                           
-                                         )),
-                                
-                                tabPanel(title = "Last 1 month Wind Information", status = "primary", solidHeader = T, background = "aqua",
-                                         box(
-                                           title = p(tags$h4(tags$b("Holidays"))
-                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                     ),
-                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI7"),
-                                           plotOutput("wind_patterns", width = "320%", height = "150px")
-                                           
-                                         )),
-                                
-                                tabPanel(title = "Last 1 month 'Humidity' Information", status = "primary", solidHeader = T, background = "aqua",
-                                         box(
-                                           title = p(tags$h4(tags$b("Holidays"))
-                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                     ),
-                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI8"),
-                                           plotOutput("humidity_patterns", width = "320%", height = "150px")
-                                           
-                                         )),
-                               
-                                 tabPanel(title = "Last 1 month Holiday information", status = "primary", solidHeader = F, background = "aqua",
-                                         box(
-                                           title = p(tags$h4(tags$b("Holidays"))
-                                                     #tags$head(tags$style("Footfall Count (hours)"{font-size:80px; font-family: Georgia}")), #Georgia
-                                                     #tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                     #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                     #tags$b(tags$h4("vs. 7,140 (prev)"))
-                                                     ),
-                                           width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI9"),
-                                           plotOutput("holidays", width = "320%", height = "150px")
-
-                                         ) )
+                                     )
                                 
                               )
                               

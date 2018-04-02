@@ -553,7 +553,7 @@ write.table(result1, file="nightTime.csv", sep=",")
 }
 
 
-
+uniq_Dates(updated_FootfallDataset)
 
 getwd()
 
