@@ -82,8 +82,8 @@ shinyUI(
                     menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
                       
                       radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
-                                   choices = c("Daytime", "Evening", "Night", "Whole Day"),
-                                   selected = "Whole Day"),
+                                   choices = c("Daytime", "Evening", "Night", "24-Hour"),
+                                   selected = "24-Hour"),
                       
                       sliderInput("p", "Start date (months)", 0, 80, 24), #use calculation
                       
@@ -175,7 +175,7 @@ shinyUI(
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Whole Day")), tags$h4(textOutput("tomorrowDay_4")),
+                                title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
                                           tags$b(tags$h1(textOutput("lastWeekCounty"))),
                                           tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("23%, from"),
@@ -242,10 +242,22 @@ shinyUI(
                                      #tab1
                                      tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
-                                              box(
-                                                tabPanel("history_footfall", DT::dataTableOutput("history"))
+                                              box(tags$p(tags$b(h3("'Most recent' to 'Earliest'"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                                tabPanel("history_footfall", DT::dataTableOutput("history")),
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                                tags$hr(),
+                                                htmlOutput("HF_view"),
+                                                htmlOutput("HF_directory"),
+                                               
+                                                tags$hr(),
+                                                htmlOutput("why_re_gen_HF"),
+                                                htmlOutput("why_re_gen_HF2"),
+                                                tags$hr(),
+                                                htmlOutput("regen_HF_warning"),
+                                                tags$hr(),
+                                                actionButton("aggre_HF", "Re-generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                             hr()
                                               )
                                               
                                      ),
@@ -262,6 +274,8 @@ shinyUI(
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
                                                 ##plotOutput("temp_patterns", width = "320%", height = "150px")
                                                 "  ",
+                                                htmlOutput("msg"),
+                                                
                                                 htmlOutput("testHTML1"),
                                                 textOutput("text2"),
                                                 htmlOutput("testHTML3"),
@@ -318,10 +332,7 @@ shinyUI(
                                                         actionButton("generated_footfall_aggre_data", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                                                        )),
                                                        #),
-                                              
-                                              #uiOutput("processingbar2"), #)),#)),
-                                              
-                                              htmlOutput("msg_data_appended"),
+                                            
                                               
                                               tags$hr(), # 
                                               
@@ -400,8 +411,8 @@ shinyUI(
                                               
                                      ),
                                      
-                                     tabPanel(title = "View 4: WholeDay Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
-                                              id='wholeDay',
+                                     tabPanel(title = "View 4: 24-Hour Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
+                                              id='twentyfourHour',
                                               box(
                                                 ##tabPanel("wholeDay_data", DT::dataTableOutput("table_Appended"))
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),

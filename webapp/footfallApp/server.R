@@ -94,8 +94,75 @@ print("point1")
   return(loc_agg_data)
   
 }
-
 #-----------------------------------
+
+
+#Given a footfall dataset (containing a column 'Id' - concatenation of unique day-time), sum all 'InCount' by unique 'Hour' of the day
+footfall_by_time_of_the_Day <- function(aggregate_by_Location){
+  #---------------------allows all dates to be seen
+  #create list of all days between two range (i.e. start and end date of historical footfall dataset)
+  start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
+  end_date <- max(uniq_Dates(loc_agg_data))
+  
+  allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
+  
+  #how do you approximate it..forward or back
+  
+  #create list of days and time, covering the entire study period (start of the footfall database and its end).
+  allDays_Time_listed <- merge(allDays_listed, c(0:23), all = TRUE, sort = FALSE)#time_aggre
+  allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
+  
+  #combine date and time to create a unique field
+  unique_allDays_Time_listed <- paste(allDays_Time_listed$x, allDays_Time_listed$y, sep="-")
+  
+  unique_allDays_Time_listed_join <- cbind(allDays_Time_listed, unique_allDays_Time_listed)  #head(orig_Data)
+  unique_allDays_Time_listed_join <- as.data.frame(unique_allDays_Time_listed_join)
+  colnames(unique_allDays_Time_listed_join) <- c("Date","Hour","Id")
+  
+  #Join 'InCount' values from 'orig_Data' to 'unique_allDays_Time_listed_join', using the 'Id' fields
+  merge_Data <- merge(x = unique_allDays_Time_listed_join, y = loc_agg_data, by = "Id", all.x = TRUE)
+  merge_Data <- as.data.frame(merge_Data)
+  
+  #create a subset of the data with the fields: 'Date.x', 'Hour.x', and 'InCount'
+  data_subset <- merge_Data[, c("Date.x", "Hour.x", "InCount")]   
+  data_subset  <- as.data.frame(data_subset)
+  colnames(data_subset) <- c("Date","Hour","InCount")   #head(data_subset[1:10,])
+  
+  #create aggregated data to plot i.e. for each time scale; 24-hours, morning, evening & morning.
+  unique_dates <- unique(data_subset$Date)
+  unique_Times <- time_aggre 
+  
+  
+  time_agg_data <-  matrix(0, 1, 2)
+  rownames(time_agg_data) <- length(unique_Times)
+  row.N <- "100" #just any number different from 'length(unique_Times)' 
+  appd_Row <- matrix(0, 1, 2)
+  rownames(appd_Row) <- length(unique_Times)
+  
+  for(i in 1:length(unique_dates)){ #i<-1
+    timeT <- data_subset[which(data_subset$Date==unique_dates[i]),c("Hour")]
+    #InCt <- data_subset[which(data_subset$Date==unique_dates[i]),]
+    totalCt_allDay <- data_subset[which(data_subset$Date==unique_dates[i]),]
+    #sum the 'InCount values for the time selected aggregate'
+    totalCt <- sum(as.numeric(as.vector(totalCt_allDay[which(totalCt_allDay$Hour%in%unique_Times),c("InCount")])))
+    
+    #check if all the unique_times are present
+    true_Ct <- length((unique_Times%in%totalCt_allDay$Hour)=="TRUE")
+    combine_Result <- cbind(as.character(unique_dates[i]), totalCt)
+    time_agg_data[which(rownames(time_agg_data)==length(unique_Times)),] <- as.vector(combine_Result)
+    rownames(time_agg_data) <- rep("", nrow(time_agg_data))
+    
+    time_agg_data <- rbind(time_agg_data, appd_Row)
+  }
+  #clean it up
+  time_agg_data <- time_agg_data[-which(time_agg_data[,1]=="0"),]
+  rownames(time_agg_data) <- 1:nrow(time_agg_data)
+  time_agg_data <- as.data.frame(time_agg_data)
+  colnames(time_agg_data) <- c("Date","InCount")
+  
+  return(time_agg_data)
+}
+#------------------------------------------
 
 #function to identify outliers
 outliers <- function(data=result1){
@@ -187,7 +254,8 @@ day_function <- function(){
   print(dayT)}
 
 #function to show gaps in the dates in the historical datasets
-missingData <- function(data){
+
+missingData <- function(data=orig_Data){
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
   #To ensure "Date" column conform to the format "yyyy-mm-dd"
@@ -206,8 +274,13 @@ missingData <- function(data){
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
   missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
+  appdI <- matrix("2000-03-03",1,3) #this row is appended in order to dealing with 'single-row' data.frame problem of R. This will be removed later
+  colnames(appdI) <- c("from","to","No_of_days")
+  missing_Dates <- rbind(missing_Dates, appdI)
   return(missing_Dates)
 }
+
+
 
 #function to return list of unique dates in a dataset
 uniq_Dates <- function(data){
@@ -287,14 +360,16 @@ dateOverlap_Checker <- function(history_footfall, data){
 shinyServer(function(input, output, session){
 
 
-#first check that footfall data is up-to-date
-#append all footfall files in the directory 
+  #setting the historical footfall data directory
+  HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/"  
   
-  
-  history_footfall <- do.call("rbind", lapply(list.files("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/",
+  history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   full=TRUE),read.csv, header=TRUE))
   
-  output$history <- renderDataTable(history_footfall)
+  #reverse the table
+  hist_table <- apply(history_footfall, 2, rev)
+  
+  output$history <- renderDataTable(hist_table)
   # historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_31_12_2016.csv", sep=",", head=TRUE)
   # history_footfall <- historical_footfall
   
@@ -572,28 +647,33 @@ shinyServer(function(input, output, session){
 
   #create a list dates occuring in the dataset
   missData <- missingData(history_footfall)
-
+  print(missData)
+  #Note: the appended row in missingData function has to be removed. 
+  
   #to hide "missing data" warning
-  if(nrow(missData)>=1){
+  if(nrow(missData)>0){
     output$notify <- renderText({
       print("Issues")
     }) 
   }
    
   #message for "missing data" warning
-  if(nrow(missData)>=1){
+  if(nrow(missData)==0){
     output$msg <- renderText({
-      print("No missing data detected")
-    }) 
+      paste("<b>No date is completely missed across all cameras!")
+    })
+    shinyjs::hide("file1")  
+    #shinyjs::hide("progressingbar1")  
+    shinyjs::hide("progressingbar2")  
   }
   
   #run this if there are missing dataset
-  if(nrow(missData)>=1){
+  if(nrow(missData)>0){
     
     output$missed_Foot <- DT::renderDataTable({
       #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
-      DT::datatable(missData)
-      #DT::datatable(missing_dates)
+      DT::datatable(apply(missData, 2, rev))
+      #DT::datatable(missing_dates) #apply(history_footfall, 2, rev)
     })
     
   output$testHTML1 <- renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
@@ -607,6 +687,13 @@ shinyServer(function(input, output, session){
   output$text9 <- renderText({paste("   (d) 'LocationName' - Containing the names assigned to camera locations")}) 
   output$text10 <- renderText({paste("Upload a .csv file to update the database")})
   output$text11 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
+  
+  output$HF_directory <- renderText({paste("**The actual historical HF can be found in the directory:", HF_directory, sep=" ")})
+  output$HF_view <- renderText({paste("<b>The corresponding aggregated HF can be viewed in the 'View Raw Data' menu; and the actual files can be found in the 'aggregated_historical_HF' directory")})
+  output$why_re_gen_HF <- renderText({paste("<b>Why you might want to re-generate aggregated HF!")})
+  output$why_re_gen_HF2 <- renderText({paste("  **If historical HF file in the directory above has been replaced.")})
+  
+  output$regen_HF_warning <- renderText({paste("<b>Warning: Re-generating historical HF might take up to 1 hour!")})
   }
 
   #observe({
@@ -753,18 +840,6 @@ shinyServer(function(input, output, session){
     #new historical data
     updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
     colnames(updated_FootfallDataset) <- c("Date","Hour","InCount", "LocationName")
-    #sorting
-    #updated_FootfallDataset <- updated_FootfallDataset[
-      #with(updated_FootfallDataset, order(Date,Hour))
-      #]
-    #write the appended files for different aggregation
-    
-
-    #export appended data#--------------------------------------------------
-  #   output$table_Appended <- DT::renderDataTable({
-  #     result_appended <- DT::datatable(updated_FootfallDataset)
-  #     return(result_appended)
-  # })
 
    
     #gaps after append
@@ -772,8 +847,8 @@ shinyServer(function(input, output, session){
       #result missing data table after the append
       output$missed_Foot_after_Append <- DT::renderDataTable({
         #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
-        DT::datatable(missData_after_append)
-        #DT::datatable(missing_dates)
+        DT::datatable(apply(missData_after_append, 2, rev))
+        #DT::datatable(missing_dates)#apply(missData, 2, rev)
       })
       
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>New records appended successfully! Click 'Generate aggregated data' button to complete the process")})
@@ -799,25 +874,28 @@ shinyServer(function(input, output, session){
       #                 pauseButton = ""))})
       #find the most recent date in the historical footfall dataset
       max_Date <- max(uniq_Dates(updated_FootfallDataset))
-      write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
+      write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
       output$file_updated <- renderText({paste("<b> Historical footfall data updated! See the working directory.")})
       
   })
   
   #export appended data
-  observeEvent(input$generated_footfall_aggre_data, {
+  observeEvent(input$aggre_HF, {
     #output$msg_tableAppended <- rend
-    
-    orig_Data <- do.call("rbind", lapply(list.files("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/",
+    HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/"  
+    #import HF dataset
+    orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
                                                  full=TRUE),read.csv, header=TRUE))
-    
+    print("100000")
     max_Date <- max(uniq_Dates(orig_Data))
-    #write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
-    
+
     #to generate aggregated dataset at varying temporal scales
     print(max_Date)
     #create a list of time aggregate
     hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
+    
+    print("200000")
+    
     
     for(i in 1:length(hours_of_the_Day )){ #i<-1
       
@@ -828,18 +906,22 @@ shinyServer(function(input, output, session){
         print (hours_of_the_Day[[i]])
         #result1 <- aggregate_Data_for_Plot(orig_Data=orig_Data, cameraLoc = "LocationName", time_aggre = hours_of_the_Day[[i]])
         result1 <- subset_Dataset(orig_Data)
+        print("300000")
         aggregate_across_location_by_Date <- aggregate_Location(result1)
-        #remove outliers
-        ##outliersLoc <- outliers(result1) 
+        print("400000")
+        aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(aggregate_across_location_by_Date)
+        print("500000")
+        
+        #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
+        ##outlier_events <- outliers(aggregate_time_of_the_Day)
         #append the outlier list to the result
-        ##result1 <- cbind(result1, outliersLoc)
+        ##result1 <- cbind(aggregate_time_of_the_Day, outlier_events)
         ##colnames(result1)<- c("Date","InCount","outlier")
-        head(aggregate_across_location_by_Date)
-        write.table(aggregate_across_location_by_Date, file="wholeDay.csv", sep=",")
-        ##print(time_aggre)
+        ##write.table(result1, file=paste(HF_directory,"aggregated_historical_HF","/","twentyFour_Hours.csv", sep=""), sep=",") 
         
       }
       
+      print("300000")
     }
     
     
