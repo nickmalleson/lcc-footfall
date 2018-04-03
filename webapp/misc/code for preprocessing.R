@@ -688,19 +688,63 @@ outliers <- function(data=result1){
   hold_result[ind_hold.na,1] <- 0
   return(hold_result)
 } 
+  return(missing_Dates)
+}
 
 
-orig_Data <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/histo.csv", sep=",", head=TRUE)
 
+orig_Data <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/footfall_31_12_2016.csv", sep=",", head=TRUE)
+head(orig_Data)
+
+newww <- missingData(orig_Data)
+
+as.data.frame(newww)
+
+newwwww <- apply(newww, 2, rev)
+
+
+
+missingData <- missing_Dates
+
+as.data.frame(newww)
+matrix(newww,,3)
 
 data_Subset <- subset_Dataset(orig_Data)
 aggregate_across_location_by_Date <- aggregate_Location(data_Subset)
 aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(aggregate_across_location_by_Date)
 
 
+#function to identify outliers
+outliers <- function(data=aggregate_time_of_the_Day){
+  x<-data
+  hold_result <- matrix(0, nrow(x), 1)
+  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  ind_hold.na <- which(is.na(x))
+  ind_hold.not.na  <- which(!is.na(x))
+  # hold.not.na <- matrix(0, length(ind_not_na),1)
+  x_2 <- x[ind_hold.not.na]
+  med <- median(x_2)
+  MAD <-median(abs(med-x_2))
+  dtf <<- data.frame(ID=seq.int(length(x_2)), obs=x_2, outlier=abs(x_2-med)>3.5*(MAD/0.6745))
+  dtf <- as.data.frame(cbind(dtf, ind_hold.not.na))
+  colnames(dtf) <- c("id","obs","outlier","ind")
+  outlier_ind <- which(dtf$outlier=="TRUE")
+  not_outlier_ind <- which(dtf$outlier!="TRUE")
+  hold_result[dtf$ind[outlier_ind],1] <- 1  #'1' for outliers
+  hold_result[dtf$ind[not_outlier_ind],1] <- 2  #'2' for not outlier
+  hold_result[ind_hold.na,1] <- 0
+  return(hold_result)
+} 
+#------------------------
+i<-1
+
+#write.table(aggregate_time_of_the_Day, file=paste("beforeOutlier", length(hours_of_the_Day[[i]]),".csv", sep=""), sep=",") 
 
 
-	  aggregate_time_of_the_Day <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/aggregate/twentyFour_Hours.csv", sep=",", head=TRUE)
+
+
+
+	  aggregate_time_of_the_Day <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/twentyFour_Hours.csv", sep=",", head=TRUE)
 
 	  #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
         outlier_events <- outliers(aggregate_time_of_the_Day)

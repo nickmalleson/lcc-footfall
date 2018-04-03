@@ -48,7 +48,83 @@ subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
 }
 
 #------------------------
+#function to deal with typo in camera name
 
+
+lists_Loc_Correct <- c("Briggate", "Briggate at McDonalds", "Commercial Street at Sharps",
+                       "Commercial Street at Barratts", "Headrow", "Dortmund Square",
+                       "Albion Street South", "Albion Street North")
+
+#---------------------------------------------------------
+#function to correct typo in Camera's Location
+
+orig_Data_sub_Location_Typo_removed <- function(orig_Data_sub, lists_Loc_Correct){
+  
+  #are these all the camera locations expected
+  unique_Camera <- as.vector(unique(orig_Data_sub$Loc_Id))  #head(orig_Data_sub)
+  
+  matrix_Loc <- matrix(0, length(orig_Data_sub$Loc_Id), 1)
+  
+  listId <- which(orig_Data_sub$Loc_Id=="BriggateAtMcDs")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds\t")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="CommercialStLush")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="CommercialStBarratts")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square\t")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="DortmundSq")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="AlbionStNorth")
+  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="AlbionStSouth")
+  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Briggate")
+  matrix_Loc[listId, 1] <- rep("Briggate", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Sharps")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Barratts")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Headrow")
+  matrix_Loc[listId, 1] <- rep("Headrow", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Albion Street South")
+  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+  
+  listId <- which(orig_Data_sub$Loc_Id=="Albion Street North")
+  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+  
+  matrix_Loc <- as.data.frame(matrix_Loc)
+  colnames(matrix_Loc) <- c("Loc_Id") 
+  
+  #append to the real data
+  orig_Data_sub[,"Loc_Id"] <- matrix_Loc
+  
+  return(orig_Data_sub)
+}
+
+
+
+#------------------------
 aggregate_Location <- function(orig_Data_sub){
   
   cameraLoc <- as.vector(unique(orig_Data_sub$Loc_Id))
@@ -65,9 +141,10 @@ aggregate_Location <- function(orig_Data_sub){
   row.N <- "100" #just any number different from 'length(unique_Times)' 
   appd_Row <- matrix(0, 1, 4)
   rownames(appd_Row) <- length(cameraLoc)
-flush.console()
-print("point1")
-  for(i in 1:length(uniqId)){ #i<-1
+  flush.console()
+  print("point1")
+  
+  for(i in 1:length(uniqId)){ #i<-2
     #for(i in 1:24){ #i<-24
     
     data_Sub <- orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),]
@@ -86,19 +163,22 @@ print("point1")
     print(paste("point2", i, length(uniqId)))
   }
   
+  write.table(loc_agg_data, file="backuploc_agg_data.csv", sep=",") 
+  
   #clean it up
-  loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]
+  loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]  #head(loc_agg_data)
   rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
   loc_agg_data <- as.data.frame(loc_agg_data)
   colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
   return(loc_agg_data)
   
 }
+
 #-----------------------------------
 
 
 #Given a footfall dataset (containing a column 'Id' - concatenation of unique day-time), sum all 'InCount' by unique 'Hour' of the day
-footfall_by_time_of_the_Day <- function(aggregate_by_Location){
+footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
   #---------------------allows all dates to be seen
   #create list of all days between two range (i.e. start and end date of historical footfall dataset)
   start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
@@ -165,8 +245,10 @@ footfall_by_time_of_the_Day <- function(aggregate_by_Location){
 #------------------------------------------
 
 #function to identify outliers
-outliers <- function(data=result1){
-  hold_result <- matrix(0, length(x), 1)
+#function to identify outliers
+outliers <- function(data=aggregate_time_of_the_Day){
+  x<-data
+  hold_result <- matrix(0, nrow(x), 1)
   x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
   ind_hold.na <- which(is.na(x))
   ind_hold.not.na  <- which(!is.na(x))
@@ -254,8 +336,7 @@ day_function <- function(){
   print(dayT)}
 
 #function to show gaps in the dates in the historical datasets
-
-missingData <- function(data=orig_Data){
+missingData <- function(data){
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
   #To ensure "Date" column conform to the format "yyyy-mm-dd"
@@ -274,11 +355,14 @@ missingData <- function(data=orig_Data){
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
   missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
-  appdI <- matrix("2000-03-03",1,3) #this row is appended in order to dealing with 'single-row' data.frame problem of R. This will be removed later
+  colnames(missing_Dates) <- c("from","to","No_of_days")
+  appdI <- matrix("2000-03-03",1,3)
   colnames(appdI) <- c("from","to","No_of_days")
   missing_Dates <- rbind(missing_Dates, appdI)
   return(missing_Dates)
 }
+
+
 
 
 
@@ -649,6 +733,10 @@ shinyServer(function(input, output, session){
   missData <- missingData(history_footfall)
   print(missData)
   #Note: the appended row in missingData function has to be removed. 
+  if(length(missData)==3){
+    missData
+    
+  }
   
   #to hide "missing data" warning
   if(nrow(missData)>0){
@@ -669,7 +757,6 @@ shinyServer(function(input, output, session){
   
   #run this if there are missing dataset
   if(nrow(missData)>0){
-    
     output$missed_Foot <- DT::renderDataTable({
       #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
       DT::datatable(apply(missData, 2, rev))
@@ -896,32 +983,45 @@ shinyServer(function(input, output, session){
     
     print("200000")
     
-    
-    for(i in 1:length(hours_of_the_Day )){ #i<-1
+    time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+      
+    for(i in 1:1){ #i<-1   #length(hours_of_the_Day )
       
       #inputData <- read.table(file="file_3daysData.csv", sep=",", head=TRUE)  #head(orig_Data)
       #orig_Data <- inputData
       
-      if(i==1){
-        print (hours_of_the_Day[[i]])
-        #result1 <- aggregate_Data_for_Plot(orig_Data=orig_Data, cameraLoc = "LocationName", time_aggre = hours_of_the_Day[[i]])
-        result1 <- subset_Dataset(orig_Data)
+        #directory
+        file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+
+        result1 <- subset_Dataset(orig_Data, cameraLoc = "LocationName")
         print("300000")
-        aggregate_across_location_by_Date <- aggregate_Location(result1)
+        
+        print("3500000")
+        
+        #removes location typo in the dataset
+        orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
+        
+        aggregate_across_location_by_Date <- aggregate_Location(orig_Data_sub)
         print("400000")
-        aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(aggregate_across_location_by_Date)
+        
+        #if(i==1){
+        print (hours_of_the_Day[[i]])
+        aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[i]])
         print("500000")
+        #}
         
+        write.table(aggregate_time_of_the_Day, file=paste(file_here,"beforeOutlier", length(hours_of_the_Day[[i]]),".csv", sep=""), sep=",") 
         #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
-        ##outlier_events <- outliers(aggregate_time_of_the_Day)
+        outlier_events <- outliers(data=aggregate_time_of_the_Day)
         #append the outlier list to the result
-        ##result1 <- cbind(aggregate_time_of_the_Day, outlier_events)
-        ##colnames(result1)<- c("Date","InCount","outlier")
-        ##write.table(result1, file=paste(HF_directory,"aggregated_historical_HF","/","twentyFour_Hours.csv", sep=""), sep=",") 
+        finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
+        colnames(finalresult)<- c("Date","InCount","outlier")
         
-      }
+        #file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+        write.table(finalresult, file=paste(file_here, time_aggregation[i], ".csv", sep=""), sep=",") 
+        #C:\Users\monsu\Documents\GitHub\lcc-footfall\webapp\downloaded_footfall dataset\aggregated_historical_HF
       
-      print("300000")
+        print("300000")
     }
     
     
