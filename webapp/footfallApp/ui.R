@@ -18,6 +18,7 @@ library(shinyjs)
 library(lubridate)
 library(shinyWidgets)
 library(foreign)
+library(shinyBS)
 
 
 #for progressbar animation
@@ -256,10 +257,39 @@ shinyUI(
                                                 tags$hr(),
                                                 htmlOutput("regen_HF_warning"),
                                                 tags$hr(),
+                                                #div(style="display:inline-block",submitButton("aggre_HF"), style="float:right"),
+                                                #div(style="display:inline-block",submitButton("aggre_HF")', 'Download Data'), style="float:right")
+                                                #column(width=3,
                                                 actionButton("aggre_HF", "Re-generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                             hr()
-                                              )
+                                                actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                verbatimTextOutput("default"),
+                                                
+                                                # bsModal("gen_aggre","This process may take several hours to complete!....takes hours!","aggre_HF", 
+                                                #         HTML(paste("")),
+                                                #         tags$head(tags$style("#gen_aggre .modal-footer{ display:none}"))),
+                                                        
+                                                
+
+                                                #fluidRow(column(1, align="center", offset = 0, 
                                               
+                                                #actionButton("aggre_HF_cancel", "Cancel", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                 #),
+                                                br(),
+                                                
+                                                #),
+                                            
+                                                
+                                                #verbatimTextOutput("console"),
+                                                # fluidPage(
+                                                # shinyjs::useShinyjs(),
+                                                # actionButton("btn","Click me"),
+                                                # textOutput("text")),
+                                                
+                                                #),
+                                             hr()
+ 
+                                              )
+                                            #rm(list = ls())  
                                      ),
                                      #tab2
                                      tabPanel(title = "Update HF", status = "warning", solidHeader = T, background = "aqua",
