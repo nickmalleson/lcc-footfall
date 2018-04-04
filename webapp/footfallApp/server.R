@@ -1046,7 +1046,7 @@ shinyServer(function(input, output, session){
     print(max_Date)
     #create a list of time aggregate
     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
-    hours_of_the_Day <- list(c(0:23), c(9:18), c(19:21), c(22,23,0, 1, 2, 3, 4, 5))
+    hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
     
     print("200000")
     
