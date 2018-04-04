@@ -462,12 +462,17 @@ shinyServer(function(input, output, session){
   #setting the directories
   #directory for the historical HF
   HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/" 
-  
   #directory for the aggregated HF
   file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
   
+  #IMPORTING DATASETS
   history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   full=TRUE),read.csv, header=TRUE))
+  
+  dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+  eveningTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+  nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTime.csv", sep=""), sep=",", head=TRUE)
+  twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_Hours.csv", sep=""), sep=",", head=TRUE)
   
   #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
@@ -484,6 +489,7 @@ shinyServer(function(input, output, session){
      return(dayTIme_HT_Table)
    })
   
+
   output$eveningTimeData <- DT::renderDataTable({
     eveningTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
     eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
@@ -653,7 +659,7 @@ shinyServer(function(input, output, session){
     c <- 1:100
     #generate some random number
     set.seed(1)
-    y <- sample(c^2)
+    y <- twentyFourHours_HF_aggre$InCount
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot(y, plotStyle=1)
     #autoInvalidate1()
@@ -687,10 +693,21 @@ shinyServer(function(input, output, session){
   output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     city_central =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/city_central.csv", sep=",", head=TRUE)
+    val=2
     city_Boundary = readShapePoly("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/leeds_City.shp")
-    leaflet(data = city_central[1:nrow(city_central),]) %>% addTiles() %>%
-      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data = city_Boundary, color = "black", fill=FALSE)
-    
+    data <- as.data.frame(city_central[1:nrow(city_central),])
+    leaflet(data = data) %>% addTiles() %>% 
+      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>% 
+      addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)     
+                       # radius=val*14 , 
+                       # color=~ifelse(val>0 , "red", "orange"),
+                       # stroke = TRUE, 
+                       # fillOpacity = 0.1
+                       #popup = ~as.character(name)
+      #)# %>% 
+      #setView(data$X_Lon, data$Y_Lat, zoom = 2)
+    #m
+    #setView( lng = 166.45, lat = 21, zoom = 2)
   })
   
   

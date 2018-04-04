@@ -83,7 +83,7 @@ shinyUI(
                     menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
                       
                       radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
-                                   choices = c("Daytime", "Evening", "Night", "24-Hour"),
+                                   choices = c("Daytime", "Evening", "Night", "24-Hours"),
                                    selected = "24-Hour"),
                       
                       sliderInput("p", "Start date (months)", 0, 80, 24), #use calculation
@@ -231,7 +231,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non outlier'"
                                                           
                                                         )
                                                         
@@ -242,7 +242,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non outlier'"
                                                         )
                                                         
                                                ),
@@ -252,7 +252,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non-outlier'"
                                                           
                                                         )
                                                         
@@ -261,17 +261,18 @@ shinyUI(
                                                tabPanel(title = "HF 24-Hour Aggre.", status = "warning", solidHeader = T, background = "aqua",
                                                         id='twentyfourHour',
                                                         box(
-                                                          tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData"))
-                                                          #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                          #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                                          tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
+                                                          br(),
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier';  '2' - 'Non-outlier'"
+
                                                         )
                                                         
                                                ),
                                           
                                           box(
-                                            width = 4, status = "primary", solidHeader = TRUE,
-                                            title = "Map of City of Leeds (Inset: City Central)",
-                                            leafletOutput("mapLeeds", height=400)
+                                            width = 6, status = "primary", solidHeader = TRUE,
+                                            title = "Boundary of City of Leeds (Inset: City Central)",
+                                            leafletOutput("mapLeeds", height=500)
                                             
                                           )
                                                
