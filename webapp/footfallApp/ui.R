@@ -102,9 +102,9 @@ shinyUI(
                     ),
                     
                     #Setting menu
-                    menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
+                    #menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
                     
-                    menuItem("Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("cogs"))
+                    menuItem("Data Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")) #cogs
                     
 
 
@@ -209,27 +209,86 @@ shinyUI(
                             ),
                             
 
-                            fluidRow(
-                              box(
-                                width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Accuracy summary of algorithms"
-                              ),
+                            # fluidRow(
+                            #   box(
+                            #     width = 4, status = "primary", solidHeader = FALSE,
+                            #     title = "Accuracy summary of algorithms"
+                            #   ),
                               
-                              box(
-                                width = 4, status = "primary", solidHeader = FALSE,
-                                title = "Predictors (Importance)"
-                              ),
-                              
-                              box(
-                                width = 4, status = "primary", solidHeader = TRUE,
-                                title = "Map of City of Leeds (Inset: City Central)",
-                                leafletOutput("mapLeeds", height=400)
-
-                              )
+                              # fluidRow(
+                              #   box(
+                              #     width = 4, status = "primary", solidHeader = FALSE,
+                              #     title = "Accuracy summary of algorithms"
+                              #   ),
+                             # tabItem(tabName = "rawdata",
+                                      
+                                      
+                               fluidRow(
+                                   tabBox(width = 13, height = 800,
+ 
+                                               tabPanel(title = "HF DayTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                                        id='dayTime',
+                                                        box(
+                                                          tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
+                                                          br(),
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                          
+                                                        )
+                                                        
+                                               ),
+                                               
+                                               tabPanel(title = "HF EveningTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                                        id='eveningTime',
+                                                        box(
+                                                          tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
+                                                          br(),
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                        )
+                                                        
+                                               ),
+                                               
+                                               tabPanel(title = "HF NightTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                                        id='nightTime',
+                                                        box(
+                                                          tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
+                                                          br(),
+                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; 'HF count' - '2'"
+                                                          
+                                                        )
+                                                        
+                                               ),
+                                               
+                                               tabPanel(title = "HF 24-Hour Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                                        id='twentyfourHour',
+                                                        box(
+                                                          tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData"))
+                                                          #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                          #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                                        )
+                                                        
+                                               ),
+                                          
+                                          box(
+                                            width = 4, status = "primary", solidHeader = TRUE,
+                                            title = "Map of City of Leeds (Inset: City Central)",
+                                            leafletOutput("mapLeeds", height=400)
+                                            
+                                          )
+                                               
+                                        )
+                                        
+                                      )
+                                      
+                              # box(
+                              #   width = 4, status = "primary", solidHeader = FALSE,
+                              #   title = "Predictors (Importance)"
+                              # ),
+                            
    
                     
-                    )
-                    ),       
+                    ),
+                    #),
+               # ),       
                               
                     tabItem(tabName = "settings",
                             
@@ -243,7 +302,7 @@ shinyUI(
                                      #tab1
                                      tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
-                                              box(tags$p(tags$b(h3("'Most recent' to 'Earliest'"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                              box(tags$p(tags$b(h3("Raw Data: 'Most recent' to 'Earliest'"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                 tabPanel("history_footfall", DT::dataTableOutput("history")),
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
@@ -387,82 +446,20 @@ shinyUI(
                                               
 
                                               
-                                     ), #htmlOutput("testHTML1"),
+                                     ) #htmlOutput("testHTML1"),
                                     
  
-                                     tags$hr() # 
+                                     #tags$hr() # 
      
-                              )
-                            )
-                    ),
+                             )
+                            )###
+                    )#setting end
                     
-                    tabItem(tabName = "rawdata",
-                            
- 
-                            fluidRow(
-                              tabBox(width = 13, height = 800,
-                                     # tabPanel(title = "View 2: Appended dataset - with selected fields", status = "warning", solidHeader = T, background = "aqua",
-                                     #          id='testing append',
-                                     #          box(
-                                     #            tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
-                                     #            #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                     #            #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                     #          )
-                                              
-                                      #     ),
-                                     
-                                     tabPanel(title = "View 1: DayTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
-                                              id='dayTime',
-                                              box(
-                                                ##tabPanel("dayTime_data", DT::dataTableOutput("table_Appended"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = "View 2: EveningTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
-                                              id='eveningTime',
-                                              box(
-                                                ###tabPanel("eveningTime_data", DT::dataTableOutput("table_Appended"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = "View 3: NightTime Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
-                                              id='nightTime',
-                                              box(
-                                                ##tabPanel("appended_data", DT::dataTableOutput("table_Appended"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = "View 4: 24-Hour Data Aggregation", status = "warning", solidHeader = T, background = "aqua",
-                                              id='twentyfourHour',
-                                              box(
-                                                ##tabPanel("wholeDay_data", DT::dataTableOutput("table_Appended"))
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                              )
-                                              
-                                     )
-                                
-                              )
-                              
-                            )
-                            
-                    )
-                    
-                         
-                
+
                    # )
                     
                     
-                  )
+                  ) #body
                 )
                 
   )

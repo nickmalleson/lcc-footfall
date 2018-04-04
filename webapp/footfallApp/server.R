@@ -456,23 +456,15 @@ dateOverlap_Checker <- function(history_footfall, data){
 
 shinyServer(function(input, output, session){
 
-  values <- reactiveValues()
-  
-  queryMagic <- function() {
-    
-    for(j in 1:100){
-    print("Warning")
-  }
-    return("Data")
-  }
-
-   
-
-  
+ 
 
     
-  #setting the historical footfall data directory
-  HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/"  
+  #setting the directories
+  #directory for the historical HF
+  HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/" 
+  
+  #directory for the aggregated HF
+  file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
   
   history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   full=TRUE),read.csv, header=TRUE))
@@ -485,17 +477,31 @@ shinyServer(function(input, output, session){
   # history_footfall <- historical_footfall
   
 
+  #HISTORICAL HF VISUALISATION
+  output$dayTimeData <- DT::renderDataTable({
+    dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+     dayTIme_HT_Table <- DT::datatable(dayTime_HF_aggre)
+     return(dayTIme_HT_Table)
+   })
   
-  # output$gaps <- DT::renderDataTable({
-  #   req(input$file1)
-  #   file_For_Missing_Data <- read.csv(input$file1$datapath,
-  #                                     header = TRUE,
-  #                                     sep = ",")#,
-  #   uploaded_Table <- DT::datatable(file_For_Missing_Data)
-  #   return(uploaded_Table)
-  # })
+  output$eveningTimeData <- DT::renderDataTable({
+    eveningTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+    eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
+    return(eveningTimeData)
+  })
+  
+  output$nightTimeData <- DT::renderDataTable({
+    nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTime.csv", sep=""), sep=",", head=TRUE)
+    nightTimeData <- DT::datatable(nightTime_HF_aggre)
+    return(nightTimeData)
+  })
 
-
+  output$twentyFourHoursData <- DT::renderDataTable({
+    twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_Hours.csv", sep=""), sep=",", head=TRUE)
+    twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
+    return(twentyFourHours_HT_Table)
+  })
+#file=paste(file_here, time_aggregation[j], ".csv", sep=""), sep=",")
   
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
@@ -1057,9 +1063,7 @@ shinyServer(function(input, output, session){
       #inputData <- read.table(file="file_3daysData.csv", sep=",", head=TRUE)  #head(orig_Data)
       #orig_Data <- inputData
       
-        #directory
-        file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
-
+ 
         result1 <- subset_Dataset(orig_Data, cameraLoc = "LocationName")
         print("300000")
         
