@@ -323,7 +323,7 @@ auc_plot <- function(y, plotStyle=1){
 }
 
 # plot function for the big HF panel
-auc_plot2 <- function(data, HF_startDate, plotStyle=1){
+auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -355,12 +355,12 @@ auc_plot2 <- function(data, HF_startDate, plotStyle=1){
     x<-xy_1$x
     y<-xy_1$y
     #to adjust the start of plot
-    p<- 700
+
     
-    Type <- as.numeric(xy_1$Type)
-    x<-as.numeric(xy_1$x)
+    Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
+    x<-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
     #x <- as.Date(as.vector(xy_1$x))
-    y <- as.numeric(as.vector(xy_1$y)) 
+    y <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
     
     xy_1 <- data.frame(Type, x, y)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
@@ -370,9 +370,14 @@ auc_plot2 <- function(data, HF_startDate, plotStyle=1){
     print(ggplot(xy_1, aes(x, y, group=Type)) +
             geom_line(color="blue", size = 1) +
             #geom_point(color=xy_1Type, size = 2) +
-            geom_point(color="blue", size = 2) +
-            geom_area(aes(ymin = 0 + 3000,ymax = y),
-                      alpha = 0.3,fill = "blue")) #}
+            geom_point(color="blue", size = 1) +
+            #geom_area(aes(ymin = 0 + 3000,ymax = y),
+                      #alpha = 0.3,fill = "blue") +
+            geom_vline(xintercept = min(x), linetype="dotted", 
+                       color = "blue", size=1.5) +
+            geom_hline(yintercept=0,
+                       color = "grey", size=1.5)
+            ) #}
     # 
 
     
@@ -494,7 +499,6 @@ convert_Date <- function(data){
   listInconvertible <- which(!is.na(converDate1))
   dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
   #append back to the dataset
-  #dataValues <- cbind(min(dateField), "missing dates(months)")
   data$Date <- dateField
   return(data)
 }
@@ -554,7 +558,7 @@ shinyServer(function(input, output, session){
                                                   full=TRUE),read.csv, header=TRUE))
   
   dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
-  eveningTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+  eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTime.csv", sep=""), sep=",", head=TRUE)
   nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTime.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_Hours.csv", sep=""), sep=",", head=TRUE)
   
@@ -737,19 +741,56 @@ shinyServer(function(input, output, session){
     par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
     auc_plot(y, plotStyle=2)
   })
+ 
+  #  #to set the earliest plot date 
+  # output$earliest_months_allowed <- renderText({
+  # start_date <- HF_startDate
+  # end_date <- Sys.Date()
+  # maxMonths = ((as.numeric(end_date - start_date)/365)*12)
+  # diffMonths = ((as.numeric(end_date - start_date)/365)*12)/4
+  # earliest_months_allowed <- as.numeric(round((maxMonths - (diffMonths*3)), digits=0)) #apprximately two years di
+  # })
+
   
   #plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
+
+  plotOptn = input$timeOftheDayInput
+  
+  if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
-   #generate some random number
-    #set.seed(1)
-    #y <- twentyFourHours_HF_aggre$InCount
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plotStyle=1)
-    #autoInvalidate1()
-    #Sys.sleep(1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+  } else if(plotOptn=="Daytime"){
+    data <- convert_Date(dayTime_HF_aggre)     
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+  }else if(plotOptn=="Evening"){
+    data <- convert_Date(eveningTime_HF_aggre)     
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+  }else if(plotOptn=="Night"){
+    data <- convert_Date(nightTime_HF_aggre)     
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+  }
+    
   })
+  
+  
+  
+  # output$phonePlot <- renderPlot({
+  #   
+  #   # Render a barplot
+  #   barplot(myData[as.character(input$year),]*1000, 
+  #           main=paste("Phones in", input$year),
+  #           ylab="Number of Telephones",
+  #           xlab="Region",
+  #           ylim=c(0,max(myData)*1000))
+  # })
+  # 
+  # 
   
   output$msgOutput = renderMenu({
     msgs <- apply(read.csv(file = "C:/Users/monsu/Desktop/RShinyDashboard/dash12/misc/messages.csv"), 1, function(row){

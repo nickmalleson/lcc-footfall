@@ -82,11 +82,11 @@ shinyUI(
                     
                     menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
                       
-                      radioButtons("timeOftheDayInput", "Modify 'Time of the Day'",
-                                   choices = c("Daytime", "Evening", "Night", "24-Hours"),
-                                   selected = "24-Hour"),
+                      radioButtons("timeOftheDayInput", "Modify Time of the Day",
+                                   choices = c("Daytime", "Evening","Night", "Whole Day"),
+                                   selected = "Whole Day"),
                       
-                      sliderInput("p", "Start date (months)", 0, 80, 24), #use calculation
+                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=80, value=0, step=1), #use calculation 
                       
                       radioButtons("chartType", "Chart Type", 
                                    choices = c("Line", "Bar", "Dot"),
@@ -195,7 +195,7 @@ shinyUI(
                               #   plotOutput("chart"))
                               
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 12, height = "300px",
+                                       box(width = 12, height = "350px",
                                          title = p(tags$h4(tags$b("Footfall information is not 'up-to-date!"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
@@ -297,7 +297,7 @@ shinyUI(
                             # Only show this panel if there are missing historical data
                             fluidRow(
                               
-                              tabBox(width = 13, height = 800,
+                              tabBox(width = 3, height = 800,
                                      
                                      #tab1
                                      tabPanel(title = "Basic settings", status = "warning", solidHeader = T, background = "aqua",
