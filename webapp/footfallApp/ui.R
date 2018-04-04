@@ -196,13 +196,14 @@ shinyUI(
                               
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
                                        box(width = 12, height = "300px",
-                                         title = p(tags$h4(tags$b("Footfall information is not 'up-to-date!")),
+                                         title = p(tags$h4(tags$b("Footfall information is not 'up-to-date!"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
                                                    #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                   tags$b(tags$h4("Go to 'Settings' page..."))),
+                                                   #tags$b(tags$h4("Go to 'Settings' page..."))
+                                                   ),
                                          solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
-                                         plotOutput("footfall_history", width = "100%", height = "150px")
+                                         plotOutput("footfall_history", width = "100%", height = "250px")
                                          
                                        ))
       
@@ -231,7 +232,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non outlier'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
                                                           
                                                         )
                                                         
@@ -242,7 +243,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non outlier'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
                                                         )
                                                         
                                                ),
@@ -252,7 +253,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier'; '2' - 'Non-outlier'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
                                                           
                                                         )
                                                         
@@ -263,7 +264,7 @@ shinyUI(
                                                         box(
                                                           tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
                                                           br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'unavailable'; '1' - 'Outlier';  '2' - 'Non-outlier'"
+                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
 
                                                         )
                                                         
@@ -288,15 +289,31 @@ shinyUI(
    
                     
                     ),
-                    #),
-               # ),       
-                              
+   
                     tabItem(tabName = "settings",
                             
                             # print(DT::dataTableOutput("historical_Foot")),
                             #print(textOutput("lengthOfMissing")),
                             # Only show this panel if there are missing historical data
                             fluidRow(
+                              
+                              tabBox(width = 13, height = 800,
+                                     
+                                     #tab1
+                                     tabPanel(title = "Basic settings", status = "warning", solidHeader = T, background = "aqua",
+                                              id='basicSettings',
+                                              box(
+                                                  #tabPanel("history_footfall", DT::dataTableOutput("history")),
+                                                  #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
+                                                  #tabPanel("iris", DT::dataTableOutput("mytable3"))
+                                                  #tags$hr()
+
+                                                 )
+                                              #rm(list = ls())  
+                                     )
+                                     #tab2
+                                     
+                              ),###
                               
                               tabBox(width = 13, height = 800,
                                      

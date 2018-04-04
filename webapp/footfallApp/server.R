@@ -282,27 +282,110 @@ outliers <- function(data=aggregate_time_of_the_Day){
 #------------------------
 
 
-# function to plot line graph with filled area-under-curve
-auc_plot <- function(y, plotStyle=1){
-  #autoInvalidate1 <- reactiveTimer(5000, session)
 
+# plot function for the 4 prediction panels
+auc_plot <- function(y, plotStyle=1){
+  
   x <- 1:length(y)
   n <- length(y)
   #using ggplot2
   if(plotStyle==1){
-     xy_1 <- as.data.frame(cbind(x, y))
-     xy_1Type <- rep(1, nrow(xy_1))
-     xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
-     xy_1 <- data.frame(xy_1Type,  xy_1)
+    xy_1 <- as.data.frame(cbind(x, y))
+    xy_1Type <- rep(1, nrow(xy_1))
+    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+    xy_1 <- data.frame(xy_1Type,  xy_1)
     # a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)  #gam for n > 1000.
     # print(a)
+    #which(is.na(xy_1$InCount))
     
+    #plot(xy_1$Date, xy_1$InCount)  
      print(ggplot(xy_1, aes(x, y, group=xy_1Type)) +
              geom_line(color="blue", size = 1) +
              #geom_point(color=xy_1Type, size = 2) +
              geom_point(color="blue", size = 2) +
              geom_area(aes(ymin = 0,ymax = y),
                        alpha = 0.3,fill = "blue")) }
+  
+  #to generate regular plot
+  if(plotStyle==2){
+    s = smooth.spline(x, y, spar=0.5)
+    xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
+    m <- length(xy$x)
+    x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
+    y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
+    plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
+    polygon(x.poly, y.poly, col="lightblue", border=NA)
+    lines(s, col="blue", lwd=2)
+    points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
+    points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+  }
+  
+}
+
+# plot function for the big HF panel
+auc_plot2 <- function(data, HF_startDate, plotStyle=1){
+  
+  #create list of all days between the start date HF data collection and the current time
+  start_date <- HF_startDate
+  end_date <- Sys.Date()
+  
+  allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
+  colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
+  
+  #Join ('Date' field) the created date list with the data. 
+  merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE)
+  merged_Datasetd  <- as.data.frame(merged_Datasetd)
+  
+  x <- as.character(as.Date(merged_Datasetd$Date))
+  y <- merged_Datasetd$InCount
+  
+  #using ggplot2
+  if(plotStyle==1){
+    xy_1 <- as.data.frame(cbind(x, y))  
+    xy_1Type <- rep(1, nrow(xy_1))
+    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+    xy_1 <- data.frame(xy_1Type,  xy_1)
+    
+    dummyInCount <- matrix(0, nrow(xy_1), 1)
+    dummyInCount[which(as.vector(!is.na(xy_1$y)))] <- as.vector(xy_1$y[which(as.vector(!is.na(xy_1$y)))])
+    
+    xy_1 <- cbind(xy_1[,c("xy_1Type","x")], dummyInCount)
+    colnames(xy_1) <- c("Type","x","y")
+    
+    x<-xy_1$x
+    y<-xy_1$y
+    #to adjust the start of plot
+    p<- 700
+    
+    Type <- as.numeric(xy_1$Type)
+    x<-as.numeric(xy_1$x)
+    #x <- as.Date(as.vector(xy_1$x))
+    y <- as.numeric(as.vector(xy_1$y)) 
+    
+    xy_1 <- data.frame(Type, x, y)
+    #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
+    #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
+    #points(min(x):max(x), y, col="blue", cex=0.5)
+    
+    print(ggplot(xy_1, aes(x, y, group=Type)) +
+            geom_line(color="blue", size = 1) +
+            #geom_point(color=xy_1Type, size = 2) +
+            geom_point(color="blue", size = 2) +
+            geom_area(aes(ymin = 0 + 3000,ymax = y),
+                      alpha = 0.3,fill = "blue")) #}
+    # 
+
+    
+    #print(ggplot(xy_1[which(as.vector(xy_1$Date)==HF_startDate) + p:nrow(xy_1),], aes(Date, InCount, group=Type)) + geom_line(color="blue", size = 1)) +
+      
+
+    # print(ggplot(xy_1[nrow((which(xy_1$Date==p)):xy_1),], aes(x, y, group=Type)) + geom_line(color="blue", size = 1) +
+    # geom_line(color="blue", size = 1) +
+    # #geom_point(color=xy_1Type, size = 2) +
+    # #geom_point(color="blue", size = 2) +
+    # geom_area(aes(ymin = 0,ymax = y),
+    #           alpha = 0.3,fill = "blue"))
+    }
   #to generate regular plot
   if(plotStyle==2){
     s = smooth.spline(x, y, spar=0.5)
@@ -317,7 +400,8 @@ auc_plot <- function(y, plotStyle=1){
     points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
   }
   
-}
+  }
+#}
 
 
 #function to display time
@@ -397,7 +481,7 @@ uniq_Dates <- function(data){
   return(dataValues)
 }
 
-#function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, but with date format changed
+#function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, and with date converted to date type
 convert_Date <- function(data){
   #first convert the data to the right format i.e. "yyyy-mm-dd"
   dataValues <- data$Date
@@ -438,7 +522,7 @@ dateRange_Checker <- function(history_footfall, data){
   return(out_Len)
 }
 
-#now to check where there is overlap in the dates:
+#function to check whether there is overlap in the dates:
 dateOverlap_Checker <- function(history_footfall, data){
   #unique dates in the footfall (database) data
   uniqueDate_footfallDatabase <- uniq_Dates(history_footfall)
@@ -456,9 +540,9 @@ dateOverlap_Checker <- function(history_footfall, data){
 
 shinyServer(function(input, output, session){
 
- 
-
-    
+  #start date of HF data collection
+  HF_startDate <- as.Date("2009-01-01")
+  
   #setting the directories
   #directory for the historical HF
   HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/" 
@@ -656,12 +740,13 @@ shinyServer(function(input, output, session){
   
   #plot footfall history
   output$footfall_history <- renderPlot({
-    c <- 1:100
-    #generate some random number
-    set.seed(1)
-    y <- twentyFourHours_HF_aggre$InCount
+ #   c <- 1:100
+  data <- convert_Date(twentyFourHours_HF_aggre)     
+   #generate some random number
+    #set.seed(1)
+    #y <- twentyFourHours_HF_aggre$InCount
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plotStyle=1)
     #autoInvalidate1()
     #Sys.sleep(1)
   })
