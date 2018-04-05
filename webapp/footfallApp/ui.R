@@ -97,8 +97,8 @@ shinyUI(
                                    choices = c("Line", "Bar", "Dot"),
                                    selected = "Line"),
                       
-                      checkboxGroupInput("trendLine", "Add trend line",  
-                                   c("Yes"= 1))
+                      checkboxInput("trendLine", label="Add trend line?", value = FALSE)
+                      
                       
                     ),
                     

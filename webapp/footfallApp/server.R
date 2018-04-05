@@ -323,7 +323,7 @@ auc_plot <- function(y, plotStyle=1){
 }
 
 # plot function for the big HF panel
-auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
+auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, plotStyle=1){
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -369,6 +369,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
     #points(min(x):max(x), y, col="blue", cex=0.5)
     #if(trendLine==character(0)){
     
+  if(addTrend==FALSE){  
     print(ggplot(xy_1, aes(x, y, group=Type)) +
             geom_line(color="blue", size = 1) +
             #geom_point(color=xy_1Type, size = 2) +
@@ -387,8 +388,30 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
             
             scale_x_discrete(limits=x[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
             #scale_x_discrete(labels = x_backup)
-    ) #}
+    ) }
     
+    if(addTrend==TRUE){
+    print(ggplot(xy_1, aes(x, y, group=Type)) +
+            geom_line(color="blue", size = 1) +
+            #geom_point(color=xy_1Type, size = 2) +
+            geom_point(color="blue", size = 1) +
+            #geom_area(aes(ymin = 0 + 3000,ymax = y),
+            #alpha = 0.3,fill = "blue") +
+            geom_vline(xintercept = min(x),  
+                       color = "grey", size=1.5) +
+            #geom_vline(xintercept = 2000, linetype="dotted", 
+            #color = "red", size=1.5) +
+            geom_hline(yintercept=0,
+                       color = "grey", size=1.5) +
+            
+            geom_vline(xintercept = min(x), linetype="dashed", 
+                       color = "brown", size=0.5) + #current date
+            
+            geom_smooth(method = "lm", se=FALSE, color="red", lwd=1.5) + 
+            
+            scale_x_discrete(limits=x[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+          #scale_x_discrete(labels = x_backup)
+    ) }
     
     # #if(trendLine=="yes"){
     #   print(ggplot(xy_1, aes(x, y, group=Type)) +
@@ -793,22 +816,15 @@ shinyServer(function(input, output, session){
 
   plotOptn = input$timeOftheDayInput
   
-  xTrend = 1
-  
-  observe({
-    xTrend <- input$trendLine
-    # Can use character(0) to remove all choices
-    if (is.null(xTrend))
-      xTrend <- 0
-    
-    if (!is.null(xTrend))
-      xTrend <- 1
-    })
   
   if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+    
+    print(input$trendLine)
+    
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+    
   } else if(plotOptn=="Daytime"){
     data <- convert_Date(dayTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
