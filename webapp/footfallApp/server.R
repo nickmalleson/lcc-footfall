@@ -323,7 +323,7 @@ auc_plot <- function(y, plotStyle=1){
 }
 
 # plot function for the big HF panel
-auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
+auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -338,6 +338,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
   
   x <- as.character(as.Date(merged_Datasetd$Date))
   y <- merged_Datasetd$InCount
+  
+  x_backup <- x
+  
   
   #using ggplot2
   if(plotStyle==1){
@@ -356,29 +359,31 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
     y<-xy_1$y
     #to adjust the start of plot
 
-    
-    Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
-    x<-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
+    Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    x<-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     #x <- as.Date(as.vector(xy_1$x))
-    y <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
+    y <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     xy_1 <- data.frame(Type, x, y)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
     #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
     #points(min(x):max(x), y, col="blue", cex=0.5)
-  #if(trendLine==character(0)){
+    #if(trendLine==character(0)){
+    
     print(ggplot(xy_1, aes(x, y, group=Type)) +
             geom_line(color="blue", size = 1) +
             #geom_point(color=xy_1Type, size = 2) +
             geom_point(color="blue", size = 1) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
-                      #alpha = 0.3,fill = "blue") +
+            #alpha = 0.3,fill = "blue") +
             geom_vline(xintercept = min(x), linetype="dotted", 
                        color = "blue", size=1.5) +
-            geom_vline(xintercept = (max(x)-200), linetype="dotted", 
-                       color = "red", size=1.5) +
+            #geom_vline(xintercept = 2000, linetype="dotted", 
+            #color = "red", size=1.5) +
             geom_hline(yintercept=0,
-                       color = "grey", size=1.5)
+                       color = "grey", size=1.5) +
+            scale_x_discrete(labels = x_backup)
     ) #}
+    
     
     # #if(trendLine=="yes"){
     #   print(ggplot(xy_1, aes(x, y, group=Type)) +
