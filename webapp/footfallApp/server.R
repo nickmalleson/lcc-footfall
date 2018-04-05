@@ -820,23 +820,19 @@ shinyServer(function(input, output, session){
   if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    
-    print(input$trendLine)
-    
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
-    
   } else if(plotOptn=="Daytime"){
     data <- convert_Date(dayTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
   }else if(plotOptn=="Evening"){
     data <- convert_Date(eveningTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
   }else if(plotOptn=="Night"){
     data <- convert_Date(nightTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
   }
     
   })
