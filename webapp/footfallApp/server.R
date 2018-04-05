@@ -375,13 +375,16 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
             geom_point(color="blue", size = 1) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
-            geom_vline(xintercept = min(x), linetype="dotted", 
-                       color = "blue", size=1.5) +
+            geom_vline(xintercept = min(x),  
+                       color = "grey", size=1.5) +
             #geom_vline(xintercept = 2000, linetype="dotted", 
             #color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
-            scale_x_discrete(labels = x_backup)
+            
+            geom_vline(xintercept = min(x), linetype="dashed", 
+                       color = "brown", size=0.5) #current date
+            #scale_x_discrete(labels = x_backup)
     ) #}
     
     
