@@ -22,8 +22,8 @@ library(shinyWidgets)
 library(foreign)
 library(shinyBS)
 
-#ROOT_DIR = "C:/Users/monsu/Documents/GitHub/
-ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
+ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
+#ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
 
 
 #option(digits.secs = 1)
