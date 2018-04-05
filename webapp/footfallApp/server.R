@@ -22,6 +22,10 @@ library(shinyWidgets)
 library(foreign)
 library(shinyBS)
 
+#ROOT_DIR = "C:/Users/monsu/Documents/GitHub/
+ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
+
+
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
@@ -597,11 +601,11 @@ shinyServer(function(input, output, session){
   
   #setting the directories
   #directory for the historical HF
-  HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/" 
+  HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
   #directory for the aggregated HF
-  file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+  file_here <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
   #parameter file directory
-  parameter_directory <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/"
+  parameter_directory <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/")
   
   #IMPORTING DATASETS
   history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
@@ -616,7 +620,7 @@ shinyServer(function(input, output, session){
   hist_table <- apply(history_footfall, 2, rev)
   
   output$history <- renderDataTable(hist_table)
-  # historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_31_12_2016.csv", sep=",", head=TRUE)
+  # historical_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_31_12_2016.csv", sep=",", head=TRUE)
   # history_footfall <- historical_footfall
   
 
@@ -877,9 +881,9 @@ shinyServer(function(input, output, session){
   
   output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    city_central =read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/city_central.csv", sep=",", head=TRUE)
+    city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
     val=2
-    city_Boundary = readShapePoly("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/leeds_City.shp")
+    city_Boundary = readShapePoly(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/leeds_City.shp"))
     data <- as.data.frame(city_central[1:nrow(city_central),])
     leaflet(data = data) %>% addTiles() %>% 
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>% 
@@ -905,8 +909,8 @@ shinyServer(function(input, output, session){
   #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
   # })
   # 
-  #history_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-  #historical_footfall <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
+  #history_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE)
+  #historical_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
   #history_footfall <- historical_footfall
   #history_footfall2 =   history_footfall[history(nrow(  history_footfall), 1000),]
   output$mytable1_1 <- DT::renderDataTable({
@@ -1219,7 +1223,7 @@ shinyServer(function(input, output, session){
       #                 pauseButton = ""))})
       #find the most recent date in the historical footfall dataset
       max_Date <- max(uniq_Dates(updated_FootfallDataset))
-      write.table(updated_FootfallDataset, file=paste("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
+      write.table(updated_FootfallDataset, file=paste(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/historical_footfall_up_to_", max_Date, ".csv", sep=""), sep=",")
       output$file_updated <- renderText({paste("<b> Historical footfall data updated! See the working directory.")})
       
   })
@@ -1243,7 +1247,7 @@ shinyServer(function(input, output, session){
     
     #output$default <- renderText({paste("  **If historical HF file in the directory above has been replaced.")})
      
-    HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/"  
+    HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
     #import HF dataset
     orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
                                                  full=TRUE),read.csv, header=TRUE))
@@ -1323,7 +1327,7 @@ aggregate_Location <- aggregate_Location(orig_Data_sub)
         finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
         colnames(finalresult)<- c("Date","InCount","outlier")
         
-        #file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+        #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
         write.table(finalresult, file=paste(file_here, time_aggregation[j], ".csv", sep=""), sep=",") 
         #C:\Users\monsu\Documents\GitHub\lcc-footfall\webapp\downloaded_footfall dataset\aggregated_historical_HF
       
