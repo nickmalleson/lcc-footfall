@@ -340,7 +340,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
   y <- merged_Datasetd$InCount
   
   x_backup <- x
-  
+  dateLabels = seq(as.Date("2009/12/31"), Sys.Date(), by = "year")
   
   #using ggplot2
   if(plotStyle==1){
@@ -383,7 +383,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, plotStyle=1){
                        color = "grey", size=1.5) +
             
             geom_vline(xintercept = min(x), linetype="dashed", 
-                       color = "brown", size=0.5) #current date
+                       color = "brown", size=0.5) + #current date
+            
+            scale_x_discrete(limits=x[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
             #scale_x_discrete(labels = x_backup)
     ) #}
     
