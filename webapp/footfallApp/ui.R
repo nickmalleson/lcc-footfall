@@ -77,7 +77,12 @@ shinyUI(
                       #adding slider to view the length of footfall to predict
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       # value is always yyyy-mm-dd, even if the display format is different
-                      dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy")
+                      dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
+                      
+                      radioButtons("algorithm", "Change Forecast Algorithm", 
+                                   choices = c("Random Forest", "XGBoost","Regression"),
+                                   selected = "Random Forest")
+                      
                     ),
                     
                     menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
@@ -93,11 +98,7 @@ shinyUI(
                                    selected = "Line"),
                       
                       checkboxGroupInput("trendLine", "Add trend line",  
-                                   c("Yes"= 1)),
-                      
-                      radioButtons("algorithm", "Change Forecast Algorithm", 
-                                   choices = c("Random Forest", "XGBoost","Regression"),
-                                   selected = "Random Forest")
+                                   c("Yes"= 1))
                       
                     ),
                     
