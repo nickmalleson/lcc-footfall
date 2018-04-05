@@ -91,7 +91,7 @@ shinyUI(
                                    choices = c("Daytime", "Evening","Night", "Whole Day"),
                                    selected = "Whole Day"),
                       
-                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=120, value=0, step=1), #use calculation 
+                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
                       
                       radioButtons("chartType", "Chart Type", 
                                    choices = c("Line", "Bar", "Dot"),
