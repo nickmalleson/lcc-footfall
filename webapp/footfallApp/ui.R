@@ -92,8 +92,8 @@ shinyUI(
                                    choices = c("Line", "Bar", "Dot"),
                                    selected = "Line"),
                       
-                      checkboxGroupInput("trendLine", "Add trend line", 
-                                   c("Yes")),
+                      checkboxGroupInput("trendLine", "Add trend line",  
+                                   c("Yes"= 1)),
                       
                       radioButtons("algorithm", "Change Forecast Algorithm", 
                                    choices = c("Random Forest", "XGBoost","Regression"),
@@ -297,27 +297,15 @@ shinyUI(
                             # Only show this panel if there are missing historical data
                             fluidRow(
                               
-                              tabBox(width = 3, height = 800,
-                                     
-                                     #tab1
-                                     tabPanel(title = "Basic settings", status = "warning", solidHeader = T, background = "aqua",
-                                              id='basicSettings',
-                                              box(
-                                                  #tabPanel("history_footfall", DT::dataTableOutput("history")),
-                                                  #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                  #tabPanel("iris", DT::dataTableOutput("mytable3"))
-                                                  #tags$hr()
-
-                                                 )
-                                              #rm(list = ls())  
-                                     )
-                                     #tab2
-                                     
-                              ),###
-                              
                               tabBox(width = 13, height = 800,
                                      
-                                     #tab1
+                                     tabPanel(title = "Parameters", status = "warning", solidHeader = T, background = "aqua",
+                                              id='basic parameters',
+                                              box(tags$p(tags$b(h3("p "))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                                  tabPanel("basic_parameters", DT::dataTableOutput("list_of_cameraNames"))
+                                              )
+                                              ),
+
                                      tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
                                               box(tags$p(tags$b(h3("Raw Data: 'Most recent' to 'Earliest'"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",

@@ -361,12 +361,11 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
     x<-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
     #x <- as.Date(as.vector(xy_1$x))
     y <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:nrow(xy_1)]
-    
     xy_1 <- data.frame(Type, x, y)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
     #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
     #points(min(x):max(x), y, col="blue", cex=0.5)
-    
+  #if(trendLine==character(0)){
     print(ggplot(xy_1, aes(x, y, group=Type)) +
             geom_line(color="blue", size = 1) +
             #geom_point(color=xy_1Type, size = 2) +
@@ -375,10 +374,26 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 50, plotStyle=1){
                       #alpha = 0.3,fill = "blue") +
             geom_vline(xintercept = min(x), linetype="dotted", 
                        color = "blue", size=1.5) +
+            geom_vline(xintercept = (max(x)-200), linetype="dotted", 
+                       color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5)
-            ) #}
-    # 
+    ) #}
+    
+    # #if(trendLine=="yes"){
+    #   print(ggplot(xy_1, aes(x, y, group=Type)) +
+    #           geom_line(color="blue", size = 1) +
+    #           #geom_point(color=xy_1Type, size = 2) +
+    #           geom_point(color="blue", size = 1) +
+    #           #geom_area(aes(ymin = 0 + 3000,ymax = y),
+    #           #alpha = 0.3,fill = "blue") +
+    #           geom_vline(xintercept = min(x), linetype="dotted", 
+    #                      color = "blue", size=1.5) +
+    #           geom_hline(yintercept=0,
+    #                      color = "grey", size=1.5) +
+    #           geom_smooth(method = "lm", se=FALSE, color="red", lwd=1.5)
+    #   ) }
+    # # 
 
     
     #print(ggplot(xy_1[which(as.vector(xy_1$Date)==HF_startDate) + p:nrow(xy_1),], aes(Date, InCount, group=Type)) + geom_line(color="blue", size = 1)) +
@@ -552,6 +567,8 @@ shinyServer(function(input, output, session){
   HF_directory = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/" 
   #directory for the aggregated HF
   file_here <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+  #parameter file directory
+  parameter_directory <- "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/"
   
   #IMPORTING DATASETS
   history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
@@ -579,7 +596,7 @@ shinyServer(function(input, output, session){
   
 
   output$eveningTimeData <- DT::renderDataTable({
-    eveningTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
+    eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTime.csv", sep=""), sep=",", head=TRUE)
     eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
     return(eveningTimeData)
   })
@@ -596,6 +613,13 @@ shinyServer(function(input, output, session){
     return(twentyFourHours_HT_Table)
   })
 #file=paste(file_here, time_aggregation[j], ".csv", sep=""), sep=",")
+  
+  #import paramter file
+  output$list_of_cameraNames <- DT::renderDataTable({
+    cameraNames <- read.table(file=paste(parameter_directory, "cameraNamesAndTime/", "cameraNames.csv", sep=""), sep=",", head=TRUE)
+    cameraNames <- DT::datatable(cameraNames)
+    return(cameraNames)
+  })
   
   #output$mytable1 <- DT::renderDataTable({
     #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
@@ -711,6 +735,7 @@ shinyServer(function(input, output, session){
     day_function()
   })
   
+
   output$morning_footfall <- renderPlot({
     c <- 1:25
     set.seed(11)
@@ -757,6 +782,18 @@ shinyServer(function(input, output, session){
  #   c <- 1:100
 
   plotOptn = input$timeOftheDayInput
+  
+  xTrend = 1
+  
+  observe({
+    xTrend <- input$trendLine
+    # Can use character(0) to remove all choices
+    if (is.null(xTrend))
+      xTrend <- 0
+    
+    if (!is.null(xTrend))
+      xTrend <- 1
+    })
   
   if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
