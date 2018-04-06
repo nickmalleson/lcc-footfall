@@ -393,7 +393,9 @@ shinyUI(
                                                 # p("(c) 'InCount' - Hourly aggregate of footfall count"),
                                                 # p("Upload a .csv file to update the database")
                                               ),
+                                              
                                               tags$style(".shiny-file-input-progress {display: none}"),
+                                              
                                               fileInput('file1', 'Choose file to upload',
                                                         accept = c(
                                                           'text/csv',
@@ -418,6 +420,7 @@ shinyUI(
                                               textOutput("fields_absent"),
                                               textOutput("fall_outside_daterange"),
                                               textOutput("date_Overlapping"),
+                                              textOutput("timeFormatWrong"),
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue"),
                                               useShinyjs(),
@@ -435,6 +438,8 @@ shinyUI(
                                               htmlOutput("msg_tableAppended"),
                                               
                                               htmlOutput("file_updated"),
+                                              
+                                              tags$hr(), # 
                                               
                                               box(
                                                 title =  textOutput("table_after_append"),
