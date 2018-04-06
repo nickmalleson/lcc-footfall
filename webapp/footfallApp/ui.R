@@ -302,14 +302,14 @@ shinyUI(
                                      
                                      tabPanel(title = "Parameters", status = "warning", solidHeader = T, background = "aqua",
                                               id='basic parameters',
-                                              box(tags$p(tags$b(h3("p "))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                              box(tags$p(tags$b(h4("Names of Camera Location"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                   tabPanel("basic_parameters", DT::dataTableOutput("list_of_cameraNames"))
                                               )
                                               ),
-
+                                     
                                      tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
-                                              box(tags$p(tags$b(h3("Raw Data: 'Most recent' to 'Earliest'"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                              box(tags$p(tags$b(h4("Existing raw HF data"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                 tabPanel("history_footfall", DT::dataTableOutput("history")),
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
@@ -322,6 +322,20 @@ shinyUI(
                                                 htmlOutput("why_re_gen_HF2"),
                                                 tags$hr(),
                                                 htmlOutput("regen_HF_warning"),
+                                                tags$hr(),
+                                                
+                                                tags$style(".shiny-file-input-progress {display: none}"),
+                                                
+                                                fileInput('file2', 'Replace the existing raw HF data',
+                                                          accept = c(
+                                                            'text/csv',
+                                                            'text/comma-separated-values',
+                                                            'text/tab-separated-values',
+                                                            'text/plain',
+                                                            '.csv',
+                                                            '.tsv'
+                                                          )),
+                                                
                                                 tags$hr(),
                                                 #div(style="display:inline-block",submitButton("aggre_HF"), style="float:right"),
                                                 #div(style="display:inline-block",submitButton("aggre_HF")', 'Download Data'), style="float:right")
@@ -421,6 +435,7 @@ shinyUI(
                                               textOutput("fall_outside_daterange"),
                                               textOutput("date_Overlapping"),
                                               textOutput("timeFormatWrong"),
+                                              textOutput("typo_camera_Name"),
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue"),
                                               useShinyjs(),

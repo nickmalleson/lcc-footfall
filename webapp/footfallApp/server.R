@@ -60,19 +60,7 @@ convert_Time_Format <- function(data){
   data$Hour <- Hour_New
 }
 
-#to detect if time (i.e. 'Hour') field is in 'hh:mm' format. 
-#If so, return a error warning
-detect_Time_Format_Error <- function(data){
-  backup_Hour <- data$Hour
-  Hour_New <- matrix(0, length(data$Hour),1)
-  pattern <- ":"
-  timeString <- as.character(data$Hour)
-  pattern_Exist <- grepl(pattern, timeString)
-  whichIsTrue <- which(pattern_Exist==TRUE)
-  if(length(whichIsTrue)==0){timeF = 0}
-  if(length(whichIsTrue)>0){timeF = 1}
-  return(timeF)
-}
+
 
 #subset data, colleting the necessary fields: 'Date', 'Hour', 'Id' & 'LocationName'
 subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
@@ -103,70 +91,70 @@ lists_Loc_Correct <- c("Briggate", "Briggate at McDonalds", "Commercial Street a
 #---------------------------------------------------------
 #function to correct typo in Camera's Location
 
-orig_Data_sub_Location_Typo_removed <- function(orig_Data_sub, lists_Loc_Correct){
-  
-  #are these all the camera locations expected
-  unique_Camera <- as.vector(unique(orig_Data_sub$Loc_Id))  #head(orig_Data_sub)
-  
-  matrix_Loc <- matrix(0, length(orig_Data_sub$Loc_Id), 1)
-  
-  listId <- which(orig_Data_sub$Loc_Id=="BriggateAtMcDs")
-  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds\t")
-  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="CommercialStLush")
-  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="CommercialStBarratts")
-  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square\t")
-  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="DortmundSq")
-  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="AlbionStNorth")
-  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="AlbionStSouth")
-  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Briggate")
-  matrix_Loc[listId, 1] <- rep("Briggate", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds")
-  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Sharps")
-  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Barratts")
-  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Headrow")
-  matrix_Loc[listId, 1] <- rep("Headrow", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square")
-  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Albion Street South")
-  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
-  
-  listId <- which(orig_Data_sub$Loc_Id=="Albion Street North")
-  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
-  
-  matrix_Loc <- as.data.frame(matrix_Loc)
-  colnames(matrix_Loc) <- c("Loc_Id") 
-  
-  #append to the real data
-  orig_Data_sub[,"Loc_Id"] <- matrix_Loc
-  
-  return(orig_Data_sub)
-}
-
+# orig_Data_sub_Location_Typo_removed <- function(orig_Data_sub, lists_Loc_Correct){
+#   
+#   
+#   #are these all the camera locations expected
+#   unique_Camera <- as.vector(unique(orig_Data_sub$Loc_Id))  #head(orig_Data_sub)
+#   
+#   matrix_Loc <- matrix(0, length(orig_Data_sub$Loc_Id), 1)
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="BriggateAtMcDs")
+#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds\t")
+#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="CommercialStLush")
+#   matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="CommercialStBarratts")
+#   matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square\t")
+#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="DortmundSq")
+#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="AlbionStNorth")
+#   matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="AlbionStSouth")
+#   matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Briggate")
+#   matrix_Loc[listId, 1] <- rep("Briggate", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Briggate at McDonalds")
+#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Sharps")
+#   matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Commercial Street at Barratts")
+#   matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Headrow")
+#   matrix_Loc[listId, 1] <- rep("Headrow", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Dortmund Square")
+#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Albion Street South")
+#   matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+#   
+#   listId <- which(orig_Data_sub$Loc_Id=="Albion Street North")
+#   matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+#   
+#   matrix_Loc <- as.data.frame(matrix_Loc)
+#   colnames(matrix_Loc) <- c("Loc_Id") 
+#   
+#   #append to the real data
+#   orig_Data_sub[,"Loc_Id"] <- matrix_Loc
+#   
+#   return(orig_Data_sub)
+# }
 
 
 #------------------------
@@ -583,7 +571,7 @@ convert_Date <- function(data){
   return(data)
 }
 
-
+#LIST FOR FUNCTIONS TO CHECK ERRORS IN THE DATASET
 #function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
 uploaded_fieldnames <- function(data){
   essential_Fields <- c("Date","Hour","InCount", "LocationName")
@@ -616,6 +604,32 @@ dateOverlap_Checker <- function(history_footfall, data){
   overlap_Dates <- which(uniqueDate_uploaded %in% uniqueDate_footfallDatabase)
   return(length(overlap_Dates))
 }
+
+#to detect if time (i.e. 'Hour') field is in 'hh:mm' format. 
+#If so, return a error warning
+detect_Time_Format_Error <- function(data){
+  backup_Hour <- data$Hour
+  Hour_New <- matrix(0, length(data$Hour),1)
+  pattern <- ":"
+  timeString <- as.character(data$Hour)
+  pattern_Exist <- grepl(pattern, timeString)
+  whichIsTrue <- which(pattern_Exist==TRUE)
+  if(length(whichIsTrue)==0){timeF = 0}
+  if(length(whichIsTrue)>0){timeF = 1}
+  return(timeF)
+}
+
+#function to detect typo in the list of camera location
+check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
+  #are these all the camera locations expected
+  unique_Camera_Loc <- as.vector(lists_Loc_Correct)  #head(orig_Data_sub)
+  unique_Camera_Loc_from_Data <- as.vector(unique(data$LocationName))
+  check_Loc <- length(which((unique_Camera_Loc_from_Data%in%unique_Camera_Loc)==FALSE))
+  if(check_Loc==0){issue0=0}
+  if(check_Loc!=0){issue0=1}
+  return(issue0)
+}
+
 
 #function to identify outliers#, returns 0 as "na" datapoint, "1" for outliers and  "2" for not outlier
 
@@ -1092,6 +1106,7 @@ shinyServer(function(input, output, session){
     shinyjs::hide("processingbar2")
     shinyjs::hide("generated_footfall_aggre_data")
     shinyjs::hide("aggre_HF_confirm")
+    shinyjs::show("processingbar3")
     #shinyjs::show("aggre_HF_confirm")    
   })
   #uploaded data.....: Purpose: observe command is used where no output is returned.
@@ -1100,17 +1115,20 @@ shinyServer(function(input, output, session){
     
     shinyjs::show("processingbar1")
     shinyjs::hide("processingbar2")
-    #initialisation
-    issue1 = 0
-    issue2 = 0
-    issue3 = 0
-    issue4 = 0
-    
+
     req(input$file1)
     #To check the gaps that an uploaded file fill
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
+    
+    #initialisation
+    total_issues = 0
+    issue1 = 0
+    issue2 = 0
+    issue3 = 0
+    issue4 = 0
+    issue5 = 0
     #to delay the display...
     ##output$checking <- renderText({paste("checking...... ")})
     
@@ -1120,7 +1138,9 @@ shinyServer(function(input, output, session){
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
     Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file)
-  
+    check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file, lists_Loc_Correct)
+    
+
     essential_Fields <- c("Date","Hour","InCount", "LocationName")
     
     if(as.numeric(leng_name)!=length(essential_Fields)){
@@ -1134,7 +1154,10 @@ shinyServer(function(input, output, session){
     
     if(Inspect_Time_Format>0){
       issue4<-1
-      }
+    }
+    if(check_typo_in_Camera_Name!=0){
+      issue5<-1
+    }
     
       #print((leng_name))
       
@@ -1148,7 +1171,7 @@ shinyServer(function(input, output, session){
     # #if(issue3==1){
     #   #print("Some dates in the uploaded file overlap with dates in the footfall database")}
     # 
-    total_issues <- issue1 + issue2 + issue3 + issue4
+    total_issues <- issue1 + issue2 + issue3 + issue4 + issue5
     
     #if there is no issues, then show "Upload" button
     if(total_issues==0){
@@ -1157,8 +1180,9 @@ shinyServer(function(input, output, session){
       output$fields_absent <- renderText({print(" ")})
       output$fall_outside_daterange <- renderText({print(" ")})
       output$date_Overlapping <- renderText({print("")})
-      output$resolve_issue <- renderText({paste(" ")})
       output$timeFormatWrong <- renderText({paste(" ")})
+      output$typo_camera_Name <- renderText({paste(" ")})
+      output$resolve_issue <- renderText({paste(" ")})
       
       #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Successful!")})
@@ -1200,6 +1224,9 @@ shinyServer(function(input, output, session){
         output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
       if(issue4==1){
         output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
+      if(issue5==1){
+        output$typo_camera_Name <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there is no typo error in any of the LocationName in the uploaded data. The correct spellings can be found in the 'Parameters' tab")})
+      }
       shinyjs::hide("append")
       output$resolve_issue <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
     }
@@ -1251,9 +1278,12 @@ shinyServer(function(input, output, session){
     print("3500000")
     
     #removes location typo in the dataset
-    orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
+    #orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
     
-    aggregate_Location <- aggregate_Location(orig_Data_sub)        
+    #to check typo in Camera's name
+
+    
+    aggregate_Location <- aggregate_Location(orig_Data_sub = result1)        
     #-----------------------------------         
     
     
@@ -1296,25 +1326,7 @@ shinyServer(function(input, output, session){
       
     }
 
-    # #Pick each files in the 'transitory_HF_updating' folder, and rename them and transfer them into the 'aggregated_historical_HF' folder 
-    # for(k in 1:length(time_aggregation)){
-    #   
-    #   temp_aggre <- read.table(file=paste(parameter_directory, "transitory_HF_updating/", "transitory_", time_aggregation[j], ".csv", sep=""), sep="," head = TRUE)
-    # }
-    # 
-        #temp_aggre <- read.table(file = paste(), sep="," head = TRUE)
-    
-    #Now 
-    #Now transfer all files into the actual aggregated folder... i.e 'file_here'
-    
-    
-    #also the below 'missing table is now also hiding...'
-    
-    #complete the below also to effectively update the main historical_HF (or is it not affected?)
-    
-    
-
-         
+  })
     # #new historical data
     # updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
     # colnames(updated_FootfallDataset) <- c("Date","Hour","InCount", "LocationName")
@@ -1357,29 +1369,140 @@ shinyServer(function(input, output, session){
     #   Sys.sleep(5) #to allow time for the historical HF file to be written successfully
     #   
       
-  })
+
   
   
   #-----------------------------------------------------------------FULL HISTORICAL FILE 
   #export appended data
   observeEvent(input$aggre_HF, {
     #output$msg_tableAppended <- rend
-  #Warning
-  showModal(modalDialog(
-      title = "Generate new set of aggregated HF",
-      "This process may take several hours to complete!....takes hours!",
-      easyClose = FALSE
-    ))
-    
-  shinyjs::show("aggre_HF_confirm")
-    
-    
-   observeEvent(input$aggre_HF_confirm, {
-     
     HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
     #import HF dataset
     orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
                                                  full=TRUE),read.csv, header=TRUE))
+    
+    #carry out checks for the dataset first....
+    
+    #initialisation
+    total_issues = 0
+    issue1 = 0
+    issue2 = 0
+    issue3 = 0
+    issue4 = 0
+    issue5 = 0
+    #to delay the display...
+    ##output$checking <- renderText({paste("checking...... ")})
+    
+    #shinyjs::hide("upload")
+    #checking whether the uploaded file contain essential fields
+    leng_name <- uploaded_fieldnames(orig_Data) #checking essential field names
+    ##2out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
+    ##3overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
+    Inspect_Time_Format <- detect_Time_Format_Error(orig_Data)
+    check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=orig_Data, lists_Loc_Correct)
+    
+    
+    essential_Fields <- c("Date","Hour","InCount", "LocationName")
+    
+    if(as.numeric(leng_name)!=length(essential_Fields)){
+      issue1<-1}
+    
+    #if(out_Len>0){
+      #issue2<-1}
+    
+    #if(overlap_Dates>0){
+      #issue3<-1}
+    
+    if(Inspect_Time_Format>0){
+      issue4<-1
+    }
+    if(check_typo_in_Camera_Name!=0){
+      issue5<-1
+    }
+    
+    #print((leng_name))
+    
+    # #if((out_Len<-dateRange_Checker(historical_footfall, data))>0){issue2=1}
+    # #if((overlap_Dates<-dateOverlap_Checker(historical_footfall, data))>0){issue3=1}
+    # 
+    # #if(issue1==1){
+    #   #print("The uploaded file does not contain one of the following field names")}
+    # #if(issue2==1){
+    #   #print("One or some of the uploaded dates fall outside the expected range (i.e. earliest date of footfall (database) and the current date")}
+    # #if(issue3==1){
+    #   #print("Some dates in the uploaded file overlap with dates in the footfall database")}
+    # 
+    total_issues <- issue1 + issue4 + issue5  #issue2 + issue3 + 
+    
+    #if there is no issues, then show "Upload" button
+    if(total_issues==0){
+      #turn off
+      output$issues2 <- renderText({paste(" ")})
+      output$fields_absent2 <- renderText({print(" ")})
+      #output$fall_outside_daterange2 <- renderText({print(" ")})
+      #output$date_Overlapping2 <- renderText({print("")})
+      output$timeFormatWrong2 <- renderText({paste(" ")})
+      output$typo_camera_Name2 <- renderText({paste(" ")})
+      output$resolve_issue2 <- renderText({paste(" ")})
+      
+      #turn on
+      output$Uploaded_file_checks_Passed2 <- renderText({paste("<b>'HF dataset Okay!")})
+    
+      #Warning
+      showModal(modalDialog(
+        title = "Generate new set of aggregated HF",
+        "This process may take several hours to complete!....takes hours!",
+        easyClose = FALSE
+      ))
+      
+      shinyjs::show("aggre_HF_confirm")
+    
+      #shinyjs::show("append")
+      ##shinyjs::show("processingbar1")
+      shinyjs::show("processingbar3")
+      
+      #------CHECK THIS!
+      disable("slider1")
+      observeEvent(input$aggre_HF_confirm, priority=10, {
+        js$play()
+        #Sys.sleep(1) # simulate computation
+      })
+    }
+
+    #To show or hide 'aggre_HF_confirm' 
+    if(total_issues!=0){
+      #turn off
+      shinyjs::hide("processingbar3")
+      #shinyjs::hide("processingbar2")
+      output$Uploaded_file_checks_Passed2 <- renderText({paste(" ")})
+      
+      #turn on
+      #shinyjs::show("append")}  ###renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
+      output$issues2 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
+      if(issue1==1){
+        output$fields_absent2 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
+      #if(issue2==1){
+        #output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
+      #if(issue3==1){
+        #output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
+      if(issue4==1){
+        output$timeFormatWrong2 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
+      if(issue5==1){
+        output$typo_camera_Name2 <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there is no typo error in any of the LocationName in the uploaded data. The correct spellings can be found in the 'Parameters' tab")})
+      }
+      shinyjs::hide("aggre_HF_confirm")
+      output$resolve_issue2 <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
+    }
+    
+  })
+  
+ 
+   observeEvent(input$aggre_HF_confirm, {
+     
+    # HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
+    # #import HF dataset
+    # orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
+    #                                              full=TRUE),read.csv, header=TRUE))
     print("100000")
     max_Date <- max(uniq_Dates(orig_Data))
 
@@ -1405,16 +1528,16 @@ shinyServer(function(input, output, session){
         print("3500000")
         
         #removes location typo in the dataset
-orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
+        #orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
         
-#This section generates... 
-#Why is this section not imported as a function? Because we want to be able to print out the percentage processing of the loop. This is not possible if imported as a function
-#---------------------------------       
+        #This section generates... 
+        #Why is this section not imported as a function? Because we want to be able to print out the percentage processing of the loop. This is not possible if imported as a function
+        #---------------------------------       
         #processing monitoring
         # withProgress(message = 'PROCESSING...', value = 0, {
         #   incProgress(1/2)
-aggregate_Location <- aggregate_Location(orig_Data_sub)        
-#-----------------------------------         
+        aggregate_Location <- aggregate_Location(orig_Data_sub=result1)        
+        #-----------------------------------         
         
         
         for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
@@ -1446,7 +1569,7 @@ aggregate_Location <- aggregate_Location(orig_Data_sub)
     
     
     
-  })
+ # })
 
 
   
