@@ -1049,7 +1049,7 @@ shinyServer(function(input, output, session){
       #DT::datatable(missing_dates) #apply(history_footfall, 2, rev)
     })
     
-  output$testHTML1 <- renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
+  output$testHTML1 <- renderText({paste("<b>Above table shows the list of periods in which footfall data are missing.", "<br>")})
   output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
   output$testHTML3 <- renderText({paste("<b>1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
   output$testHTML4 <- renderText({paste("<b>2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
@@ -1199,7 +1199,7 @@ shinyServer(function(input, output, session){
       if(issue3==1){
         output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
       if(issue4==1){
-        output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Change to 0, 1, 2, 3, ..., 23, where 0 is 00:00. Use MS Excel to do the conversion (i.e. multiple the any entry in this format by 24) ")})}
+        output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       shinyjs::hide("append")
       output$resolve_issue <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
     }
@@ -1216,14 +1216,13 @@ shinyServer(function(input, output, session){
     print(historicalData_Subset)
     req(input$file1)
     #To check the gaps that an uploaded file fill
+    #Check whether this is necessary again!
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
-
-    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
     
-    #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
-    output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
+    #subset the data for only the necessary fields
+    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
     
     #uploadedData_Subset 
     
@@ -1232,16 +1231,20 @@ shinyServer(function(input, output, session){
     ###orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
        ###                                             full=TRUE),read.csv, header=TRUE))
     print("100000")
+    
+    #get the most recent date from the uploaded dataset
     max_Date <- max(uniq_Dates(uploadedData_Subset))
     
-    #to generate aggregated dataset at varying temporal scales
+    #specifying the temporal segmentations to use for the data aggregation
     print(max_Date)
     hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
     
     print("200000")
     
+    #labels of time aggregation
     time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
     
+    #first summing up HF count across stations for each hour of the day
     result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
     print("300000")
     
@@ -1283,13 +1286,25 @@ shinyServer(function(input, output, session){
       finalresult <- cbind(existing_time_aggre_HF_Updated, outlier_events)
       colnames(finalresult)<- c("Date","InCount","outlier")
       
-      write.table(finalresult, file=paste(parameter_directory, "transitory_HF_updating/", "transitory_", time_aggregation[j], ".csv", sep=""), sep=",") 
+      write.table(finalresult, file=paste(parameter_directory, time_aggregation[j], ".csv", sep=""), sep=",") 
       
       print("outlier printOut")
+      Sys.sleep(3)
+      
+      #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
+      output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
       
     }
 
+    # #Pick each files in the 'transitory_HF_updating' folder, and rename them and transfer them into the 'aggregated_historical_HF' folder 
+    # for(k in 1:length(time_aggregation)){
+    #   
+    #   temp_aggre <- read.table(file=paste(parameter_directory, "transitory_HF_updating/", "transitory_", time_aggregation[j], ".csv", sep=""), sep="," head = TRUE)
+    # }
+    # 
+        #temp_aggre <- read.table(file = paste(), sep="," head = TRUE)
     
+    #Now 
     #Now transfer all files into the actual aggregated folder... i.e 'file_here'
     
     
@@ -1298,8 +1313,7 @@ shinyServer(function(input, output, session){
     #complete the below also to effectively update the main historical_HF (or is it not affected?)
     
     
-#extend the end of looop } above, don't compute the outlier just yet, append to the existing aggregated files... HF first, 
-# and then find the outlier then... then export 
+
          
     # #new historical data
     # updated_FootfallDataset <- as.data.frame(rbind(historicalData_Subset, uploadedData_Subset))
