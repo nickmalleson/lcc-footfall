@@ -1,0 +1,65 @@
+
+data_Location_Typo_removed <- function(data, lists_Loc_Correct){
+  
+  #are these all the camera locations expected
+  unique_Camera <- as.vector(unique(data$LocationName))  #head(data)
+  
+  matrix_Loc <- matrix(0, length(data$LocationName), 1)
+  
+  listId <- which(data$LocationName=="BriggateAtMcDs")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(data$LocationName=="Briggate at McDonalds\t")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(data$LocationName=="CommercialStLush")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+  
+  listId <- which(data$LocationName=="CommercialStBarratts")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+  
+  listId <- which(data$LocationName=="Dortmund Square\t")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(data$LocationName=="DortmundSq")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(data$LocationName=="AlbionStNorth")
+  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+  
+  listId <- which(data$LocationName=="AlbionStSouth")
+  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+  
+  listId <- which(data$LocationName=="Briggate")
+  matrix_Loc[listId, 1] <- rep("Briggate", length(listId))
+  
+  listId <- which(data$LocationName=="Briggate at McDonalds")
+  matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
+  
+  listId <- which(data$LocationName=="Commercial Street at Sharps")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
+  
+  listId <- which(data$LocationName=="Commercial Street at Barratts")
+  matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
+  
+  listId <- which(data$LocationName=="Headrow")
+  matrix_Loc[listId, 1] <- rep("Headrow", length(listId))
+  
+  listId <- which(data$LocationName=="Dortmund Square")
+  matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
+  
+  listId <- which(data$LocationName=="Albion Street South")
+  matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
+  
+  listId <- which(data$LocationName=="Albion Street North")
+  matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
+  
+  matrix_Loc <- as.data.frame(matrix_Loc)
+  colnames(matrix_Loc) <- c("LocationName")
+  
+  #append to the real data
+  data[,"LocationName"] <- matrix_Loc
+  
+  return(data)
+}
+

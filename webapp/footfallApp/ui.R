@@ -91,14 +91,17 @@ shinyUI(
                                    choices = c("Daytime", "Evening","Night", "Whole Day"),
                                    selected = "Whole Day"),
                       
+                      checkboxInput("trendLine", label="Add trend line?", value = FALSE),
+                      
+                      
                       sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
                       
                       radioButtons("chartType", "Chart Type", 
                                    choices = c("Line", "Bar", "Dot"),
                                    selected = "Line"),
                       
-                      checkboxInput("trendLine", label="Add trend line?", value = FALSE)
                       
+                      checkboxInput("prediction", label="Show prediction?", value = FALSE)
                       
                     ),
                     
@@ -309,7 +312,7 @@ shinyUI(
                                      
                                      tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
-                                              box(tags$p(tags$b(h4("Existing raw HF data"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                              box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                 tabPanel("history_footfall", DT::dataTableOutput("history")),
                                                 #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
                                                 #tabPanel("iris", DT::dataTableOutput("mytable3"))
@@ -326,7 +329,7 @@ shinyUI(
                                                 
                                                 tags$style(".shiny-file-input-progress {display: none}"),
                                                 
-                                                fileInput('file2', 'Replace the existing raw HF data',
+                                                fileInput('file2', 'Upload new raw footfall dataset to replace the existing historical footfall data (Max. size: 200MB)',
                                                           accept = c(
                                                             'text/csv',
                                                             'text/comma-separated-values',
@@ -337,12 +340,35 @@ shinyUI(
                                                           )),
                                                 
                                                 tags$hr(),
+                                                
+                                                #actionButton("go", "Compute"),
+                                                #fluidRow(column(1, align="center", offset = 0, 
+                                                tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                                useShinyjs(), extendShinyjs(text = jscode),
+                                                #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                                uiOutput("processingbar3"), 
+                                                
+                                                #htmlOutput("processing"),
+                                                
+                                                tags$hr(), # 
+                                                htmlOutput("issues_1"),
+                                                textOutput("fields_absent_1"),
+                                                #textOutput("fall_outside_daterange2"),
+                                                #textOutput("date_Overlapping2"),
+                                                textOutput("timeFormatWrong_1"),
+                                                textOutput("typo_camera_Name_1"),
+                                                tags$hr(), # 
+                                                htmlOutput("resolve_issue_1"),
+                                                htmlOutput("Uploaded_file_checks_Passed_1"),
+                                                
                                                 #div(style="display:inline-block",submitButton("aggre_HF"), style="float:right"),
                                                 #div(style="display:inline-block",submitButton("aggre_HF")', 'Download Data'), style="float:right")
                                                 #column(width=3,
                                                 actionButton("aggre_HF", "Re-generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 verbatimTextOutput("default"),
+                                                tags$hr(),
+                                                htmlOutput("taskCompleted"),
                                                 
                                                 # bsModal("gen_aggre","This process may take several hours to complete!....takes hours!","aggre_HF", 
                                                 #         HTML(paste("")),
