@@ -97,7 +97,7 @@ shinyUI(
                       sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
                       
                       radioButtons("chartType", "Chart Type", 
-                                   choices = c("Line", "Bar", "Dot"),
+                                   choices = c("Line", "Dot"),
                                    selected = "Line"),
                       
                       
@@ -341,7 +341,7 @@ shinyUI(
                                                 
                                                 #processing bar for uploading file (historical)
                                                 fluidPage(
-                                                  tags$b("Loading..."), br(),
+                                                  #tags$b("Loading..."), br(),
                                                   progressBar(id = "pb1", value = 0)
                                                 ),
                                                 
@@ -352,7 +352,7 @@ shinyUI(
                                                 #numericInput("seconds", "how many seconds your calculation will last?", value=6),
                                                 tags$hr(),
                                                 uiOutput("processingbar1"), 
-                                                textOutput("processing_append"),
+                                                htmlOutput("processing_append"),
                                                 
                                                 #htmlOutput("processing"),
                                                 #progressbar to upload file
@@ -366,7 +366,7 @@ shinyUI(
                                                 htmlOutput("resolve_issue_1"),
                                                 htmlOutput("Uploaded_file_checks_Passed_1"),
                                                 tags$hr(), # 
-                                                actionButton("aggre_HF", "Re-generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                actionButton("aggre_HF", "Generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 verbatimTextOutput("default"),
                                                 tags$hr(),

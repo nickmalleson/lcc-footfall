@@ -719,23 +719,23 @@ shinyServer(function(input, output, session){
     })
   output$processingbar1 = renderUI({
     shinyjs::hide("processingbar1")
-    sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
+    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Please, wait...",
                 animate = animationOptions(
                   interval = (8*7200), #5 seconds
                   playButton = "",
                   pauseButton = ""))})
 
-#monitors file upload
-  observeEvent(input$file2, priority=10, {
-    js$play()
-  })
-  output$processingbar1 = renderUI({
-    shinyjs::hide("processingbar1")
-    sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
-                animate = animationOptions(
-                  interval = (8*8), #5 seconds
-                  playButton = "",
-                  pauseButton = ""))})
+# #monitors file upload
+#   observeEvent(input$file2, priority=10, {
+#     js$play()
+#   })
+#   output$processingbar1 = renderUI({
+#     shinyjs::hide("processingbar1")
+#     sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
+#                 animate = animationOptions(
+#                   interval = (8*8), #5 seconds
+#                   playButton = "",
+#                   pauseButton = ""))})
   
   autoInvalidate1 <- reactiveTimer(5000)
   
@@ -1223,9 +1223,13 @@ observe({
   
     observe({
       #for(i in 1:100){
-        updateProgressBar(session = session, id = "pb1", value = i) #input$i
+        timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
+        updateProgressBar(session = session, id = "pb1", value = timeUpd) #input$i
+        invalidateLater(1000, session)
       #}
     })
+    
+    #shinyjs::show("aggre_HF_processing")
     
     #to remove whitespace in teh location name column
     uploaded_file2 <- remove_whitespace(uploaded_file2)
@@ -1331,7 +1335,6 @@ observeEvent(input$aggre_HF_confirm, {
   
    shinyjs::show("processingbar1")
   
-   #shinyjs::show("aggre_HF_processing")
    output$processing_append <- renderText({print("Processing....")}) 
    #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
    #output$aggre_HF_processing <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
@@ -1402,6 +1405,7 @@ observeEvent(input$aggre_HF_confirm, {
         output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
         output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
         output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
+        shinyjs::hide("processing_append")
    })
     
   }) 
