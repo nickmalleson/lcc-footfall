@@ -67,7 +67,7 @@ shinyUI(
                     menuItem( 
                       "FOOTFALL DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem("Footfall Forecast (Settings)", tabName ="forecastSetting", 
+                    menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting", 
                              
                       # sliderInput("n", "Number of points:",
                       #                    min = 10, max = 200, value = 50, step = 10),
@@ -85,7 +85,7 @@ shinyUI(
                       
                     ),
                     
-                    menuItem("History and Forecast (trend)", tabName ="historyAndForecastSetting", 
+                    menuItem(div(style="text-align:center","~ History (Settings)"), tabName ="historyAndForecastSetting", 
                       
                       radioButtons("timeOftheDayInput", "Modify Time of the Day",
                                    choices = c("Daytime", "Evening","Night", "Whole Day"),
@@ -314,8 +314,6 @@ shinyUI(
                                               id='gaps_missingData',
                                               box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                 tabPanel("history_footfall", DT::dataTableOutput("history")),
-                                                #tabPanel("mtcars", DT::dataTableOutput("mytable2")),
-                                                #tabPanel("iris", DT::dataTableOutput("mytable3"))
                                                 tags$hr(),
                                                 htmlOutput("HF_view"),
                                                 htmlOutput("HF_directory"),
@@ -341,45 +339,42 @@ shinyUI(
                                                 
                                                 tags$hr(),
                                                 
-                                                #actionButton("go", "Compute"),
-                                                #fluidRow(column(1, align="center", offset = 0, 
+                                                #processing bar for uploading file (historical)
+                                                fluidPage(
+                                                  tags$b("Loading..."), br(),
+                                                  progressBar(id = "pb1", value = 0)
+                                                ),
+                                                
+                                                htmlOutput("aggre_HF_processing"),
+
                                                 tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
                                                 useShinyjs(), extendShinyjs(text = jscode),
                                                 #numericInput("seconds", "how many seconds your calculation will last?", value=6),
-                                                uiOutput("processingbar3"), 
+                                                tags$hr(),
+                                                uiOutput("processingbar1"), 
+                                                textOutput("processing_append"),
                                                 
                                                 #htmlOutput("processing"),
+                                                #progressbar to upload file
                                                 
                                                 tags$hr(), # 
                                                 htmlOutput("issues_1"),
                                                 textOutput("fields_absent_1"),
-                                                #textOutput("fall_outside_daterange2"),
-                                                #textOutput("date_Overlapping2"),
                                                 textOutput("timeFormatWrong_1"),
                                                 textOutput("typo_camera_Name_1"),
                                                 tags$hr(), # 
                                                 htmlOutput("resolve_issue_1"),
                                                 htmlOutput("Uploaded_file_checks_Passed_1"),
-                                                
-                                                #div(style="display:inline-block",submitButton("aggre_HF"), style="float:right"),
-                                                #div(style="display:inline-block",submitButton("aggre_HF")', 'Download Data'), style="float:right")
-                                                #column(width=3,
+                                                tags$hr(), # 
                                                 actionButton("aggre_HF", "Re-generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                                 verbatimTextOutput("default"),
                                                 tags$hr(),
                                                 htmlOutput("taskCompleted"),
+                                                tags$hr(),
+                                                htmlOutput("data_aggre_dir"),
+                                                htmlOutput("reload_HF"),
                                                 
-                                                # bsModal("gen_aggre","This process may take several hours to complete!....takes hours!","aggre_HF", 
-                                                #         HTML(paste("")),
-                                                #         tags$head(tags$style("#gen_aggre .modal-footer{ display:none}"))),
-                                                        
-                                                
-
-                                                #fluidRow(column(1, align="center", offset = 0, 
-                                              
-                                                #actionButton("aggre_HF_cancel", "Cancel", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                                 #),
                                                 br(),
                                                 
                                                 #),
@@ -450,8 +445,7 @@ shinyUI(
                                               #fluidRow(column(1, align="center", offset = 0, 
                                                 tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
                                                 useShinyjs(), extendShinyjs(text = jscode),
-                                              #numericInput("seconds", "how many seconds your calculation will last?", value=6),
-                                                uiOutput("processingbar1"), 
+                                                #uiOutput("processingbar1"), 
                                                                                    
                                               #htmlOutput("processing"),
                                               htmlOutput("Uploaded_file_checks_Passed"),
@@ -465,22 +459,27 @@ shinyUI(
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue"),
                                               useShinyjs(),
+                                              htmlOutput("append_button_Descrip"),
+                                              useShinyjs(),
+                                              #preview button
                                               fluidRow(column(1, align="center", offset = 0, 
                                                               actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                                                               )),hr(),
                                               fluidRow(column(1, align="center", offset = 0, 
-                                                        actionButton("generated_footfall_aggre_data", "Generate aggregated data", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-                                                       )),
+                                                              actionButton("confirm_Append", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                                              )),
+                                              tags$hr(), # 
+                                              htmlOutput("confirm_Append"),
                                                        #),
                                             
                                               
                                               tags$hr(), # 
                                               
-                                              htmlOutput("msg_tableAppended"),
-                                              
-                                              htmlOutput("file_updated"),
+                                              htmlOutput("aggre_HF_file_updated"),
                                               
                                               tags$hr(), # 
+                                              
+                                              htmlOutput("reload_HF_update"),
                                               
                                               box(
                                                 title =  textOutput("table_after_append"),

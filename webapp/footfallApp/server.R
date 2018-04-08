@@ -152,7 +152,6 @@ subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
 # }
 
 
-
 #------------------------
 aggregate_Location <- function(orig_Data_sub){
   
@@ -216,7 +215,6 @@ footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
   allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
   
   #how do you approximate it..forward or back
-  
   #create list of days and time, covering the entire study period (start of the footfall database and its end).
   allDays_Time_listed <- merge(allDays_listed, c(0:23), all = TRUE, sort = FALSE)#time_aggre
   allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
@@ -250,7 +248,6 @@ footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
   
   for(i in 1:length(unique_dates)){ #i<-1
     timeT <- data_subset[which(data_subset$Date==unique_dates[i]),c("Hour")]
-    #InCt <- data_subset[which(data_subset$Date==unique_dates[i]),]
     totalCt_allDay <- data_subset[which(data_subset$Date==unique_dates[i]),]
     #sum the 'InCount values for the time selected aggregate'
     totalCt <- sum(as.numeric(as.vector(totalCt_allDay[which(totalCt_allDay$Hour%in%unique_Times),c("InCount")])))
@@ -273,7 +270,6 @@ footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
 }
 #------------------------------------------
 
-#function to identify outliers
 #function to identify outliers
 outliers <- function(data=aggregate_time_of_the_Day){
   x<-data
@@ -668,13 +664,15 @@ shinyServer(function(input, output, session){
   parameter_directory <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/")
   
   #IMPORTING DATASETS
-  history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
-                                                  full=TRUE),read.csv, header=TRUE))
-  
-  dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
-  eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTime.csv", sep=""), sep=",", head=TRUE)
-  nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTime.csv", sep=""), sep=",", head=TRUE)
-  twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_Hours.csv", sep=""), sep=",", head=TRUE)
+  #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
+                                                  #full=TRUE),read.csv, header=TRUE))
+  history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
+                                                        
+  dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+                                                                
   
   #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
@@ -686,26 +684,22 @@ shinyServer(function(input, output, session){
 
   #HISTORICAL HF VISUALISATION
   output$dayTimeData <- DT::renderDataTable({
-    dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTime.csv", sep=""), sep=",", head=TRUE)
      dayTIme_HT_Table <- DT::datatable(dayTime_HF_aggre)
      return(dayTIme_HT_Table)
    })
   
 
   output$eveningTimeData <- DT::renderDataTable({
-    eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTime.csv", sep=""), sep=",", head=TRUE)
     eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
     return(eveningTimeData)
   })
   
   output$nightTimeData <- DT::renderDataTable({
-    nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTime.csv", sep=""), sep=",", head=TRUE)
     nightTimeData <- DT::datatable(nightTime_HF_aggre)
     return(nightTimeData)
   })
 
   output$twentyFourHoursData <- DT::renderDataTable({
-    twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_Hours.csv", sep=""), sep=",", head=TRUE)
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
     return(twentyFourHours_HT_Table)
   })
@@ -718,61 +712,31 @@ shinyServer(function(input, output, session){
     return(cameraNames)
   })
   
-  #output$mytable1 <- DT::renderDataTable({
-    #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
-    # })
-  # observe({
-  #   shinyjs::hide("UI") #hide the processbar first
-  # }) 
-  
-  disable("slider")
-  observeEvent(input$file2, priority=10, {
-    #shinyjs::hide("UI")
+
+  #disable("slider")
+  observeEvent(input$aggre_HF_confirm, priority=10, {
     js$play()
-    #Sys.sleep(1) # simulate computation
     })
-    #showNotification("File uploaded!", type="error")})
-  output$processingbar3 = renderUI({
-    shinyjs::show("processingbar3")
-    sliderInput("slider", label = "", width = '300px',min = 0,max = 99,value = 0,step = 1, post="%",
+  output$processingbar1 = renderUI({
+    shinyjs::hide("processingbar1")
+    sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
                 animate = animationOptions(
                   interval = (8*7200), #5 seconds
                   playButton = "",
                   pauseButton = ""))})
 
-
-  #   disable("slider3")
-  # observeEvent(input$aggre_HF, priority=10, {
-  #   #shinyjs::show("processingbar_gen_HF")
-  #   js$play()
-  #   #Sys.sleep(1) # simulate computation
-  # })
-
-  # percent_Processing = 0
-  # 
-  # output$processingbar2 = renderUI({
-  #   shinyjs::show("processingbar2")
-  #   sliderInput("slider3", label = "", width = '300px',min = 0,max = 100,value = percent_Processing,step = 1, post="%")
-  #   animate = animationOptions(
-  #     interval = (8*8), #5 seconds
-  #     playButton = "",
-  #     pauseButton = "")
-  # })
-
-  #to hide upload button
-
-  # output$table.output <- renderText({
-  #   #input$tbl^2
-  #   names(history_footfall)
-  # })
-  #output$table.output <- renderTable({
-    #input$tbl^2
-  #})
+#monitors file upload
+  observeEvent(input$file2, priority=10, {
+    js$play()
+  })
+  output$processingbar1 = renderUI({
+    shinyjs::hide("processingbar1")
+    sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
+                animate = animationOptions(
+                  interval = (8*8), #5 seconds
+                  playButton = "",
+                  pauseButton = ""))})
   
-    # observeEvent(input$preview,{
-    #   shinyalert("Action required!", tags$b("Historical footfall data NOT up-to-date, see 'Settings' page", br(), "Go to 'Settings' page"), type="warning") #default, message, warning, error
-    # })
-
   autoInvalidate1 <- reactiveTimer(5000)
   
   #display today's date on the header
@@ -864,16 +828,7 @@ shinyServer(function(input, output, session){
     auc_plot(y, plotStyle=2)
   })
  
-  #  #to set the earliest plot date 
-  # output$earliest_months_allowed <- renderText({
-  # start_date <- HF_startDate
-  # end_date <- Sys.Date()
-  # maxMonths = ((as.numeric(end_date - start_date)/365)*12)
-  # diffMonths = ((as.numeric(end_date - start_date)/365)*12)/4
-  # earliest_months_allowed <- as.numeric(round((maxMonths - (diffMonths*3)), digits=0)) #apprximately two years di
-  # })
-
-  
+ 
   #plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
@@ -901,27 +856,7 @@ shinyServer(function(input, output, session){
     
   })
   
-  
-  
-  # output$phonePlot <- renderPlot({
-  #   
-  #   # Render a barplot
-  #   barplot(myData[as.character(input$year),]*1000, 
-  #           main=paste("Phones in", input$year),
-  #           ylab="Number of Telephones",
-  #           xlab="Region",
-  #           ylim=c(0,max(myData)*1000))
-  # })
-  # 
-  # 
-  
-  output$msgOutput = renderMenu({
-    msgs <- apply(read.csv(file = "C:/Users/monsu/Desktop/RShinyDashboard/dash12/misc/messages.csv"), 1, function(row){
-      messageItem(from = row[["from"]], message = row[["message"]])
-    })
-    dropdownMenu(type = "messages", .list = msgs)
-  })
-  
+ 
   output$lastHourCount <- renderText({
     paste(th_separator(36*200))
   }) 
@@ -948,46 +883,11 @@ shinyServer(function(input, output, session){
     leaflet(data = data) %>% addTiles() %>% 
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>% 
       addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)     
-                       # radius=val*14 , 
-                       # color=~ifelse(val>0 , "red", "orange"),
-                       # stroke = TRUE, 
-                       # fillOpacity = 0.1
-                       #popup = ~as.character(name)
-      #)# %>% 
-      #setView(data$X_Lon, data$Y_Lat, zoom = 2)
-    #m
-    #setView( lng = 166.45, lat = 21, zoom = 2)
   })
-  
-  
- 
-  
-  # #history_footfall =   history_footfall[history(nrow(  history_footfall), 1000),]
-  # diamonds2 = diamonds[history(nrow(diamonds),1000),]
-  # 
-  # output$mytable1 <- DT::renderDataTable({
-  #   DT::datatable(diamonds2[, input$show_vars, drop=FALSE])
-  # })
-  # 
-  #history_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/history_Dataset/input_Dataset.csv", sep=",", head=TRUE)
-  #historical_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/footfall_31_12_2016.csv", sep=",", head=TRUE)
-  #history_footfall <- historical_footfall
-  #history_footfall2 =   history_footfall[history(nrow(  history_footfall), 1000),]
+    
   output$mytable1_1 <- DT::renderDataTable({
     DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
   })
-  
-  #A copy of the footfall data
-  #output$mytable1_2 <- DT::renderDataTable({
-  #output$tableCopy <- renderDataTable(iris)
-  #})
-  # output$mytable2 <- DT::renderDataTable({
-  #   DT::datatable(mtcars, options=list(orderClasses = TRUE))
-  # })
-  # 
-  # output$mytable3 <- DT::renderDataTable({
-  #   DT::datatable(iris, options=list(orderClasses = TRUE))
-  # })
   
   #temperature trend
   output$temp_patterns <- renderPlot({
@@ -1100,40 +1000,21 @@ shinyServer(function(input, output, session){
   output$why_re_gen_HF2 <- renderText({paste("CAUTION: This means that you want to replace the existing historical HF file, generate new aggregates of the historical HF, and re-train the prediction. The results are used to generate the HF profiles on the 'DASHBOARD' page")})
   
   output$regen_HF_warning <- renderText({paste("<b>Warning: If you want to replace the historical HF file, to generate new aggregates and training the prediction model can take up to two and half hours!")})
-
+  output$append_button_Descrip <- renderText({paste("<b> By clicking the 'append' button, different aggregates, based on the four time segmentations i.e. c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7)) will be generated")})
+  
   }
 
-  #observe({
-    #req(input$file1)
-    #output$processing <- renderText({print("processing.....wait!")})
-  #read the uploaded data to fill in the gap in historical footfall. Purpose: to display
-
-  # output$gaps <- DT::renderDataTable({
-  #   req(input$file1)
-  #   file_For_Missing_Data <- read.csv(input$file1$datapath,
-  #                  header = TRUE,
-  #                  sep = ",")#,
-  #   uploaded_Table <- DT::datatable(file_For_Missing_Data)
-  #     return(uploaded_Table)
-  # })
- #})
-  
+ 
+  #-----------------------------------------------------------------SECTION: deals with UPDATING historical footfall
   observe({
     #to hide upload button
     shinyjs::hide("append")
-    ##shinyjs::hide("processingbar2")
-    shinyjs::hide("generated_footfall_aggre_data")
-    shinyjs::hide("aggre_HF_confirm")
-    #shinyjs::show("processingbar3")
-    #shinyjs::show("aggre_HF_confirm")    
-  })
-  #uploaded data.....: Purpose: observe command is used where no output is returned.
-  #uploaded data to fill gaps in the historical footfall record.....: Purpose: observe command is used where no output is returned.
-  
+    shinyjs::hide("append_button_Descrip") #   
+    shinyjs::hide("confirm_Append")
+    #shinyjs::hide("aggre_HF_processing")
+    })
+
   observe({
-    
-    ####shinyjs::show("processingbar1")
-    ##shinyjs::hide("processingbar2")
 
     req(input$file1)
     #To check the gaps that an uploaded file fill
@@ -1148,10 +1029,7 @@ shinyServer(function(input, output, session){
     issue3 = 0
     issue4 = 0
     issue5 = 0
-    #to delay the display...
-    ##output$checking <- renderText({paste("checking...... ")})
-    
-    #shinyjs::hide("upload")
+   
     #checking whether the uploaded file contain essential fields
     leng_name <- uploaded_fieldnames(uploaded_file) #checking essential field names
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
@@ -1184,47 +1062,29 @@ shinyServer(function(input, output, session){
     #if there is no issues, then show "Upload" button
     if(total_issues==0){
       #turn off
-      output$issues <- renderText({paste(" ")})
-      output$fields_absent <- renderText({print(" ")})
-      output$fall_outside_daterange <- renderText({print(" ")})
-      output$date_Overlapping <- renderText({print("")})
-      output$timeFormatWrong <- renderText({paste(" ")})
-      output$typo_camera_Name <- renderText({paste(" ")})
-      output$resolve_issue <- renderText({paste(" ")})
+      shinyjs::show("issues")
+      shinyjs::show("fields_absent")
+      shinyjs::show("fall_outside_daterange")
+      shinyjs::show("date_Overlapping")
+      shinyjs::show("timeFormatWrong")
+      shinyjs::show("typo_camera_Name")
+      shinyjs::show("resolve_issue")
       
       #turn on
-      output$Uploaded_file_checks_Passed <- renderText({paste("<b>'Successful!")})
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed! No issues detected.")})
       shinyjs::show("append")
-      #shinyjs::show("processingbar1")
-      ##shinyjs::show("processingbar2")
+      shinyjs::show("append_button_Descrip")
       
-  # disable("slider1")
-  #     observeEvent(input$append, priority=10, {
-  #       js$play()
-  #       #Sys.sleep(1) # simulate computation
-  #     })
+      #aggregated the data and preview
       
-      
-      #showNotification("File uploaded!", type="error")})
-      
-      
-      # output$processingbar2 = renderUI({
-      #   shinyjs::show("processingbar1")
-      #   sliderInput("slider1", label = "", width = '300px',min = 0,max = 100,value = 0,step = 1, post="%",
-      #               animate = animationOptions(
-      #                 interval = (8*8), #5 seconds
-      #                 playButton = "",
-      #                 pauseButton = ""))})
       }
-    # 
+    
     if(total_issues!=0){
-      #turn off
-      #####shinyjs::hide("processingbar1")
-      ##shinyjs::hide("processingbar2")
-      output$Uploaded_file_checks_Passed <- renderText({paste(" ")})
       
-      #turn on
-      #shinyjs::show("append")}  ###renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
+      shinyjs::hide("Uploaded_file_checks_Passed")
+      shinyjs::hide("append")
+      shinyjs::hide("append_button_Descrip")
+      
       output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1==1){
       output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
@@ -1237,137 +1097,139 @@ shinyServer(function(input, output, session){
       if(issue5==1){
         output$typo_camera_Name <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check 'Parameter' tab for correct spellings of location names.")})
       }
-      shinyjs::hide("append")
+      
       output$resolve_issue <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
     }
     
-
-#-----------------------------------------------------------------UPDATED FILE
+  })
+  
   #perform the following action upon clicking 'append' button
   observeEvent(input$append, {
-    #output$msg_tableAppended <- renderText({paste("Tables appended. See the remaining missing dates below:  ")})
     #create two files
-    historicalData_Subset <- history_footfall[,c("Date","Hour","InCount", "LocationName")]
-    print(historicalData_Subset)
-    # req(input$file1)
-    # #To check the gaps that an uploaded file fill
-    # #Check whether this is necessary again!
-    # print("line1")
-    # uploaded_file <- read.csv(input$file1$datapath,
-    #                           header = TRUE,
-    #                           sep = ",")#,
+    #historicalData_Subset <- history_footfall[,c("Date","Hour","InCount", "LocationName")]
+    #print(historicalData_Subset)
+    shinyjs::show("confirm_Append")
+    
+  })
+  
+    observeEvent(input$confirm_Append, {
+    
 
-    print("line2")
-    #subset the data for only the necessary fields
-    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
-    
-    print("100000")
-    
-    #get the most recent date from the uploaded dataset
-    max_Date <- max(uniq_Dates(uploadedData_Subset))
-    
-    #specifying the temporal segmentations to use for the data aggregation
-    print(max_Date)
-    hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-    
-    print("200000")
-    
-    #labels of time aggregation
-    time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-    
-    #first summing up HF count across stations for each hour of the day
-    result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
-    print("300000")
-    
-    print("3500000")
-    
-    #removes location typo in the dataset
-    #orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
-    
-    #to check typo in Camera's name
-
-    print("line3")
-    aggregate_Location <- aggregate_Location(orig_Data_sub = result1)        
-    #-----------------------------------         
-    
-    
+    req(input$file1)
+    #To check the gaps that an uploaded file fill
+    uploaded_file <- read.csv(input$file1$datapath,
+                              header = TRUE,
+                              sep = ",")#,
+    # print("line2")
+    # #subset the data for only the necessary fields
+     uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
+    #
+    # #get the most recent date from the uploaded dataset
+     max_Date <- max(uniq_Dates(uploadedData_Subset))
+    #
+    # #specifying the temporal segmentations to use for the data aggregation
+     print(max_Date)
+     hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+    #
+     print("200000")
+    #
+    # #labels of time aggregation
+     time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+    #
+    # #first aggregating HF count across stations for each hour of the day
+     result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
+    # print("300000")
+    #
+    # print("3500000")
+    #
+    # print("line3")
+    aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
+    # #-----------------------------------
+    #
+    #
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
+    #
+       print (hours_of_the_Day[[j]])
+    #
+       aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
+    #   print("500000")
+    #
+    #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
+       outlier_events <- outliers(data=aggregate_time_of_the_Day)
+    #
+    #   #append the outlier list to the result
+       update_aggregate <- cbind(aggregate_time_of_the_Day, outlier_events)
+       colnames(update_aggregate)<- c("Date","InCount","outlier")
 
-      print (hours_of_the_Day[[j]])
-      #aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[j]])
-      aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
-      print("500000")
-
-      ###write.table(aggregate_time_of_the_Day, file=paste(file_here,"beforeOutlier", length(hours_of_the_Day[[i]]),".csv", sep=""), sep=",") 
-      #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
-      outlier_events <- outliers(data=aggregate_time_of_the_Day)
-      #append the outlier list to the result
-      finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
-      colnames(finalresult)<- c("Date","InCount","outlier")
-      
-      #Import the corresponding time aggregated file.
-      existing_time_aggre_HF <- read.table(paste(file_here, time_aggregation[j], ".csv", sep=""), sep = ",", head=TRUE)
+      #Import the existing corresponding aggregate file
+      existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
  
-      existing_time_aggre_HF_Updated <- as.data.frame(rbind(existing_time_aggre_HF, finalresult))
+      #write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
+      #write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
       
-      #disregard the outlier field and re-compute a new one
+      existing_time_aggre_HF_Updated <- as.data.frame(rbind(existing_time_aggre_HF, update_aggregate))
+      
+      #drop the outlier field and re-compute a new one using the new data
       existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
 
       #recompute the outlier
       outlier_events <- outliers(data=existing_time_aggre_HF_Updated)
       
       #append the outlier list to the result
-      finalresult <- cbind(existing_time_aggre_HF_Updated, outlier_events)
-      colnames(finalresult)<- c("Date","InCount","outlier")
+      aggregates_updated <- cbind(existing_time_aggre_HF_Updated, outlier_events)
+      colnames(aggregates_updated)<- c("Date","InCount","outlier")
       
       #writing the data aggregates based on four time segmentations
-      write.table(finalresult, file=paste(parameter_directory, time_aggregation[j], ".csv", sep=""), sep=",") 
+      write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
       
-      print("line4")
-      print("outlier printOut")
-      Sys.sleep(3)
+      #update the existing raw HF dataset too..-----------------------------
+      #read the existing one and append the subset of updated one to it.
+      existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
+      #append the uploaded file
+      new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+      history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
       
       #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
+      output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this!
       
-    }
+      shinyjs::hide("confirm_Append")
+   }
 
   })
+   
 
-  })
   
-    #   
-#HiSTORY HF TAB      
   observe({
-#    ####shinyjs::show("processingbar1")
-    shinyjs::show("processingbar3")
+    shinyjs::hide("aggre_HF")
+    #shinyjs::show("processingbar1")
     shinyjs::hide("aggre_HF_confirm")
   })
 
   
-#-----------------------------------------------------------------FULL HISTORICAL FILE 
+#-----------------------------------------------------------------SECTION: deals with UPLOADING a fresh historical file
 observe({
   
-    #setting directory (not necessary)
-#    HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
-    #import HF dataset
-    #orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
-    #full=TRUE),read.csv, header=TRUE))
-    
     req(input$file2)
-    #To check the gaps that an uploaded file fill
+  
+     #To check the gaps that an uploaded file fill
     #Check whether this is necessary again!
     uploaded_file2 <- read.csv(input$file2$datapath,
                           header = TRUE,
                           sep = ",")#,
+  
+    #uploading file
+    startTimeC <- Sys.time()
+  
+    observe({
+      #for(i in 1:100){
+        updateProgressBar(session = session, id = "pb1", value = i) #input$i
+      #}
+    })
     
     #to remove whitespace in teh location name column
     uploaded_file2 <- remove_whitespace(uploaded_file2)
     
-    
-  # #export appended data
-  # observeEvent(input$aggre_HF, {
-
     #initialisation
     total_issues_1 = 0
     issue1_1 = 0
@@ -1375,14 +1237,10 @@ observe({
     #issue3 = 0
     issue4_1 = 0
     issue5_1 = 0
-    #to delay the display...
-    ##output$checking <- renderText({paste("checking...... ")})
-    
-    #shinyjs::hide("upload")
+
     #checking whether the uploaded file contain essential fields
     leng_name <- uploaded_fieldnames(uploaded_file2) #checking essential field names
-    ##2out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
-    ##3overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
+
     Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file2)
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file2, lists_Loc_Correct)
     
@@ -1405,18 +1263,6 @@ observe({
       issue5_1<-1
     }
     
-    #print((leng_name))
-    
-    # #if((out_Len<-dateRange_Checker(historical_footfall, data))>0){issue2=1}
-    # #if((overlap_Dates<-dateOverlap_Checker(historical_footfall, data))>0){issue3=1}
-    # 
-    # #if(issue1==1){
-    #   #print("The uploaded file does not contain one of the following field names")}
-    # #if(issue2==1){
-    #   #print("One or some of the uploaded dates fall outside the expected range (i.e. earliest date of footfall (database) and the current date")}
-    # #if(issue3==1){
-    #   #print("Some dates in the uploaded file overlap with dates in the footfall database")}
-    # 
     total_issues_1 <- issue1_1 + issue4_1 + issue5_1  #issue2 + issue3 + 
     
     #if there is no issues, then show "Upload" button
@@ -1424,39 +1270,28 @@ observe({
       #turn off
       output$issues_1 <- renderText({paste(" ")})
       output$fields_absent_1 <- renderText({print(" ")})
-      #output$fall_outside_daterange2 <- renderText({print(" ")})
-      #output$date_Overlapping2 <- renderText({print("")})
       output$timeFormatWrong_1 <- renderText({paste(" ")})
       output$typo_camera_Name_1 <- renderText({paste(" ")})
       output$resolve_issue_1 <- renderText({paste(" ")})
       
       #turn on
-      output$Uploaded_file_checks_Passed_1 <- renderText({paste("<b>HF dataset Okay!")})
+      output$Uploaded_file_checks_Passed_1 <- renderText({paste("<b>File checks completed! No issues detected.")})
  
       shinyjs::show("aggre_HF")
       shinyjs::hide("aggre_HF_confirm")
-      #shinyjs::show("processingbar3")
-      
-      #output$Uploaded_file_checks_Passed2 <- renderText({paste("   ")})
-      
- 
+
     }
 
     #To show or hide 'aggre_HF_confirm' 
     if(total_issues_1!=0){
       #turn off
-      shinyjs::hide("processingbar3")
+      shinyjs::hide("processingbar1")
       output$Uploaded_file_checks_Passed_1 <- renderText({paste(" ")})
       
       #turn on
-      #shinyjs::show("append")}  ###renderText({paste("<b>Above table shows the list of date ranges in which footfall data are missing.", "<br>")})
       output$issues_1 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1_1==1){
         output$fields_absent_1 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
-      #if(issue2==1){
-        #output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
-      #if(issue3==1){
-        #output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
       if(issue4_1==1){
         output$timeFormatWrong_1 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       if(issue5_1==1){
@@ -1494,37 +1329,34 @@ observeEvent(input$aggre_HF_confirm, {
                              header = TRUE,
                              sep = ",")#,
   
+   shinyjs::show("processingbar1")
+  
+   #shinyjs::show("aggre_HF_processing")
+   output$processing_append <- renderText({print("Processing....")}) 
+   #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
+   #output$aggre_HF_processing <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
+   
    #to remove whitespace in teh location name column
    uploaded_file2 <- remove_whitespace(uploaded_file2)
   
-   shinyjs::show("processingbar3")
+
    shinyjs::hide("aggre_HF_confirm")
    shinyjs::hide("aggre_HF")
-     ##req(input$file2)
-     #To check the gaps that an uploaded file fill
-     #Check whether this is necessary again!
-     
-     ##orig_Data_HF <- read.csv(input$file2$datapath,
-                              ## header = TRUE,
-                              ## sep = ",")#,
-     #Warning
-     
+   shinyjs::hide("Uploaded_file_checks_Passed_1")
+ 
      #subset the data for only the necessary fields
     orig_Data_Subset <- uploaded_file2[,c("Date","Hour","InCount", "LocationName")]
     head(orig_Data_Subset)
      
      #get the most recent date from the uploaded dataset
      max_Date <- max(uniq_Dates(orig_Data_Subset))
-     #carry out checks for the dataset first....
-    # HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
-    # #import HF dataset
-    # orig_Data <- do.call("rbind", lapply(list.files(HF_directory,
-    #                                              full=TRUE),read.csv, header=TRUE))
+
     print("100000")
     max_Date <- max(uniq_Dates(orig_Data_Subset))
 
     #to generate aggregated dataset at varying temporal scales
     print(max_Date)
+    
     #create a list of time aggregate
     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
     hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
@@ -1533,11 +1365,6 @@ observeEvent(input$aggre_HF_confirm, {
     
     time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
       
-    #for(i in 1:1){ #i<-1   #length(hours_of_the_Day )
-      
-      #inputData <- read.table(file="file_3daysData.csv", sep=",", head=TRUE)  #head(orig_Data)
-      #orig_Data <- inputData
-      
  
         result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")
         print("300000")
@@ -1545,14 +1372,6 @@ observeEvent(input$aggre_HF_confirm, {
         print("3500000")
         
         #removes location typo in the dataset
-        #orig_Data_sub <- orig_Data_sub_Location_Typo_removed(orig_Data_sub = result1, lists_Loc_Correct)
-        
-        #This section generates... 
-        #Why is this section not imported as a function? Because we want to be able to print out the percentage processing of the loop. This is not possible if imported as a function
-        #---------------------------------       
-        #processing monitoring
-        # withProgress(message = 'PROCESSING...', value = 0, {
-        #   incProgress(1/2)
         aggregate_Location <- aggregate_Location(orig_Data_sub=result1)        
         #-----------------------------------         
         
@@ -1564,9 +1383,7 @@ observeEvent(input$aggre_HF_confirm, {
         #aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[j]])
         aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
         print("500000")
-        #}
-        
-        ###write.table(aggregate_time_of_the_Day, file=paste(file_here,"beforeOutlier", length(hours_of_the_Day[[i]]),".csv", sep=""), sep=",") 
+
         #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
         outlier_events <- outliers(data=aggregate_time_of_the_Day)
         #append the outlier list to the result
@@ -1574,32 +1391,18 @@ observeEvent(input$aggre_HF_confirm, {
         colnames(finalresult)<- c("Date","InCount","outlier")
         
         #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
-        write.table(finalresult, file=paste(file_here, time_aggregation[j], ".csv", sep=""), sep=",") 
-        #C:\Users\monsu\Documents\GitHub\lcc-footfall\webapp\downloaded_footfall dataset\aggregated_historical_HF
-        #backup the original raw dataset (with the only essential columns: "Date", "Hour", "InCount","LocationName" )
-        write.table(orig_Data_Subset, file=paste(HF_directory, "raw_historical_HF", ".csv", sep=""), sep=",") 
+        write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
+
+        write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
       
         print("300000")
         }
         
-        shinyjs::hide("processingbar3")
-        output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
-        
+        shinyjs::hide("processingbar1")
+        output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
+        output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
+        output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
    })
     
   }) 
     
- # }) 
-    
- # })
-
-
-  
-#})
-
-
-
-#---------------------------------------------------------
-#function to correct typo in Camera's Location
-
-
