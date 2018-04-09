@@ -28,6 +28,12 @@ $('.slider-animate-button').trigger('click');
 }
 "
 
+jscode1 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
 # Define UI for application that ...
 shinyUI(
 
@@ -65,7 +71,7 @@ shinyUI(
                   sidebarMenu(
                     
                     menuItem( 
-                      "FOOTFALL DASHBOARD", tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
+                      tags$b('FOOTFALL DASHBOARD'), tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
                     menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting", 
                              
@@ -87,6 +93,10 @@ shinyUI(
                     
                     menuItem(div(style="text-align:center","~ History (Settings)"), tabName ="historyAndForecastSetting", 
                       
+                      radioButtons("chartType", "Chart Type", 
+                                          choices = c("Dot", "Line"),
+                                          selected = "Dot"),
+                             
                       radioButtons("timeOftheDayInput", "Modify Time of the Day",
                                    choices = c("Daytime", "Evening","Night", "Whole Day"),
                                    selected = "Whole Day"),
@@ -96,11 +106,7 @@ shinyUI(
                       
                       sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
                       
-                      radioButtons("chartType", "Chart Type", 
-                                   choices = c("Line", "Dot"),
-                                   selected = "Line"),
-                      
-                      
+
                       checkboxInput("prediction", label="Show prediction?", value = FALSE)
                       
                     ),
@@ -108,7 +114,7 @@ shinyUI(
                     #Setting menu
                     #menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
                     
-                    menuItem("Data Settings", tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")) #cogs
+                    menuItem(tags$b('Data Settings'), tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")) #cogs
                     
 
 
@@ -200,7 +206,7 @@ shinyUI(
                               
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
                                        box(width = 12, height = "350px",
-                                         title = p(tags$h4(tags$b("Footfall information is not 'up-to-date!"))
+                                         title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
                                                    #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
@@ -231,7 +237,7 @@ shinyUI(
                                fluidRow(
                                    tabBox(width = 13, height = 800,
  
-                                               tabPanel(title = "HF DayTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                               tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                                         id='dayTime',
                                                         box(
                                                           tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
@@ -242,7 +248,7 @@ shinyUI(
                                                         
                                                ),
                                                
-                                               tabPanel(title = "HF EveningTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                               tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                                         id='eveningTime',
                                                         box(
                                                           tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
@@ -252,7 +258,7 @@ shinyUI(
                                                         
                                                ),
                                                
-                                               tabPanel(title = "HF NightTime Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                               tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                                         id='nightTime',
                                                         box(
                                                           tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
@@ -263,7 +269,7 @@ shinyUI(
                                                         
                                                ),
                                                
-                                               tabPanel(title = "HF 24-Hour Aggre.", status = "warning", solidHeader = T, background = "aqua",
+                                               tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                                         id='twentyfourHour',
                                                         box(
                                                           tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
@@ -276,7 +282,7 @@ shinyUI(
                                           
                                           box(
                                             width = 6, status = "primary", solidHeader = TRUE,
-                                            title = "Boundary of City of Leeds (Inset: City Central)",
+                                            title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
                                             leafletOutput("mapLeeds", height=500)
                                             
                                           )
@@ -303,103 +309,23 @@ shinyUI(
                               
                               tabBox(width = 13, height = 800,
                                      
-                                     tabPanel(title = "Parameters", status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Info.'), status = "warning", solidHeader = T, background = "aqua",
                                               id='basic parameters',
-                                              box(tags$p(tags$b(h4("Names of Camera Location"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
-                                                  tabPanel("basic_parameters", DT::dataTableOutput("list_of_cameraNames"))
-                                              )
+                                              
+                                              #list of names of cameara location
+                                              htmlOutput("cameraTitle"),
+                                              #tags$hr(),
+                                              htmlOutput("cameraLocation"),
+                                              tags$hr(),
+                                              htmlOutput("warning_cameraLocation")
                                               ),
                                      
-                                     tabPanel(title = "Historical Footfall (HF)", status = "warning", solidHeader = T, background = "aqua",
-                                              id='gaps_missingData',
-                                              box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
-                                                tabPanel("history_footfall", DT::dataTableOutput("history")),
-                                                tags$hr(),
-                                                htmlOutput("HF_view"),
-                                                htmlOutput("HF_directory"),
-                                               
-                                                tags$hr(),
-                                                htmlOutput("why_re_gen_HF"),
-                                                htmlOutput("why_re_gen_HF2"),
-                                                tags$hr(),
-                                                htmlOutput("regen_HF_warning"),
-                                                tags$hr(),
-                                                
-                                                tags$style(".shiny-file-input-progress {display: none}"),
-                                                
-                                                fileInput('file2', 'Upload new raw footfall dataset to replace the existing historical footfall data (Max. size: 200MB)',
-                                                          accept = c(
-                                                            'text/csv',
-                                                            'text/comma-separated-values',
-                                                            'text/tab-separated-values',
-                                                            'text/plain',
-                                                            '.csv',
-                                                            '.tsv'
-                                                          )),
-                                                
-                                                tags$hr(),
-                                                
-                                                #processing bar for uploading file (historical)
-                                                fluidPage(
-                                                  #tags$b("Loading..."), br(),
-                                                  progressBar(id = "pb1", value = 0)
-                                                ),
-                                                
-                                                htmlOutput("aggre_HF_processing"),
-
-                                                tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
-                                                useShinyjs(), extendShinyjs(text = jscode),
-                                                #numericInput("seconds", "how many seconds your calculation will last?", value=6),
-                                                tags$hr(),
-                                                uiOutput("processingbar1"), 
-                                                htmlOutput("processing_append"),
-                                                
-                                                #htmlOutput("processing"),
-                                                #progressbar to upload file
-                                                
-                                                tags$hr(), # 
-                                                htmlOutput("issues_1"),
-                                                textOutput("fields_absent_1"),
-                                                textOutput("timeFormatWrong_1"),
-                                                textOutput("typo_camera_Name_1"),
-                                                tags$hr(), # 
-                                                htmlOutput("resolve_issue_1"),
-                                                htmlOutput("Uploaded_file_checks_Passed_1"),
-                                                tags$hr(), # 
-                                                actionButton("aggre_HF", "Generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                                actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                                verbatimTextOutput("default"),
-                                                tags$hr(),
-                                                htmlOutput("taskCompleted"),
-                                                tags$hr(),
-                                                htmlOutput("data_aggre_dir"),
-                                                htmlOutput("reload_HF"),
-                                                
-                                                br(),
-                                                
-                                                #),
-                                            
-                                                
-                                                #verbatimTextOutput("console"),
-                                                # fluidPage(
-                                                # shinyjs::useShinyjs(),
-                                                # actionButton("btn","Click me"),
-                                                # textOutput("text")),
-                                                
-                                                #),
-                                             hr()
- 
-                                              )
-                                            #rm(list = ls())  
-                                     ),
-                                     #tab2
-                                     tabPanel(title = "Update HF", status = "warning", solidHeader = T, background = "aqua",
-                                              
-                                              
+                                     
+                                     tabPanel(title = tags$b('Update HF'), status = "warning", solidHeader = T, background = "aqua",
                                               #tabBox(width = 13, height = 800,
                                               #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
-                                              box(
-                                                title = "List of missing dates in the historical footfall database",
+                                              box(tags$p(tags$b(h4("List of missing dates in the historical footfall database"))),  tags$hr(), # ,#"F
+                                                #box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"F
                                                 tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 #),
                                                 width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
@@ -411,13 +337,13 @@ shinyUI(
                                                 textOutput("text2"),
                                                 htmlOutput("testHTML3"),
                                                 htmlOutput("testHTML4"),
-                                                textOutput("text5"),
-                                                textOutput("text6"),
-                                                textOutput("text7"),
-                                                textOutput("text8"),
-                                                textOutput("text9"),
-                                                textOutput("text10"),
-                                                textOutput("text11")
+                                                htmlOutput("otherInfo")
+                                                # textOutput("text6"),
+                                                # textOutput("text7"),
+                                                # textOutput("text8"),
+                                                # textOutput("text9"),
+                                                # textOutput("text10"),
+                                                # textOutput("text11")
                                                 # p("<b>Above table shows the list of date ranges in which footfall data are missing."),
                                                 # p("Search for the missing data from either of the following sources:"),
                                                 # p("1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data"),
@@ -441,11 +367,22 @@ shinyUI(
                                                           '.tsv'
                                                         )),
                                               
+                                              #processing bar for uploading file (historical)
+                                              fluidPage(
+                                                #tags$b("Loading..."), br(),
+                                                progressBar(id = "pb1", value = 0)
+                                              ),
+                                              
                                               #actionButton("go", "Compute"),
                                               #fluidRow(column(1, align="center", offset = 0, 
                                                 tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
-                                                useShinyjs(), extendShinyjs(text = jscode),
-                                                #uiOutput("processingbar1"), 
+                                                useShinyjs(), extendShinyjs(text = jscode1),
+                                                #uiOutput("processingbar1"),
+                                                tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                                useShinyjs(), extendShinyjs(text = jscode1),
+                                                #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                                tags$hr(),
+                                                uiOutput("processingbar1"),
                                                                                    
                                               #htmlOutput("processing"),
                                               htmlOutput("Uploaded_file_checks_Passed"),
@@ -462,12 +399,12 @@ shinyUI(
                                               htmlOutput("append_button_Descrip"),
                                               useShinyjs(),
                                               #preview button
-                                              fluidRow(column(1, align="center", offset = 0, 
-                                                              actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-                                                              )),hr(),
-                                              fluidRow(column(1, align="center", offset = 0, 
-                                                              actionButton("confirm_Append", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-                                              )),
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                                              actionButton("append", "Append records", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                              #)),hr(),
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                                              actionButton("confirm_Append", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              #)),
                                               tags$hr(), # 
                                               htmlOutput("confirm_Append"),
                                                        #),
@@ -498,7 +435,90 @@ shinyUI(
                                               
 
                                               
-                                     ) #htmlOutput("testHTML1"),
+                                     ), 
+                                     
+                                     tabPanel(title = tags$b('Historical Footfall (HF)'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='gaps_missingData',
+                                              box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                                  tabPanel("history_footfall", DT::dataTableOutput("history")),
+                                                  tags$hr(),
+                                                  htmlOutput("HF_view"),
+                                                  htmlOutput("HF_directory"),
+                                                  
+                                                  tags$hr(),
+                                                  htmlOutput("why_re_gen_HF"),
+                                                  htmlOutput("why_re_gen_HF2"),
+                                                  tags$hr(),
+                                                  htmlOutput("regen_HF_warning"),
+                                                  tags$hr(),
+                                                  
+                                                  tags$style(".shiny-file-input-progress {display: none}"),
+                                                  
+                                                  fileInput('file2', 'Upload new raw footfall dataset to replace the existing historical footfall data (Max. size: 200MB)',
+                                                            accept = c(
+                                                              'text/csv',
+                                                              'text/comma-separated-values',
+                                                              'text/tab-separated-values',
+                                                              'text/plain',
+                                                              '.csv',
+                                                              '.tsv'
+                                                            )),
+                                                  
+                                                  #processing bar for uploading file (historical)
+                                                  fluidPage(
+                                                    #tags$b("Loading..."), br(),
+                                                    progressBar(id = "pb2", value = 0)
+                                                  ),
+                                                  
+                                                  htmlOutput("aggre_HF_processing"),
+                                                  
+                                                  tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                                  useShinyjs(), extendShinyjs(text = jscode),
+                                                  #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                                  tags$hr(),
+                                                  uiOutput("processingbar2"), 
+                                                  htmlOutput("processing_append"),
+                                                  
+                                                  #htmlOutput("processing"),
+                                                  #progressbar to upload file
+                                                  
+                                                  tags$hr(), # 
+                                                  htmlOutput("issues_1"),
+                                                  textOutput("fields_absent_1"),
+                                                  textOutput("timeFormatWrong_1"),
+                                                  textOutput("typo_camera_Name_1"),
+                                                  tags$hr(), # 
+                                                  htmlOutput("resolve_issue_1"),
+                                                  htmlOutput("Uploaded_file_checks_Passed_1"),
+                                                  tags$hr(), # 
+                                                  actionButton("aggre_HF", "Generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                  actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                                  verbatimTextOutput("default"),
+                                                  tags$hr(),
+                                                  htmlOutput("taskCompleted"),
+                                                  tags$hr(),
+                                                  htmlOutput("data_aggre_dir"),
+                                                  htmlOutput("reload_HF"),
+                                                  
+                                                  br(),
+                                                  
+                                                  #),
+                                                  
+                                                  
+                                                  #verbatimTextOutput("console"),
+                                                  # fluidPage(
+                                                  # shinyjs::useShinyjs(),
+                                                  # actionButton("btn","Click me"),
+                                                  # textOutput("text")),
+                                                  
+                                                  #),
+                                                  hr()
+                                                  
+                                              )
+                                              #rm(list = ls())  
+                                     )
+                                     #tab2
+                                     ##htmlOutput("testHTML1"),
                                     
  
                                      #tags$hr() # 

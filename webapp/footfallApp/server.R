@@ -335,7 +335,7 @@ auc_plot <- function(y, plotStyle=1){
 }
 
 # plot function for the big HF panel
-auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, plotStyle=1){
+auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, chartType="Dot"){
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -355,7 +355,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   dateLabels = seq(as.Date("2009/12/31"), Sys.Date(), by = "year")
   
   #using ggplot2
-  if(plotStyle==1){
+
     xy_1 <- as.data.frame(cbind(x, y))  
     xy_1Type <- rep(1, nrow(xy_1))
     xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
@@ -372,97 +372,103 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
     #to adjust the start of plot
 
     Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    x<-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     #x <- as.Date(as.vector(xy_1$x))
-    y <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    xy_1 <- data.frame(Type, x, y)
+    InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    xy_1 <- data.frame(Type, Date, InCount)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
     #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
     #points(min(x):max(x), y, col="blue", cex=0.5)
     #if(trendLine==character(0)){
     
+if(chartType=="Dot"){   
   if(addTrend==FALSE){  
-    print(ggplot(xy_1, aes(x, y, group=Type)) +
-            geom_line(color="blue", size = 1) +
-            #geom_point(color=xy_1Type, size = 2) +
-            geom_point(color="blue", size = 1) +
+    print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+            geom_point(color="blue", size = 2) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
-            geom_vline(xintercept = min(x),  
+            geom_vline(xintercept = min(Date),  
                        color = "grey", size=1.5) +
             #geom_vline(xintercept = 2000, linetype="dotted", 
             #color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
             
-            geom_vline(xintercept = min(x), linetype="dashed", 
+            geom_vline(xintercept = min(Date), linetype="dashed", 
                        color = "brown", size=0.5) + #current date
             
-            scale_x_discrete(limits=x[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
-            #scale_x_discrete(labels = x_backup)
-    ) }
-    
-    if(addTrend==TRUE){
-    print(ggplot(xy_1, aes(x, y, group=Type)) +
-            geom_line(color="blue", size = 1) +
-            #geom_point(color=xy_1Type, size = 2) +
-            geom_point(color="blue", size = 1) +
-            #geom_area(aes(ymin = 0 + 3000,ymax = y),
-            #alpha = 0.3,fill = "blue") +
-            geom_vline(xintercept = min(x),  
-                       color = "grey", size=1.5) +
-            #geom_vline(xintercept = 2000, linetype="dotted", 
-            #color = "red", size=1.5) +
-            geom_hline(yintercept=0,
-                       color = "grey", size=1.5) +
-            
-            geom_vline(xintercept = min(x), linetype="dashed", 
-                       color = "brown", size=0.5) + #current date
-            
-            geom_smooth(method = "lm", se=FALSE, color="red", lwd=1.5) + 
-            
-            scale_x_discrete(limits=x[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
           #scale_x_discrete(labels = x_backup)
     ) }
+  
+  if(addTrend==TRUE){
+    print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+             geom_point(color="blue", size = 2) +
+            #geom_area(aes(ymin = 0 + 3000,ymax = y),
+            #alpha = 0.3,fill = "blue") +
+            geom_vline(xintercept = min(Date),  
+                       color = "grey", size=1.5) +
+            #geom_vline(xintercept = 2000, linetype="dotted", 
+            #color = "red", size=1.5) +
+            geom_hline(yintercept=0,
+                       color = "grey", size=1.5) +
+            
+            geom_vline(xintercept = min(Date), linetype="dashed", 
+                       color = "brown", size=0.5) + #current date
+            
+            geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) + 
+            
+            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+          #scale_x_discrete(labels = x_backup)
+    ) }
+}
     
-    # #if(trendLine=="yes"){
-    #   print(ggplot(xy_1, aes(x, y, group=Type)) +
-    #           geom_line(color="blue", size = 1) +
-    #           #geom_point(color=xy_1Type, size = 2) +
-    #           geom_point(color="blue", size = 1) +
-    #           #geom_area(aes(ymin = 0 + 3000,ymax = y),
-    #           #alpha = 0.3,fill = "blue") +
-    #           geom_vline(xintercept = min(x), linetype="dotted", 
-    #                      color = "blue", size=1.5) +
-    #           geom_hline(yintercept=0,
-    #                      color = "grey", size=1.5) +
-    #           geom_smooth(method = "lm", se=FALSE, color="red", lwd=1.5)
-    #   ) }
-    # # 
-
-    
-    #print(ggplot(xy_1[which(as.vector(xy_1$Date)==HF_startDate) + p:nrow(xy_1),], aes(Date, InCount, group=Type)) + geom_line(color="blue", size = 1)) +
-      
-
-    # print(ggplot(xy_1[nrow((which(xy_1$Date==p)):xy_1),], aes(x, y, group=Type)) + geom_line(color="blue", size = 1) +
-    # geom_line(color="blue", size = 1) +
-    # #geom_point(color=xy_1Type, size = 2) +
-    # #geom_point(color="blue", size = 2) +
-    # geom_area(aes(ymin = 0,ymax = y),
-    #           alpha = 0.3,fill = "blue"))
-    }
   #to generate regular plot
-  if(plotStyle==2){
-    s = smooth.spline(x, y, spar=0.5)
-    xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
-    m <- length(xy$x)                         
-    x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
-    y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
-    plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-    polygon(x.poly, y.poly, col="lightblue", border=NA)
-    lines(s, col="blue", lwd=2)
-    points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
-    points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
+  if(chartType=="Line"){
+    if(addTrend==FALSE){  
+      print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+              geom_line(color="blue", size = 1) +
+              #geom_point(color=xy_1Type, size = 2) +
+              geom_point(color="blue", size = 1) +
+              #geom_area(aes(ymin = 0 + 3000,ymax = y),
+              #alpha = 0.3,fill = "blue") +
+              geom_vline(xintercept = min(Date),  
+                         color = "grey", size=1.5) +
+              #geom_vline(xintercept = 2000, linetype="dotted", 
+              #color = "red", size=1.5) +
+              geom_hline(yintercept=0,
+                         color = "grey", size=1.5) +
+              
+              geom_vline(xintercept = min(Date), linetype="dashed", 
+                         color = "brown", size=0.5) + #current date
+              
+              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+            #scale_x_discrete(labels = x_backup)
+      ) }
+    
+    if(addTrend==TRUE){
+      print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+              geom_line(color="blue", size = 1) +
+              #geom_point(color=xy_1Type, size = 2) +
+              geom_point(color="blue", size = 1) +
+              #geom_area(aes(ymin = 0 + 3000,ymax = y),
+              #alpha = 0.3,fill = "blue") +
+              geom_vline(xintercept = min(Date),  
+                         color = "grey", size=1.5) +
+              #geom_vline(xintercept = 2000, linetype="dotted", 
+              #color = "red", size=1.5) +
+              geom_hline(yintercept=0,
+                         color = "grey", size=1.5) +
+              
+              geom_vline(xintercept = min(Date), linetype="dashed", 
+                         color = "brown", size=0.5) + #current date
+              
+              geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) + 
+              
+              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+            #scale_x_discrete(labels = x_backup)
+      ) }
+    
   }
   
   }
@@ -703,28 +709,45 @@ shinyServer(function(input, output, session){
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
     return(twentyFourHours_HT_Table)
   })
-#file=paste(file_here, time_aggregation[j], ".csv", sep=""), sep=",")
-  
-  #import paramter file
-  output$list_of_cameraNames <- DT::renderDataTable({
-    cameraNames <- read.table(file=paste(parameter_directory, "cameraNamesAndTime/", "cameraNames.csv", sep=""), sep=",", head=TRUE)
-    cameraNames <- DT::datatable(cameraNames)
-    return(cameraNames)
-  })
-  
 
+  output$cameraTitle = renderText({paste("<b> Names of Camera Location")})
+  
+  output$cameraLocation = renderText({paste("1.   Albion Street North", "<br>", "2.   Albion Street South", "<br>", "3.   Briggate", "<br>", "4.   Briggate at McDonalds",
+                                             "<br>", "5.   Commercial Street at Barratts", "<br>","6.   Commercial Street at Sharps","<br>","7.   Dortmund Square","<br>",
+                                            "8.   Headrow")})
+
+  output$warning_cameraLocation = renderText({paste("Note: Before uploading any files to either replace the existing HF records or update the records", "<br>", 
+                                                    "in the 'Historical Footfall (HF)' and 'Update HF' tabs respectively, ensure that the spellings of the camera (location) names","<br>",
+                                                    "are exactly as typed here. Also, watch out for leading and trailing whitespaces in the names.")})
+  #processing bar for updating historical datasets
+  #disable("slider")
+  observeEvent(input$confirm_Append, priority=10, {
+    js$play()
+  })
+  output$processingbar1 = renderUI({
+    shinyjs::hide("processingbar1")
+    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Please, wait...",
+                animate = animationOptions(
+                  interval = (8*300), #5 seconds
+                  playButton = "",
+                  pauseButton = ""))})
+  
+  
+  #processing bar for uploading historical datasets
   #disable("slider")
   observeEvent(input$aggre_HF_confirm, priority=10, {
     js$play()
     })
-  output$processingbar1 = renderUI({
-    shinyjs::hide("processingbar1")
+  output$processingbar2 = renderUI({
+    shinyjs::hide("processingbar2")
     sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Please, wait...",
                 animate = animationOptions(
                   interval = (8*7200), #5 seconds
                   playButton = "",
                   pauseButton = ""))})
 
+  
+  
 # #monitors file upload
 #   observeEvent(input$file2, priority=10, {
 #     js$play()
@@ -829,31 +852,56 @@ shinyServer(function(input, output, session){
   })
  
  
-  #plot footfall history
+#plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
 
+  #to set chart type
+  chartType = input$chartType
+    
+  #to set time segmentation to plot
   plotOptn = input$timeOftheDayInput
-  
-  
+
+#if(chartType=="Dot"){  
   if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
   } else if(plotOptn=="Daytime"){
     data <- convert_Date(dayTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
   }else if(plotOptn=="Evening"){
     data <- convert_Date(eveningTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
   }else if(plotOptn=="Night"){
     data <- convert_Date(nightTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
   }
-    
+#} 
+
+# if(chartType=="Line"){  
+#   if(plotOptn=="Whole Day"){
+#     data <- convert_Date(twentyFourHours_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+#   } else if(plotOptn=="Daytime"){
+#     data <- convert_Date(dayTime_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+#   }else if(plotOptn=="Evening"){
+#     data <- convert_Date(eveningTime_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+#   }else if(plotOptn=="Night"){
+#     data <- convert_Date(nightTime_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
+#   }
+# } 
+  
   })
   
  
@@ -985,14 +1033,16 @@ shinyServer(function(input, output, session){
   output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
   output$testHTML3 <- renderText({paste("<b>1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
   output$testHTML4 <- renderText({paste("<b>2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
-  output$text5 <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:")})
-  output$text6 <- renderText({paste("   (a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'")})
-  output$text7 <- renderText({paste("   (b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.")})
-  output$text8 <- renderText({paste("   (c) 'InCount' - Hourly aggregate of footfall count")})
-  output$text9 <- renderText({paste("   (d) 'LocationName' - Containing the names assigned to camera locations")}) 
-  output$text10 <- renderText({paste("Upload a .csv file to update the database")})
-  output$text11 <- renderText({paste("An 'upload' button will appear after a valid file has been uploaded")})
-  
+
+  output$otherInfo <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:","<br>",
+                                        "(a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'","<br>",
+                                        "(b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.", 
+                                        "(c) 'InCount' - Hourly aggregate of footfall count", "<br>",
+                                        "(d) 'LocationName' - Containing the names assigned to camera locations", "<br>",
+                                        "<br>",
+                                        "Upload a .csv file to update the database", "<br>", 
+                                        "An 'upload' button will appear after a valid file has been uploaded")})
+
   output$HF_directory <- renderText({paste("**The actual historical HF .csv file can be found in the directory:", HF_directory, sep=" ")})
   output$HF_view <- renderText({paste("<b>The corresponding aggregated HF can be viewed on the 'DASHBOARD' page'; and the actual .csv files can be found in the 'aggregated_historical_HF' directory")})
   
@@ -1021,6 +1071,17 @@ shinyServer(function(input, output, session){
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
+    
+    #uploading file
+    startTimeC <- Sys.time()
+    
+    observe({
+      #for(i in 1:100){
+      timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
+      updateProgressBar(session = session, id = "pb1", value = timeUpd) #input$i
+      invalidateLater(1000, session)
+      #}
+    })
     
     #initialisation
     total_issues = 0
@@ -1062,13 +1123,13 @@ shinyServer(function(input, output, session){
     #if there is no issues, then show "Upload" button
     if(total_issues==0){
       #turn off
-      shinyjs::show("issues")
-      shinyjs::show("fields_absent")
-      shinyjs::show("fall_outside_daterange")
-      shinyjs::show("date_Overlapping")
-      shinyjs::show("timeFormatWrong")
-      shinyjs::show("typo_camera_Name")
-      shinyjs::show("resolve_issue")
+      shinyjs::hide("issues")
+      shinyjs::hide("fields_absent")
+      shinyjs::hide("fall_outside_daterange")
+      shinyjs::hide("date_Overlapping")
+      shinyjs::hide("timeFormatWrong")
+      shinyjs::hide("typo_camera_Name")
+      shinyjs::hide("resolve_issue")
       
       #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed! No issues detected.")})
@@ -1081,6 +1142,7 @@ shinyServer(function(input, output, session){
     
     if(total_issues!=0){
       
+      shinyjs::hide("processingbar1")
       shinyjs::hide("Uploaded_file_checks_Passed")
       shinyjs::hide("append")
       shinyjs::hide("append_button_Descrip")
@@ -1120,6 +1182,9 @@ shinyServer(function(input, output, session){
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
+    
+    shinyjs::show("processingbar1")
+    
     # print("line2")
     # #subset the data for only the necessary fields
      uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
@@ -1189,12 +1254,17 @@ shinyServer(function(input, output, session){
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
       
+      shinyjs::hide("processingbar1")
+      
       #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
       output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this!
       
-      shinyjs::hide("confirm_Append")
-   }
+    }
+    
+    shinyjs::hide("append_button_Descrip")
+    shinyjs::hide("append")
+    shinyjs::hide("confirm_Append")
 
   })
    
@@ -1224,7 +1294,7 @@ observe({
     observe({
       #for(i in 1:100){
         timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
-        updateProgressBar(session = session, id = "pb1", value = timeUpd) #input$i
+        updateProgressBar(session = session, id = "pb2", value = timeUpd) #input$i
         invalidateLater(1000, session)
       #}
     })
@@ -1289,7 +1359,7 @@ observe({
     #To show or hide 'aggre_HF_confirm' 
     if(total_issues_1!=0){
       #turn off
-      shinyjs::hide("processingbar1")
+      shinyjs::hide("processingbar2")
       output$Uploaded_file_checks_Passed_1 <- renderText({paste(" ")})
       
       #turn on
@@ -1333,7 +1403,7 @@ observeEvent(input$aggre_HF_confirm, {
                              header = TRUE,
                              sep = ",")#,
   
-   shinyjs::show("processingbar1")
+   shinyjs::show("processingbar2")
   
    output$processing_append <- renderText({print("Processing....")}) 
    #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
@@ -1401,7 +1471,7 @@ observeEvent(input$aggre_HF_confirm, {
         print("300000")
         }
         
-        shinyjs::hide("processingbar1")
+        shinyjs::hide("processingbar2")
         output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
         output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
         output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
