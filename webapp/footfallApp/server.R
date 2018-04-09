@@ -345,11 +345,12 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
   
   #Join ('Date' field) the created date list with the data. 
-  merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE)
+  merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE, all.y = TRUE)
   merged_Datasetd  <- as.data.frame(merged_Datasetd)
   
   x <- as.character(as.Date(merged_Datasetd$Date))
   y <- merged_Datasetd$InCount
+  Outliers <- merged_Datasetd$outlier
   
   x_backup <- x
   dateLabels = seq(as.Date("2009/12/31"), Sys.Date(), by = "year")
@@ -364,8 +365,8 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
     dummyInCount <- matrix(0, nrow(xy_1), 1)
     dummyInCount[which(as.vector(!is.na(xy_1$y)))] <- as.vector(xy_1$y[which(as.vector(!is.na(xy_1$y)))])
     
-    xy_1 <- cbind(xy_1[,c("xy_1Type","x")], dummyInCount)
-    colnames(xy_1) <- c("Type","x","y")
+    xy_1 <- cbind(xy_1[,c("xy_1Type","x")], dummyInCount, Outliers)
+    colnames(xy_1) <- c("Type","x","y", "Outliers")
     
     x<-xy_1$x
     y<-xy_1$y
@@ -375,7 +376,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     #x <- as.Date(as.vector(xy_1$x))
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    xy_1 <- data.frame(Type, Date, InCount)
+    Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    
+    xy_1 <- data.frame(Type, Date, InCount, Outliers)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
     #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
     #points(min(x):max(x), y, col="blue", cex=0.5)
@@ -383,8 +386,10 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
     
 if(chartType=="Dot"){   
   if(addTrend==FALSE){  
-    print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+    print(ggplot(xy_1, aes(Date, InCount, group=Outliers)) +
             geom_point(color="blue", size = 2) +
+            #geom_point(color="blue", size = 2) +
+            #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) + 
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
             geom_vline(xintercept = min(Date),  
@@ -726,7 +731,7 @@ shinyServer(function(input, output, session){
   })
   output$processingbar1 = renderUI({
     shinyjs::hide("processingbar1")
-    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Please, wait...",
+    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% processed...",
                 animate = animationOptions(
                   interval = (8*300), #5 seconds
                   playButton = "",
@@ -740,7 +745,7 @@ shinyServer(function(input, output, session){
     })
   output$processingbar2 = renderUI({
     shinyjs::hide("processingbar2")
-    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Please, wait...",
+    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Pls, wait...",
                 animate = animationOptions(
                   interval = (8*7200), #5 seconds
                   playButton = "",
@@ -1260,12 +1265,12 @@ shinyServer(function(input, output, session){
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
       output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this!
       
-    }
-    
+   }
+
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
     shinyjs::hide("confirm_Append")
-
+    
   })
    
 

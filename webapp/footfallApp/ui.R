@@ -103,6 +103,7 @@ shinyUI(
                       
                       checkboxInput("trendLine", label="Add trend line?", value = FALSE),
                       
+                      #checkboxInput("showOutliers", label="Show Outliers?", value = FALSE),
                       
                       sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
                       
@@ -321,7 +322,7 @@ shinyUI(
                                               ),
                                      
                                      
-                                     tabPanel(title = tags$b('Update HF'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Update HF records'), status = "warning", solidHeader = T, background = "aqua",
                                               #tabBox(width = 13, height = 800,
                                               #tabPanel(title = "Last 1 month 'Temperature' Information", status = "warning", solidHeader = T, background = "aqua",
                                               box(tags$p(tags$b(h4("List of missing dates in the historical footfall database"))),  tags$hr(), # ,#"F
@@ -437,7 +438,7 @@ shinyUI(
                                               
                                      ), 
                                      
-                                     tabPanel(title = tags$b('Historical Footfall (HF)'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Replace all HF records'), status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
                                               box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                   tabPanel("history_footfall", DT::dataTableOutput("history")),
