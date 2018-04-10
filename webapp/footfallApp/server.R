@@ -21,6 +21,7 @@ library(lubridate)
 library(shinyWidgets)
 library(foreign)
 library(shinyBS)
+library(owmr)
 
 ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
@@ -481,10 +482,10 @@ if(chartType=="Dot"){
 
 
 # ggplot(d,aes(x=id,y=count,color=var))+
-#   geom_text(aes(label=label),family='fontawesome-webfont', size=8)+ 
+#   geom_text(aes(label=label),family='fontawesome-webfont', size=8)+
 #   #geom_label_repel(aes(label = count,
 #   #fill = factor(var)), color = 'white',
-#   #size = 3.5) + 
+#   #size = 3.5) +
 #   #theme(legend.position = "bottom")+
 #   geom_line()+
 #   geom_text_repel(
@@ -492,7 +493,13 @@ if(chartType=="Dot"){
 #     size = 5,
 #     #box.padding = unit(0.5, "lines"),
 #     point.padding = unit(0.3, "lines")
-#   ) 
+#   )
+
+# Set up API key
+# library(owmr)
+# owmr_settings("c8a930a2e30b695551e57d375a67d76e")
+# get_forecast("leeds", cnt = 120)
+# get_forecast("london", cnt = 100)
 
 
 
