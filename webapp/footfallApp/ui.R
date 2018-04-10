@@ -19,6 +19,8 @@ library(lubridate)
 library(shinyWidgets)
 library(foreign)
 library(shinyBS)
+library(emojifont)
+require("ggrepel")
 
 
 #for progressbar animation
@@ -163,14 +165,14 @@ shinyUI(
                               ),
                               
                               box(
-                                title = p(tags$h4(tags$b("Evening (6pm-9pm)")), tags$h4(textOutput("tomorrowDay_2")),
+                                title = p(tags$h4(tags$b("Evening (6pm-9pm)")), #tags$h4(textOutput("tomorrowDay_2")),
                                           tags$b(tags$h1(textOutput("lastDayCount"))),
-                                          tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("23%, from"),
-                                                       icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard2"))) ), 
-                                width = 9, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
-                                plotOutput("afternoon_footfall", width = "100%", height = "50px")
+                                          #tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
+                                          #actionButton("hourlyId", tags$b("23%, from"),
+                                                       #icon=icon("arrow-circle-up"),
+                                                       #class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard2"))) ), 
+                                width = 9, solidHeader = FALSE, status = "primary"), #uiOutput("boxContentUI2"), 
+                                plotOutput("afternoon_footfall", width = "100%", height = "200")
                                 
                               )
                               
@@ -311,7 +313,7 @@ shinyUI(
                               
                               tabBox(width = 13, height = 800,
                                      
-                                     tabPanel(title = tags$b('Info.'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Basic Inputs'), status = "warning", solidHeader = T, background = "aqua",
                                               id='basic parameters',
                                               
                                               #list of names of cameara location

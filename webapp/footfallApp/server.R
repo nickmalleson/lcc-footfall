@@ -21,6 +21,9 @@ library(lubridate)
 library(shinyWidgets)
 library(foreign)
 library(shinyBS)
+library(emojifont)
+require("ggrepel")
+
 library(owmr)
 
 ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
@@ -481,6 +484,10 @@ if(chartType=="Dot"){
 #}
 
 
+
+# d <- merge(data, labs, by.x="var", by.y="var")
+# labs <- data.frame(var=c("var1", "var2"),
+#                    label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
 # ggplot(d,aes(x=id,y=count,color=var))+
 #   geom_text(aes(label=label),family='fontawesome-webfont', size=8)+
 #   #geom_label_repel(aes(label = count,
