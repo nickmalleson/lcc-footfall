@@ -480,6 +480,22 @@ if(chartType=="Dot"){
 #}
 
 
+# ggplot(d,aes(x=id,y=count,color=var))+
+#   geom_text(aes(label=label),family='fontawesome-webfont', size=8)+ 
+#   #geom_label_repel(aes(label = count,
+#   #fill = factor(var)), color = 'white',
+#   #size = 3.5) + 
+#   #theme(legend.position = "bottom")+
+#   geom_line()+
+#   geom_text_repel(
+#     data = subset(d, var == "var1"), aes(label = count),
+#     size = 5,
+#     #box.padding = unit(0.5, "lines"),
+#     point.padding = unit(0.3, "lines")
+#   ) 
+
+
+
 #function to display time
 date_function <- function(){
   date_time <- Sys.time()

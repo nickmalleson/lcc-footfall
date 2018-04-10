@@ -169,34 +169,35 @@ shinyUI(
                                           actionButton("hourlyId", tags$b("23%, from"),
                                                        icon=icon("arrow-circle-up"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard2"))) ), 
-                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
+                                width = 9, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"), 
                                 plotOutput("afternoon_footfall", width = "100%", height = "50px")
                                 
-                              ),
+                              )
                               
-                              box(
-                                title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
-                                          tags$b(tags$h1(textOutput("lastWeekCount"))),
-                                          tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
-                                          actionButton("hourlyId", tags$b("43%, from"),
-                                                       icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
-                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
-                                plotOutput("evening_footfall", width = "100%", height = "50px")
-                                
-                              ),
+                              # box(
+                              #   title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
+                              #             tags$b(tags$h1(textOutput("lastWeekCount"))),
+                              #             tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
+                              #             actionButton("hourlyId", tags$b("43%, from"),
+                              #                          icon=icon("arrow-circle-up"),
+                              #                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
+                              #   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
+                              #   plotOutput("evening_footfall", width = "100%", height = "50px")
+                              #   
+                              # )
                               
-                              box(
-                                title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
-                                          tags$b(tags$h1(textOutput("lastWeekCounty"))),
-                                          tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("23%, from"),
-                                                       icon=icon("arrow-circle-up"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
-                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
-                                plotOutput("all_footfall", width = "100%", height = "50px")
-                                
-                              ) ),
+                              # box(
+                              #   title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
+                              #             tags$b(tags$h1(textOutput("lastWeekCounty"))),
+                              #             tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
+                              #             actionButton("hourlyId", tags$b("23%, from"),
+                              #                          icon=icon("arrow-circle-up"),
+                              #                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
+                              #   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
+                              #   plotOutput("all_footfall", width = "100%", height = "50px")
+                              #   
+                              # ) 
+                              ),
                               
  
                             fluidRow(
@@ -278,7 +279,7 @@ shinyUI(
                                                           "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
 
                                                         )
-                                                        
+
                                                ),
                                           
                                           box(
