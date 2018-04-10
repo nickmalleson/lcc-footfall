@@ -129,7 +129,7 @@ shinyUI(
                     #menuItem(tags$b('Data View'), tabName = "dataview", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")), #cogs
                     
                     
-                    menuItem(tags$b('~ Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
+                    menuItem(tags$b('Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
                     
 
 
@@ -178,11 +178,11 @@ shinyUI(
                               #),
                               
                              #fluidRow(
-                               box(title="sdfsfsdf","ll", 
+                               box(title=tags$h4(tags$b("Forecasted Footfall Pattern"))," ", 
                                    
                                    
                                    width = 9, solidHeader = FALSE, status = "primary",
-                                  plotOutput("afternoon_footfall", width = "99%", height = "250px"))
+                                  plotOutput("forecasted_footfall", width = "99%", height = "230px"))
                              ),
 
                             fluidRow(

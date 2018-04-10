@@ -305,7 +305,7 @@ auc_plot <- function(y, plotStyle=1){
   if(plotStyle==1){
     xy_1 <- as.data.frame(cbind(x, y))
     xy_1Type <- rep(1, nrow(xy_1))
-    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+    #xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
     # a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)  #gam for n > 1000.
     # print(a)
@@ -359,7 +359,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   #using ggplot2
     xy_1 <- as.data.frame(cbind(x, y))  
     xy_1Type <- rep(1, nrow(xy_1))
-    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+    #xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
     
     dummyInCount <- matrix(0, nrow(xy_1), 1)
@@ -479,25 +479,26 @@ if(chartType=="Dot"){
   }
 #}
 
-auc_plot3 <- function(y){
+auc_plot3 <- function(y, chartType="Dot"){
   
   x <- 1:length(y)
   n <- length(y)
-  #using ggplot2
- # if(plotStyle==3){
+
     xy_1 <- as.data.frame(cbind(x, y))
     xy_1Type <- rep(1, nrow(xy_1))
-    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
-    # a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)  #gam for n > 1000.
-    # print(a)
-    #which(is.na(xy_1$InCount))
-  
-    # labs <- data.frame(var=c(1, 2),
-    #                     label = fontawesome(c('fa-arrow-up','fa-arrow-down'))  )
-    
+
     labs <- data.frame(var=c(1, 2),
                        label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
+    
+    d <- merge(xy_1, labs, by.x=1, by.y=1)
+    print(ggplot(d, aes(x, y, group=xy_1Type)) +
+            geom_label_repel(aes(label = y), color = 'black',
+                             size = 3.5) + 
+            theme(legend.position=" ") +
+            geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
+            geom_line(color="blue", size = 0) 
+            )
     
     d <- merge(xy_1, labs, by.x=1, by.y=1)
     print(ggplot(d, aes(x, y, group=xy_1Type)) +
@@ -505,15 +506,17 @@ auc_plot3 <- function(y){
             geom_label_repel(aes(label = y), color = 'black',
                              size = 3.5) + 
             theme(legend.position=" ") +
-            geom_area(aes(ymin = 0,ymax = y),
-                      alpha = 0.3, fill = "blue") +
+            #geom_area(aes(ymin = 0,ymax = y),
+            #alpha = 0.3, fill = "blue") +
+            geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
+            #geom_area() +
             geom_line(color="blue", size = 0) 
-              #geom_text_repel(
-                #data = subset(d, xy_1Type == 1), aes(label = y),
-                #size = 5,
-                #point.padding = unit(0.3, "lines")
-            #)
-            )
+          #geom_text_repel(
+          #data = subset(d, xy_1Type == 1), aes(label = y),
+          #size = 5,
+          #point.padding = unit(0.3, "lines")
+          #)
+    )
 }
 
 #------------------------
@@ -897,8 +900,8 @@ shinyServer(function(input, output, session){
     auc_plot(y, plotStyle=2)
   })
   
-  output$afternoon_footfall <- renderPlot({
-    c <- 1:25
+  output$forecasted_footfall <- renderPlot({
+    c <- 1:5
     y <- sample(c^2)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot3(y)
