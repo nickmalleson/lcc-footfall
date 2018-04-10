@@ -5,7 +5,8 @@
 # Find out more about building applications with Shiny here:
 # 
 #    http://shiny.rstudio.com/
-#
+#install.packages("swirl", repos="http://cran.rstudio.com/", dependencies=TRUE)
+
 library(base)
 library(shiny)
 library(shinydashboard)
@@ -85,11 +86,18 @@ shinyUI(
                       #adding slider to view the length of footfall to predict
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       # value is always yyyy-mm-dd, even if the display format is different
-                      dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
                       
-                      radioButtons("algorithm", "Change Forecast Algorithm", 
-                                   choices = c("Random Forest", "XGBoost","Regression"),
-                                   selected = "Random Forest")
+                      radioButtons("forecast_chartType", "Chart Type", 
+                                   choices = c("Dot", "Line"),
+                                   selected = "Line"),
+                      
+                      sliderInput("day_ahead", "Days ahead to forecast", 1, 5, 3) #)
+                      
+                      # dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
+                      
+                      # radioButtons("algorithm", "Change Forecast Algorithm", 
+                      #              choices = c("Random Forest", "XGBoost","Regression"),
+                      #              selected = "Random Forest")
                       
                     ),
                     
@@ -97,7 +105,7 @@ shinyUI(
                       
                       radioButtons("chartType", "Chart Type", 
                                           choices = c("Dot", "Line"),
-                                          selected = "Dot"),
+                                          selected = "Line"),
                              
                       radioButtons("timeOftheDayInput", "Modify Time of the Day",
                                    choices = c("Daytime", "Evening","Night", "Whole Day"),
@@ -117,7 +125,11 @@ shinyUI(
                     #Setting menu
                     #menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
                     
-                    menuItem(tags$b('Data Settings'), tabName = "settings", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")) #cogs
+                    menuItem(tags$b('Data View'), tabName = "dataview", icon=icon("database")), #cogs
+                    #menuItem(tags$b('Data View'), tabName = "dataview", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")), #cogs
+                    
+                    
+                    menuItem(tags$b('~ Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
                     
 
 
@@ -153,55 +165,26 @@ shinyUI(
                                 tags$style(HTML(".fa{font-size: 20px; }"))),
 
                               box(
-                                title = p(tags$h4(tags$b("Daytime (8am-6pm)")), tags$h4(textOutput("tomorrowDay_1")), 
+                                title = p(tags$h3(tags$b("Today's Footfall Count")), tags$h4(textOutput("today")), 
                                           tags$b(tags$h1(textOutput("lastHourCount"))),
-                                          tags$head(tags$style("#lastHourCount{font-size:60px; font-family: Georgia}")), #Georgia, 
+                                          tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("19%, from"),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI"), 
-                                plotOutput("morning_footfall", width = "100%", height = "50px")
+                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI") 
+                                #plotOutput("morning_footfall", width = "100%", height = "50px")
 
-                              ),
+                                ),
+                              #),
                               
-                              box(
-                                title = p(tags$h4(tags$b("Evening (6pm-9pm)")), #tags$h4(textOutput("tomorrowDay_2")),
-                                          tags$b(tags$h1(textOutput("lastDayCount"))),
-                                          #tags$head(tags$style("#lastDayCount{font-size:60px; font-family: Georgia}")), #Georgia, 
-                                          #actionButton("hourlyId", tags$b("23%, from"),
-                                                       #icon=icon("arrow-circle-up"),
-                                                       #class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard2"))) ), 
-                                width = 9, solidHeader = FALSE, status = "primary"), #uiOutput("boxContentUI2"), 
-                                plotOutput("afternoon_footfall", width = "100%", height = "200")
-                                
-                              )
-                              
-                              # box(
-                              #   title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
-                              #             tags$b(tags$h1(textOutput("lastWeekCount"))),
-                              #             tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
-                              #             actionButton("hourlyId", tags$b("43%, from"),
-                              #                          icon=icon("arrow-circle-up"),
-                              #                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
-                              #   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
-                              #   plotOutput("evening_footfall", width = "100%", height = "50px")
-                              #   
-                              # )
-                              
-                              # box(
-                              #   title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
-                              #             tags$b(tags$h1(textOutput("lastWeekCounty"))),
-                              #             tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
-                              #             actionButton("hourlyId", tags$b("23%, from"),
-                              #                          icon=icon("arrow-circle-up"),
-                              #                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
-                              #   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
-                              #   plotOutput("all_footfall", width = "100%", height = "50px")
-                              #   
-                              # ) 
-                              ),
-                              
- 
+                             #fluidRow(
+                               box(title="sdfsfsdf","ll", 
+                                   
+                                   
+                                   width = 9, solidHeader = FALSE, status = "primary",
+                                  plotOutput("afternoon_footfall", width = "99%", height = "250px"))
+                             ),
+
                             fluidRow(
                               # box(
                               #   width = 12, height = "300px", status="primary", solidHeader = FALSE,
@@ -209,7 +192,7 @@ shinyUI(
                               #   plotOutput("chart"))
                               
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 12, height = "350px",
+                                       box(width = 12, height = "450px",
                                          title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
@@ -217,11 +200,13 @@ shinyUI(
                                                    #tags$b(tags$h4("Go to 'Settings' page..."))
                                                    ),
                                          solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
-                                         plotOutput("footfall_history", width = "100%", height = "250px")
+                                         plotOutput("footfall_history", width = "99%", height = "350px")
                                          
                                        ))
       
-                            ),
+                            )
+                            
+ 
                             
 
                             # fluidRow(
@@ -237,64 +222,7 @@ shinyUI(
                               #   ),
                              # tabItem(tabName = "rawdata",
                                       
-                                      
-                               fluidRow(
-                                   tabBox(width = 13, height = 800,
- 
-                                               tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                                        id='dayTime',
-                                                        box(
-                                                          tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
-                                                          br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                          
-                                                        )
-                                                        
-                                               ),
-                                               
-                                               tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                                        id='eveningTime',
-                                                        box(
-                                                          tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
-                                                          br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                        )
-                                                        
-                                               ),
-                                               
-                                               tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                                        id='nightTime',
-                                                        box(
-                                                          tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
-                                                          br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                          
-                                                        )
-                                                        
-                                               ),
-                                               
-                                               tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                                        id='twentyfourHour',
-                                                        box(
-                                                          tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
-                                                          br(),
-                                                          "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
 
-                                                        )
-
-                                               ),
-                                          
-                                          box(
-                                            width = 6, status = "primary", solidHeader = TRUE,
-                                            title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                                            leafletOutput("mapLeeds", height=500)
-                                            
-                                          )
-                                               
-                                        )
-                                        
-                                      )
-                                      
                               # box(
                               #   width = 4, status = "primary", solidHeader = FALSE,
                               #   title = "Predictors (Importance)"
@@ -303,7 +231,69 @@ shinyUI(
    
                     
                     ),
-   
+                    
+                    tabItem(tabName = "dataview",
+                            fluidRow(
+                              tabBox(width = 13, height = 800,
+                                     
+                                     tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='dayTime',
+                                              box(
+                                                tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
+                                                br(),
+                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
+                                                
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='eveningTime',
+                                              box(
+                                                tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
+                                                br(),
+                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='nightTime',
+                                              box(
+                                                tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
+                                                br(),
+                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
+                                                
+                                              )
+                                              
+                                     ),
+                                     
+                                     tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='twentyfourHour',
+                                              box(
+                                                tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
+                                                br(),
+                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
+                                                
+                                              )
+                                              
+                                     ),
+                                     
+                                     
+                                     fluidRow(
+                                       box(
+                                         width = 6, status = "primary", solidHeader = TRUE,
+                                         title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
+                                         leafletOutput("mapLeeds", height=500)
+                                         
+                                       ))
+                  
+                                     
+                              )
+                              
+                            )   
+                    ),
+                    
                     tabItem(tabName = "settings",
                             
                             # print(DT::dataTableOutput("historical_Foot")),
@@ -541,4 +531,44 @@ shinyUI(
   )
   
 )
+
+
+
+
+#  #tabPanel(title = "....", status = "primary", solidHeader = TRUE,  
+#   box(
+#     title = p(tags$h4(tags$b("Next 5 day/Daily Forecast")), 
+#     width = 6, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"),
+#     plotOutput("afternoon_footfall", width = "120%", height = "250px")
+#     
+#width = 8, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI12")  # ),
+# )),
+#), 
+
+# box(
+#   title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
+#             tags$b(tags$h1(textOutput("lastWeekCount"))),
+#             tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
+#             actionButton("hourlyId", tags$b("43%, from"),
+#                          icon=icon("arrow-circle-up"),
+#                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
+#   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
+#   plotOutput("evening_footfall", width = "100%", height = "50px")
+#   
+# )
+
+# box(
+#   title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
+#             tags$b(tags$h1(textOutput("lastWeekCounty"))),
+#             tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
+#             actionButton("hourlyId", tags$b("23%, from"),
+#                          icon=icon("arrow-circle-up"),
+#                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
+#   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
+#   plotOutput("all_footfall", width = "100%", height = "50px")
+#   
+# ) 
+#),
+
+
 
