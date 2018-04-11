@@ -87,9 +87,9 @@ shinyUI(
                       #sliderInput("q", "Length of footfall (to predict)", 0, 30, 1)
                       # value is always yyyy-mm-dd, even if the display format is different
                       
-                      radioButtons("forecast_chartType", "Chart Type", 
-                                   choices = c("Line-Dot", "Line"),
-                                   selected = "Line"),
+                      # radioButtons("forecast_chartType", "Chart Type", 
+                      #              choices = c("Line-Dot", "Line"),
+                      #              selected = "Line"),
                       
                       sliderInput("day_ahead", "Days ahead to forecast", 1, 5, 3) #)
                       
@@ -166,8 +166,8 @@ shinyUI(
 
                               box(
                                 title = p(tags$h3(tags$b("Today's Footfall Count")), tags$h4(textOutput("today")), 
-                                          tags$b(tags$h1(textOutput("lastHourCount"))),
-                                          tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia, 
+                                          tags$b(tags$h1(textOutput("todaysfootfallCount"))),
+                                          tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia}")), #Georgia, 
                                           actionButton("hourlyId", tags$b("19%, from"),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
