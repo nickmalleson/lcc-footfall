@@ -479,49 +479,68 @@ if(chartType=="Dot"){
   }
 #}
 
-auc_plot3 <- function(y, chartType="Dot"){
+#function to plot...points and lines for forecast
+auc_plot3 <- function(y=prediction_Combined, chartType="Dot"){
   
-  x <- 1:length(y)
-  n <- length(y)
-
-    xy_1 <- as.data.frame(cbind(x, y))
-    xy_1Type <- rep(1, nrow(xy_1))
-    xy_1 <- data.frame(xy_1Type,  xy_1)
-
-    labs <- data.frame(var=c(1, 2),
-                       label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
-    
-    d <- merge(xy_1, labs, by.x=1, by.y=1)
-    print(ggplot(d, aes(x, y, group=xy_1Type)) +
+  xy_1 <- y
+  
+  labs <- data.frame(xy_1Type=c(1, 2),
+                     label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
+  
+  d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
+  
+  if(chartType=="Line"){
+    print(ggplot(d, aes(x, y)) +
             geom_label_repel(aes(label = y), color = 'black',
                              size = 3.5) + 
             theme(legend.position=" ") +
             geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
             geom_line(color="blue", size = 0) 
-            )
-    
-    d <- merge(xy_1, labs, by.x=1, by.y=1)
-    print(ggplot(d, aes(x, y, group=xy_1Type)) +
-            #geom_text(aes(label=label),family='fontawesome-webfont', size=9) +
-            geom_label_repel(aes(label = y), color = 'black',
-                             size = 3.5) + 
-            theme(legend.position=" ") +
-            #geom_area(aes(ymin = 0,ymax = y),
-            #alpha = 0.3, fill = "blue") +
-            geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
-            #geom_area() +
-            geom_line(color="blue", size = 0) 
-          #geom_text_repel(
-          #data = subset(d, xy_1Type == 1), aes(label = y),
-          #size = 5,
-          #point.padding = unit(0.3, "lines")
-          #)
-    )
+    )}
+  
+  if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
+    ggplot(d) + ylim(-1,max(50)) +
+      geom_point(aes(x, y, color=factor(xy_1Type)), size = 9) +
+      geom_text(aes(x,y,label=label),family='fontawesome-webfont', size=9) +
+      theme(legend.position=" ") +
+      ##geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
+      #geom_line()+ 
+      geom_text_repel(
+        aes(x, y, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
+        size = 8,
+        family = 'Times',
+        fontface = 'bold',
+        box.padding=0.5, point.padding = 1.6, segment.color = "black", segment.size = 0.05,
+        arrow=arrow(length=unit(0.04, 'npc')), force = 1)
+  }
 }
 
+
+
 #------------------------
-labs <- data.frame(var=c("xy_1Type"),
-                   label = fontawesome(c('fa-arrow-circle-up'))  )
+#function to calculate percentage increase in prediction
+
+
+vector_perc_diff <- function(data){
+  table_R <- matrix(0, length(data)-1, 4)
+  for (i in 2:length(data)){ #i<-2
+    table_R[i-1,1] <- i-1
+    table_R[i-1,2] <- data[i]
+    table_R[i-1,3] <- round(((data[i-1]-data[i])/data[i-1])*100, digits=0)
+    if(table_R[i-1,3]<=0){table_R[i-1,4] = 1}
+    if(table_R[i-1,3]>0){table_R[i-1,4] = 2}
+  }
+  table_R <- data.frame(table_R)
+  colnames(table_R) <- c("x", "y", "Perc", "xy_1Type")
+  return(table_R)
+}
+
+
+
+
+
+# labs <- data.frame(var=c("xy_1Type"),
+#                    label = fontawesome(c('fa-arrow-circle-up'))  )
 
 # labs <- data.frame(var=c("var1", "var2"),
 #                    label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
@@ -901,10 +920,13 @@ shinyServer(function(input, output, session){
   })
   
   output$forecasted_footfall <- renderPlot({
+    #today's prediction
+    todaysPred <- 4  #to change this later
     c <- 1:5
-    y <- sample(c^2)
+    cc <- c(todaysPred, sample(c^2))
+    prediction_Combined <- vector_perc_diff(cc)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot3(y)
+    auc_plot3(y=prediction_Combined, chartType = input$forecast_chartType)
   })
   
   output$evening_footfall <- renderPlot({

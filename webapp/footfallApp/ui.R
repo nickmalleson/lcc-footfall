@@ -88,7 +88,7 @@ shinyUI(
                       # value is always yyyy-mm-dd, even if the display format is different
                       
                       radioButtons("forecast_chartType", "Chart Type", 
-                                   choices = c("Dot", "Line"),
+                                   choices = c("Line-Dot", "Line"),
                                    selected = "Line"),
                       
                       sliderInput("day_ahead", "Days ahead to forecast", 1, 5, 3) #)
