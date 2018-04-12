@@ -387,7 +387,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
 if(chartType=="Dot"){   
   if(addTrend==FALSE){  
     print(ggplot(xy_1, aes(Date, InCount, group=Outliers)) +
-            geom_point(color="blue", size = 2) +
+            geom_point(color="blue", size = 1.5) +
             #geom_point(color="blue", size = 2) +
             #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) + 
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
@@ -408,7 +408,7 @@ if(chartType=="Dot"){
   
   if(addTrend==TRUE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-             geom_point(color="blue", size = 2) +
+             geom_point(color="blue", size = 1.5) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
             geom_vline(xintercept = min(Date),  
@@ -432,7 +432,7 @@ if(chartType=="Dot"){
   if(chartType=="Line"){
     if(addTrend==FALSE){  
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-              geom_line(color="blue", size = 1) +
+              geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
               geom_point(color="blue", size = 1) +
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
@@ -453,7 +453,7 @@ if(chartType=="Dot"){
     
     if(addTrend==TRUE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-              geom_line(color="blue", size = 1) +
+              geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
               geom_point(color="blue", size = 1) +
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
@@ -489,6 +489,9 @@ auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
   
   d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
   
+  dateLabels = seq(Sys.Date(), (Sys.Date()+(nrow(d)-1)), by = "day")
+  
+  d <- cbind(d, dateLabels)
   # if(chartType=="Line"){
   #   print(ggplot(d, aes(Date, InCount)) +
   #           #
@@ -503,19 +506,21 @@ auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
     
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
     print(ggplot(d, aes(Date, InCount)) + ylim(-1,max(50)) +
-      geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 9) +
+      geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
       #geom_point(aes(Date, InCount, color=colr), size = 9) +
       theme(legend.position=" ") +
-      geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.3, fill="blue") +
+      geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.4, fill="blue") +
       geom_line(color="blue", size = 0)+ 
-      geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=9) +
+      geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=9) + #nudge_x=0, nudge_y=0
+        scale_x_discrete(limits=d$Date,labels=dateLabels) + 
       geom_text_repel(
         aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
-        size = 8,
-        family = 'Times',
+        size = 5,
+        nudge_x = 0, nudge_y = 0.5,
+        #family = 'Times',
         fontface = 'bold',
-        box.padding=0.5, point.padding = 1.6, segment.color = "black", segment.size = 0.05,
-        arrow=arrow(length=unit(0.04, 'npc')), force = 1)
+        box.padding=0.5, point.padding = 1.6, segment.size = 0)
+        #arrow=arrow(length=unit(0.04, 'npc')), force = 1)
     )
   #}
   # 
@@ -550,15 +555,12 @@ vector_perc_diff <- function(data){
     table_R[i-1,3] <- round(((data[i-1]-data[i])/data[i-1])*100, digits=0)
     if(table_R[i-1,3]<=0){table_R[i-1,4] = 1}
     if(table_R[i-1,3]>0){table_R[i-1,4] = 2}
+    #table_R[i-1,5] <- as.character(Sys.Date()+(i-1))
   }
   table_R <- data.frame(table_R)
-  colnames(table_R) <- c("Date", "InCount", "Perc", "xy_1Type")
+  colnames(table_R) <- c("Date", "InCount", "Perc", "xy_1Type")#, "Date")
   return(table_R)
 }
-
-
-
-
 
 # labs <- data.frame(var=c("xy_1Type"),
 #                    label = fontawesome(c('fa-arrow-circle-up'))  )
@@ -603,16 +605,17 @@ date_function2 <- function(){
 
 #function to display time
 date_function3 <- function(){
-  date_time <- Sys.time()
-  dateT <- substr(as.character(date_time), 1, 10)
-  timeT <- substr(as.character(date_time), 11, 20)
+  dateT <- Sys.Date() - 1
+  #date_time2 <- Sys.Time()
+  # <- substr(as.character(date_time), 1, 10)
+  timeT <- substr(as.character(dateT), 11, 20)
   dayT <- weekdays(as.Date(dateT))
   print(paste(dayT, ", ", dateT, sep=""))}
 
 #function to display tomorrow's day in the forecast panels
 day_function <- function(){
-  dateD <- Sys.Date() + 1
-  dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()+1), sep = "")
+  dateD <- Sys.Date()
+  dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()), sep = "")
   print(dayT)}
 
 #function to show gaps in the dates in the historical datasets
@@ -943,6 +946,7 @@ shinyServer(function(input, output, session){
   output$forecasted_footfall <- renderPlot({
     #today's prediction
     todaysPred <- 4  #to change this later
+    
     c <- 1:5
     #set.seed(123)
     cc <- c(todaysPred, sample(c^2))

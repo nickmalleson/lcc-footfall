@@ -162,27 +162,32 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 20px; }"))),
+                                tags$style(HTML(".fa{font-size: 25px; }"))),
 
                               box(
-                                title = p(tags$h3(tags$b("Today's Footfall Count")), tags$h4(textOutput("today")), 
+                                title = p(tags$h3(tags$b("Forecasted Footfall Count")), tags$h4(textOutput("today")), 
                                           tags$b(tags$h1(textOutput("todaysfootfallCount"))),
-                                          tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b("19%, from"),
+                                          tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
+                                          actionButton("hourlyId", tags$b(h4("19%, from")),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI") 
+                                background = "blue", width = 4, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
                                 #plotOutput("morning_footfall", width = "100%", height = "50px")
 
+                                
+                                # tags$head(
+                                #   tags$style(HTML('#run{background-color:orange}'))
+                                # ),
+                                
+                                
                                 ),
                               #),
                               
                              #fluidRow(
-                               box(title=tags$h4(tags$b("Forecasted Footfall Pattern"))," ", 
-                                   
-                                   
-                                   width = 9, solidHeader = FALSE, status = "primary",
-                                  plotOutput("forecasted_footfall", width = "99%", height = "230px"))
+                               box(title=tags$h4(tags$b("Forecasted Footfall Pattern")),
+     
+                                  width = 8, solidHeader = FALSE, status = "primary",
+                                  plotOutput("forecasted_footfall", width = "99%", height = "260px"))
                              ),
 
                             fluidRow(
@@ -191,8 +196,15 @@ shinyUI(
                               #   title = "Footfall history",
                               #   plotOutput("chart"))
                               
+                              box(
+                                width = 4, status = "primary", solidHeader = TRUE,
+                                title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
+                                leafletOutput("mapLeeds", height=460)
+                                
+                              ),
+                              
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 12, height = "450px",
+                                       box(width = 8, height = "540px",
                                          title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
@@ -200,36 +212,12 @@ shinyUI(
                                                    #tags$b(tags$h4("Go to 'Settings' page..."))
                                                    ),
                                          solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
-                                         plotOutput("footfall_history", width = "99%", height = "350px")
+                                         plotOutput("footfall_history", width = "99%", height = "430px")
                                          
                                        ))
       
                             )
-                            
- 
-                            
 
-                            # fluidRow(
-                            #   box(
-                            #     width = 4, status = "primary", solidHeader = FALSE,
-                            #     title = "Accuracy summary of algorithms"
-                            #   ),
-                              
-                              # fluidRow(
-                              #   box(
-                              #     width = 4, status = "primary", solidHeader = FALSE,
-                              #     title = "Accuracy summary of algorithms"
-                              #   ),
-                             # tabItem(tabName = "rawdata",
-                                      
-
-                              # box(
-                              #   width = 4, status = "primary", solidHeader = FALSE,
-                              #   title = "Predictors (Importance)"
-                              # ),
-                            
-   
-                    
                     ),
                     
                     tabItem(tabName = "dataview",
@@ -277,18 +265,8 @@ shinyUI(
                                                 
                                               )
                                               
-                                     ),
-                                     
-                                     
-                                     fluidRow(
-                                       box(
-                                         width = 6, status = "primary", solidHeader = TRUE,
-                                         title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                                         leafletOutput("mapLeeds", height=500)
-                                         
-                                       ))
-                  
-                                     
+                                     )
+
                               )
                               
                             )   
