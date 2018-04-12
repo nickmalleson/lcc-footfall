@@ -906,7 +906,15 @@ shinyServer(function(input, output, session){
 
     
     observe({
-      
+    
+      shinyjs::hide("append_file3")  
+      shinyjs::hide("issues3")
+      shinyjs::hide("fields_absent3")
+      shinyjs::hide("fall_outside_daterange3")
+      shinyjs::hide("date_Overlapping3")
+      shinyjs::hide("timeFormatWrong3")
+      #shinyjs::hide("typo_camera_Name3")
+      shinyjs::hide("resolve_issue3")
       
       req(input$file3)
       #To check the gaps that an uploaded file fill
@@ -917,9 +925,11 @@ shinyServer(function(input, output, session){
       startTimeC <- Sys.time()
       
       #for(i in 1:100){
+      observe({
       timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
       updateProgressBar(session = session, id = "pb3", value = timeUpd) #input$i
       invalidateLater(1000, session)
+      })
       #}
  
     #initialisation
@@ -1007,6 +1017,8 @@ shinyServer(function(input, output, session){
   #})
   
   
+    
+#    Create predictor information up to 2020....
   
   
   
