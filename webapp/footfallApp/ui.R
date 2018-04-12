@@ -125,11 +125,11 @@ shinyUI(
                     #Setting menu
                     #menuItem("View Raw Data", tabName = "rawdata", icon=icon("database")),
                     
-                    menuItem(tags$b('Data View'), tabName = "dataview", icon=icon("database")), #cogs
-                    #menuItem(tags$b('Data View'), tabName = "dataview", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")), #cogs
+                    # menuItem(tags$b('Data View'), tabName = "dataview", icon=icon("database")), #cogs
+                    # #menuItem(tags$b('Data View'), tabName = "dataview", badgeLabel=textOutput("notify"), badgeColor= "green", icon=icon("database")), #cogs
                     
                     
-                    menuItem(tags$b('Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
+                    menuItem(tags$b('Data Preview & Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
                     
 
 
@@ -165,30 +165,33 @@ shinyUI(
                                 tags$style(HTML(".fa{font-size: 25px; }"))),
 
                               box(
-                                title = p(tags$h3(tags$b("Forecasted Footfall Count")), tags$h4(textOutput("today")), 
+                                title = p(tags$h3(tags$b("A Scenario:")), #tags$h4(textOutput("today")), 
+                                          #tags$b(tags$h1(textOutput("todaysfootfallCount"))),
+                                          #tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
+                                          actionButton("hourlyId2", tags$b(h4("19%, from")),
+                                                       icon=icon("arrow-circle-down"),
+                                                       class = "btn-xs", title = "Update")),#, tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
+                                background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI25") 
+
+                              ),
+                              
+                              box(
+                                title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                           tags$b(tags$h1(textOutput("todaysfootfallCount"))),
                                           tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
                                           actionButton("hourlyId", tags$b(h4("19%, from")),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                background = "blue", width = 4, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
-                                #plotOutput("morning_footfall", width = "100%", height = "50px")
+                                background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
+                                
+                              ),
 
-                                
-                                # tags$head(
-                                #   tags$style(HTML('#run{background-color:orange}'))
-                                # ),
-                                
-                                
-                                ),
-                              #),
-                              
                              #fluidRow(
-                               box(title=tags$h4(tags$b("Forecasted Footfall Pattern")),
+                               box(title=tags$h4(tags$b("Next 5-days Footfall Rates")),
      
-                                  width = 8, solidHeader = FALSE, status = "primary",
+                                  width = 6, solidHeader = FALSE, status = "primary",
                                   plotOutput("forecasted_footfall", width = "99%", height = "260px"))
-                             ),
+                            ),
 
                             fluidRow(
                               # box(
@@ -196,15 +199,9 @@ shinyUI(
                               #   title = "Footfall history",
                               #   plotOutput("chart"))
                               
-                              box(
-                                width = 4, status = "primary", solidHeader = TRUE,
-                                title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                                leafletOutput("mapLeeds", height=460)
-                                
-                              ),
-                              
+
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 8, height = "540px",
+                                       box(width = 12, height = "540px",
                                          title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
@@ -216,71 +213,87 @@ shinyUI(
                                          
                                        ))
       
+                            ),
+                            
+                          fluidRow(
+                            box(
+                              width = 12, status = "primary", solidHeader = TRUE,
+                              title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
+                              leafletOutput("mapLeeds", height=500)
+                              
                             )
+                            #)
+                            
+                            
+                          )
 
                     ),
                     
-                    tabItem(tabName = "dataview",
-                            fluidRow(
-                              tabBox(width = 13, height = 800,
-                                     
-                                     tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='dayTime',
-                                              box(
-                                                tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
-                                                br(),
-                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='eveningTime',
-                                              box(
-                                                tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
-                                                br(),
-                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='nightTime',
-                                              box(
-                                                tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
-                                                br(),
-                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                
-                                              )
-                                              
-                                     ),
-                                     
-                                     tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='twentyfourHour',
-                                              box(
-                                                tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
-                                                br(),
-                                                "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'"
-                                                
-                                              )
-                                              
-                                     )
-
-                              )
-                              
-                            )   
-                    ),
+       #)   
+                    #),
                     
                     tabItem(tabName = "settings",
                             
                             # print(DT::dataTableOutput("historical_Foot")),
                             #print(textOutput("lengthOfMissing")),
                             # Only show this panel if there are missing historical data
-                            fluidRow(
-                              
-                              tabBox(width = 13, height = 800,
-                                     
+                            
+                        box(title = tags$p(tags$b(h4("Preview of Footfall Data Aggregates"))),
+                          tabBox(width = 12, height = 800,
+                                 
+                                 tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                          id='dayTime',
+                                          box(
+                                            tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
+                                            br(),
+                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI20")          
+                                          )
+                                          
+                                 ),
+                                 
+                                 tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                          id='eveningTime',
+                                          box(
+                                            tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
+                                            br(),
+                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI21") 
+                                          )
+                                          
+                                 ),
+                                 
+                                 tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                          id='nightTime',
+                                          box(
+                                            tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
+                                            br(),
+                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI22") 
+                                            
+                                          )
+                                          
+                                 ),
+                                 
+                                 tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                          id='twentyfourHour',
+                                          box(
+                                            tabPanel("twentyFourHours_data", DT::dataTableOutput("twentyFourHoursData")),
+                                            br(),
+                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI23") 
+                                            
+                                          )
+                                          
+                                 )
+                                 
+                          )
+                          ),
+                          
+                        box(title = tags$p(tags$b(h4("Parameters and Data Settings"))),
+                            
+                              tabBox(width = 12, height = 800,
+                                    
                                      tabPanel(title = tags$b('Basic Inputs'), status = "warning", solidHeader = T, background = "aqua",
                                               id='basic parameters',
                                               
@@ -290,7 +303,92 @@ shinyUI(
                                               htmlOutput("cameraLocation"),
                                               tags$hr(),
                                               htmlOutput("warning_cameraLocation")
+                                     ),
+                                     
+                                     tabPanel(title = tags$b('Update Predictors'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='update_predictors',
+                                              box(tags$p(tags$b(h4("List of dates with missing predictors (Temperature and Rain intensity)"))),  tags$hr(), 
+                                                  tabPanel("predict_Info", DT::dataTableOutput("missed_Pred_Info")),
+                                                  width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI14"),
+                                                  tags$hr(),
+                                     
+                                              #htmlOutput("notify_pred"),
+                                              htmlOutput("text2_pred"),
+                                              htmlOutput("testHTML1_pred"),
+                                              htmlOutput("testHTML3_pred"),
+                                              htmlOutput("testHTML4_pred")
+                                              #htmlOutput("otherInfo_pred")
                                               ),
+                                              
+                                              tags$style(".shiny-file-input-progress {display: none}"),
+                                              
+                                              fileInput('file3', 'Choose file to upload',
+                                                        accept = c(
+                                                          'text/csv',
+                                                          'text/comma-separated-values',
+                                                          'text/tab-separated-values',
+                                                          'text/plain',
+                                                          '.csv',
+                                                          '.tsv'
+                                                        )),
+                                              
+                                              #processing bar for uploading file (historical)
+                                              fluidPage(
+                                                #tags$b("Loading..."), br(),
+                                                progressBar(id = "pb3", value = 0)
+                                              ),
+                                              
+                                              tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                              useShinyjs(), extendShinyjs(text = jscode1),
+                                              #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                              tags$hr(),
+                                              #uiOutput("processingbar1"),
+                                              
+                                              #htmlOutput("processing"),
+                                              htmlOutput("Uploaded_file_checks_Passed3"),
+                                              tags$hr(), # 
+                                              htmlOutput("issues3"),
+                                              textOutput("fields_absent3"),
+                                              textOutput("fall_outside_daterange3"),
+                                              textOutput("date_Overlapping3"),
+                                              textOutput("timeFormatWrong3"),
+                                              #textOutput("typo_camera_Name3"),
+                                              #tags$hr(), # 
+                                              htmlOutput("resolve_issue3"),
+                                              useShinyjs(),
+                                              htmlOutput("append_button_Descrip3"),
+                                              useShinyjs(),
+                                              #preview button
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                              actionButton("append_file3", "Update predictor Info.", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              #)),hr(),
+                                              #fluidRow(column(1, align="center", offset = 0, 
+                                              ###actionButton("confirm_Append", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              #)),
+                                              tags$hr() # 
+                                              ###htmlOutput("confirm_Append"),
+                                              #),
+                                              
+                                              
+                                              ##tags$hr(), # 
+                                              
+                                              ##htmlOutput("aggre_HF_file_updated3"),
+                                              
+                                              ##tags$hr(), # 
+                                              
+                                              ##htmlOutput("reload_HF_update3"),
+                                              
+                                              ##box(
+                                                ##title =  textOutput("table_after_append3"),
+                                                ##tabPanel("missedFootfallafterAppend", DT::dataTableOutput("missed_Foot_after_Append3")),
+                                                #),
+                                                ##width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16")
+                                                
+                                              ##),
+                                              
+                                              ##tags$hr() #
+                                            
+                                            ),
                                      
                                      
                                      tabPanel(title = tags$b('Update HF records'), status = "warning", solidHeader = T, background = "aqua",
@@ -300,7 +398,7 @@ shinyUI(
                                                 #box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"F
                                                 tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 #),
-                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
+                                                width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
                                                 ##plotOutput("temp_patterns", width = "320%", height = "150px")
                                                 "  ",
                                                 htmlOutput("msg"),
@@ -394,7 +492,7 @@ shinyUI(
                                                 title =  textOutput("table_after_append"),
                                                 tabPanel("missedFootfallafterAppend", DT::dataTableOutput("missed_Foot_after_Append")),
                                                 #),
-                                                width = 4, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16")
+                                                width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI16")
                                               
                                               ),
                                               
@@ -411,7 +509,8 @@ shinyUI(
                                      
                                      tabPanel(title = tags$b('Replace all HF records'), status = "warning", solidHeader = T, background = "aqua",
                                               id='gaps_missingData',
-                                              box(tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                              box(
+                                                tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
                                                   tabPanel("history_footfall", DT::dataTableOutput("history")),
                                                   tags$hr(),
                                                   htmlOutput("HF_view"),
@@ -484,8 +583,8 @@ shinyUI(
                                                   # textOutput("text")),
                                                   
                                                   #),
-                                                  hr()
-                                                  
+                                                  hr(),
+                                                width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI17") 
                                               )
                                               #rm(list = ls())  
                                      )
@@ -496,7 +595,16 @@ shinyUI(
                                      #tags$hr() # 
      
                              )
-                            )###
+                        )
+                                 
+                                 
+                                     
+                          #) ##################
+                          #),
+                          
+                          
+                          #fluidRow(
+                            #)###
                     )#setting end
                     
 

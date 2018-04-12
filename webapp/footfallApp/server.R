@@ -637,14 +637,15 @@ missingData <- function(data){
   #to identify gaps in the dataset.
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
-  missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
+  #missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
+  #missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
+  missing_Dates <-  data.frame((DF[DF_Dates>1]+1), (DF[c(1, DF_Dates)>1]-1), (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
   colnames(missing_Dates) <- c("from","to","No_of_days")
   appdI <- matrix("2000-03-03",1,3)
   colnames(appdI) <- c("from","to","No_of_days")
   missing_Dates <- rbind(missing_Dates, appdI)
   return(missing_Dates)
 }
-
 
 
 
@@ -686,11 +687,11 @@ convert_Date <- function(data){
 
 #LIST FOR FUNCTIONS TO CHECK ERRORS IN THE DATASET
 #function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
-uploaded_fieldnames <- function(data){
-  essential_Fields <- c("Date","Hour","InCount", "LocationName")
+uploaded_fieldnames <- function(data, essential_Fields){
+  #essential_Fields <- c("Date","Hour","InCount", "LocationName")
   names_uploaded <- essential_Fields %in% colnames(data)
   leng_name <- length(which(names_uploaded=="TRUE"))
-  #return(leng_name)
+  return(leng_name)
 }
 
 #function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time
@@ -787,15 +788,17 @@ shinyServer(function(input, output, session){
   #IMPORTING DATASETS
   #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   #full=TRUE),read.csv, header=TRUE))
-  history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
+  history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+  
+  #import the predictor information
+  predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
                                                         
   dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
                                                                 
-  
-  #reverse the table
+    #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
   
   output$history <- renderDataTable(hist_table)
@@ -834,8 +837,194 @@ shinyServer(function(input, output, session){
   output$warning_cameraLocation = renderText({paste("Note: Before uploading any files to either replace the existing HF records or update the records", "<br>", 
                                                     "in the 'Historical Footfall (HF)' and 'Update HF' tabs respectively, ensure that the spellings of the camera (location) names","<br>",
                                                     "are exactly as typed here. Also, watch out for leading and trailing whitespaces in the names.")})
-  #processing bar for updating historical datasets
-  #disable("slider")
+
+  
+  #tab 'Update Predictors'
+  
+  #Summary of missing Predictors information (Specifically weather Information)
+  
+  
+  #create a list dates occuring in the dataset
+  missData_Predictors <- missingData(data=predictors_info)
+  
+  flush.console()
+  print(missData_Predictors)
+  
+  print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+  
+  print(missData_Predictors)
+  #Note: the appended row in missingData function has to be removed. 
+  if(length(missData_Predictors)==3){
+    missData_Predictors #####address tis.... are you returning the entire table... need to resolve
+  }
+  
+ 
+  #message for "missing data" warning
+  if(nrow(missData_Predictors)==0){
+    output$msg_pred <- renderText({
+      paste("<b>Predictor Info. is up-to-date!")
+    })
+    ##shinyjs::hide("file1")  
+    ##shinyjs::hide("progressingbar2")  
+  }
+  
+  #missing dates in the predictors information
+  if(nrow(missData_Predictors)>0){
+    output$missed_Pred_Info <- DT::renderDataTable({
+      DT::datatable(apply(missData_Predictors, 2, rev))
+    })
+    
+    #to hide "missing data" warning
+    #if(nrow(missData_Predictors)>0){
+    output$notify_pred <- renderText({ print("Issues")  }) 
+    #}
+    
+    output$testHTML1_pred <- renderText({paste("<b>Above table shows the list of days in which predictors (weather) information is missing", "<br>")})
+    output$text2_pred <- renderText({paste("Any of the missing dates can be updated by uploading a .csv file containing three essential columns, namely:", "<br>",
+                                          "(a) 'Date' - containing the list of all or some of the dates (from the table above), in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'", "<br>",
+                                          "(b) 'mean_temp' - the respective average temperature (in degree Celcius) for each date", "<br>",
+                                          "(c) 'rain' - Average rain intensity (in mm/hr) for each date", "<br>",
+                                          "<br>",
+                                          "An 'upload' button will appear after a valid file has been uploaded", "<br>",
+                                          "<br>",
+                                          "Weather information can be obtained from any of the following websites:")})
+                                          "<br>"
+    output$testHTML3_pred <- renderText({paste("<b>1. https://sci.ncas.ac.uk/leedsweather/")})
+    output$testHTML4_pred <- renderText({paste("<b>2. https://www.wunderground.com/weather/gb/leeds")})
+    }
+    
+
+  #------------------------uploading and appending predictor information
+  
+  
+  
+  
+  
+  #observe({
+  
+    #uploading file
+
+    
+    observe({
+      
+      
+      req(input$file3)
+      #To check the gaps that an uploaded file fill
+      uploaded_file3 <- read.csv(input$file3$datapath,
+                                header = TRUE,
+                                sep = ",")#,
+      
+      startTimeC <- Sys.time()
+      
+      #for(i in 1:100){
+      timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
+      updateProgressBar(session = session, id = "pb3", value = timeUpd) #input$i
+      invalidateLater(1000, session)
+      #}
+ 
+    #initialisation
+    total_issues3 = 0
+    issue1_3 = 0
+    issue2_3 = 0
+    issue3_3 = 0
+    issue4_3 = 0
+    #issue5_3 = 0
+    
+    #checking the uploaded file
+    leng_name3 <- uploaded_fieldnames(uploaded_file3, essential_Fields =  c("Date","mean_temp","rain")) #checking essential field names
+    out_Len3 <- dateRange_Checker(predictors_info, uploaded_file3) #checking if dates falls outsides desired range 
+    overlap_Dates3 <- dateOverlap_Checker(predictors_info, uploaded_file3) #checking whether any of the uploaded record overlap with the dates in the database 
+    Inspect_Time_Format3 <- detect_Time_Format_Error(uploaded_file3)#checking the date format
+    #check_typo_in_Camera_Name3 <- check_typo_in_Camera_Name(data=uploaded_file3, lists_Loc_Correct3)
+    
+    essential_Fields <- c("Date", "mean_temp", "rain")
+    
+    if(as.numeric(leng_name3)!=length(essential_Fields)){
+      issue1_3<-1}
+    
+    if(out_Len3>0){
+      issue2_3<-1}
+    
+    if(overlap_Dates3>0){
+      issue3_3<-1}
+    
+    if(Inspect_Time_Format3>0){
+      issue4_3<-1
+    }
+    #if(check_typo_in_Camera_Name3>0){
+      #issue5_3<-1
+    #}
+    
+    # 
+    total_issues3 <- issue1_3 + issue2_3 + issue3_3 + issue4_3 #+ issue5_3
+    
+    #if there is no issues, then show "Upload" button
+    if(total_issues3==0){
+      #turn off
+      shinyjs::hide("issues3")
+      shinyjs::hide("fields_absent3")
+      shinyjs::hide("fall_outside_daterange3")
+      shinyjs::hide("date_Overlapping3")
+      shinyjs::hide("timeFormatWrong3")
+      #shinyjs::hide("typo_camera_Name3")
+      shinyjs::hide("resolve_issue3")
+      
+      #turn on
+      output$Uploaded_file_checks_Passed3 <- renderText({paste("<b>File checks completed! No issues detected.")})
+      shinyjs::show("append_file3")
+      shinyjs::show("append_button_Descrip3")
+      
+      #aggregated the data and preview
+      
+    }
+    
+    if(total_issues3!=0){
+      
+     # shinyjs::hide("processingbar1")
+      shinyjs::hide("Uploaded_file_checks_Passed3")
+      shinyjs::hide("append_file3")
+      shinyjs::hide("append_button_Descrip3")
+      
+      output$issues3 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
+      if(issue1_3==1){
+        output$fields_absent3 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'mean_temp', 'rain'")})}
+      if(issue2_3==1){
+        output$fall_outside_daterange3 <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
+      if(issue3_3==1){
+        output$date_Overlapping3 <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
+      if(issue4_3==1){
+        output$timeFormatWrong3 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
+      #if(issue5_3==1){
+        #output$typo_camera_Name3 <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check 'Parameter' tab for correct spellings of location names.")})
+     #}
+      
+      output$resolve_issue3 <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
+    }
+    
+    })
+    
+    
+  #})
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    
+#processing bar for updating historical datasets
+#disable("slider")
   observeEvent(input$confirm_Append, priority=10, {
     js$play()
   })
@@ -1212,7 +1401,7 @@ shinyServer(function(input, output, session){
     issue5 = 0
    
     #checking whether the uploaded file contain essential fields
-    leng_name <- uploaded_fieldnames(uploaded_file) #checking essential field names
+    leng_name <- uploaded_fieldnames(uploaded_file, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
     Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file)
@@ -1433,7 +1622,7 @@ observe({
     issue5_1 = 0
 
     #checking whether the uploaded file contain essential fields
-    leng_name <- uploaded_fieldnames(uploaded_file2) #checking essential field names
+    leng_name <- uploaded_fieldnames(uploaded_file2, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
 
     Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file2)
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file2, lists_Loc_Correct)
