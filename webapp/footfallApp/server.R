@@ -23,7 +23,7 @@ library(foreign)
 library(shinyBS)
 library(emojifont)
 require("ggrepel")
-
+library(maps)
 library(owmr)
 
 ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
@@ -894,15 +894,8 @@ shinyServer(function(input, output, session){
     }
     
 
-  #------------------------uploading and appending predictor information
-  
-  
-  
-  
-  
-  #observe({
-  
-    #uploading file
+  #------------------------checking.., uploading and appending predictor information
+     #uploading file
 
     
     observe({
@@ -1012,6 +1005,95 @@ shinyServer(function(input, output, session){
     }
     
     })
+    
+    
+    observeEvent(input$aggre_HF_confirm, {
+      
+      req(input$file2)
+      #To check the gaps that an uploaded file fill
+      #Check whether this is necessary again!
+      uploaded_file2 <- read.csv(input$file2$datapath,
+                                 header = TRUE,
+                                 sep = ",")#,
+      
+      
+      
+      # shinyjs::show("processingbar2")
+      # 
+      # output$processing_append <- renderText({print("Processing....")}) 
+      # #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
+      # #output$aggre_HF_processing <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
+      # 
+      # #to remove whitespace in teh location name column
+      # uploaded_file2 <- remove_whitespace(uploaded_file2)
+      # 
+      # 
+      # shinyjs::hide("aggre_HF_confirm")
+      # shinyjs::hide("aggre_HF")
+      # shinyjs::hide("Uploaded_file_checks_Passed_1")
+      # 
+      # #subset the data for only the necessary fields
+      # orig_Data_Subset <- uploaded_file2[,c("Date","Hour","InCount", "LocationName")]
+      # head(orig_Data_Subset)
+      # 
+      # #get the most recent date from the uploaded dataset
+      # max_Date <- max(uniq_Dates(orig_Data_Subset))
+      # 
+      # print("100000")
+      # max_Date <- max(uniq_Dates(orig_Data_Subset))
+      # 
+      # #to generate aggregated dataset at varying temporal scales
+      # print(max_Date)
+      # 
+      # #create a list of time aggregate
+      # #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
+      # hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+      # 
+      # print("200000")
+      # 
+      # time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+      # 
+      # 
+      # result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")
+      # print("300000")
+      # 
+      # print("3500000")
+      # 
+      # #removes location typo in the dataset
+      # aggregate_Location <- aggregate_Location(orig_Data_sub=result1)        
+      # #-----------------------------------         
+      # 
+      # 
+      # for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
+      #   
+      #   #if(i==1){
+      #   print (hours_of_the_Day[[j]])
+      #   #aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[j]])
+      #   aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
+      #   print("500000")
+      #   
+      #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
+      #   outlier_events <- outliers(data=aggregate_time_of_the_Day)
+      #   #append the outlier list to the result
+      #   finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
+      #   colnames(finalresult)<- c("Date","InCount","outlier")
+      #   
+      #   #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+      #   write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
+      #   
+      #   write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
+      #   
+      #   print("300000")
+      # }
+      # 
+      # shinyjs::hide("processingbar2")
+      # output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
+      # output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
+      # output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
+      # shinyjs::hide("processing_append")
+    })
+    
+    
     
     
   #})
@@ -1243,16 +1325,44 @@ shinyServer(function(input, output, session){
     paste(th_separator(27*200))
   }) 
   
+  #Leeds = map('world', fill = TRUE, plot = FALSE, region = "UK", exact=TRUE)
+  
+  # Add a default minZoom and maxZoom of the same value so that the map does not zoom
+  # output$mapLeeds <- renderLeaflet({
+  #   leaflet(Leeds) %>% addTiles(options=tileOptions(minZoom=4, maxZoom=4)) %>%
+  #     fitBounds(Leeds$range[1], Leeds$range[3], Leeds$range[2], Leeds$range[4]) %>%
+  #     addPolygons(fillOpacity = 0.6,  smoothFactor = 0.5, stroke = TRUE, weight = 1)               
+  # })
+  
   output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
     val=2
     city_Boundary = readShapePoly(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/leeds_City.shp"))
     data <- as.data.frame(city_central[1:nrow(city_central),])
-    leaflet(data = data) %>% addTiles() %>% 
-      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>% 
-      addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)     
+    leaflet(data = data) %>% addTiles() %>%
+      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
+      addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)
   })
+  # 
+  # # Change a reactive value depending on mouse click
+  # zoom <- reactiveValues(level=4)
+  # # This records mouse clicks outside polygons
+  # observeEvent(input$mapLeeds_click, {
+  #   zoom$level = 20
+  # })
+  # # This records mouse clicks inside polygons
+  # observeEvent(input$mapLeeds_shape_click, {
+  #   zoom$level = 20
+  # })
+  # # Change zoom level of the map
+  # observe({
+  #   if (zoom$level == 20) {
+  #     leafletProxy("mapLeeds") %>% clearTiles() %>%
+  #       addTiles(options=tileOptions(minZoom=4, maxZoom=20))
+  #   }
+  # })
+  # 
     
   output$mytable1_1 <- DT::renderDataTable({
     DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])

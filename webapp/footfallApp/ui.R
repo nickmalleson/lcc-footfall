@@ -22,6 +22,8 @@ library(foreign)
 library(shinyBS)
 library(emojifont)
 require("ggrepel")
+library(maps)
+library(owmr)
 
 
 #for progressbar animation
@@ -69,9 +71,13 @@ shinyUI(
                 
                 dashboardSidebar( 
                   
+                  #tags$style(HTML(".box-header{background:#FFFFFF; color:#000000; text-align:center; font-size:40px}")),
+                  #tag f
                   #useShinyjs(),
                   
                   sidebarMenu(
+                    
+                    
                     
                     menuItem( 
                       tags$b('FOOTFALL DASHBOARD'), tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
@@ -162,18 +168,18 @@ shinyUI(
                             fluidRow(
                               
                               tags$head(
-                                tags$style(HTML(".fa{font-size: 25px; }"))),
+                                tags$style(HTML(".fa{font-size: 20px; }"))),
 
-                              box(
-                                title = p(tags$h3(tags$b("A Scenario:")), #tags$h4(textOutput("today")), 
-                                          #tags$b(tags$h1(textOutput("todaysfootfallCount"))),
-                                          #tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
-                                          actionButton("hourlyId2", tags$b(h4("19%, from")),
-                                                       icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update")),#, tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI25") 
-
-                              ),
+                              # box(
+                              #   title = p(tags$h3(tags$b("A Scenario:")), #tags$h4(textOutput("today")), 
+                              #             #tags$b(tags$h1(textOutput("todaysfootfallCount"))),
+                              #             #tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
+                              #             actionButton("hourlyId2", tags$b(h4("19%, from")),
+                              #                          icon=icon("arrow-circle-down"),
+                              #                          class = "btn-xs", title = "Update")),#, tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
+                              #   background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI25") 
+                              # 
+                              # ),
                               
                               box(
                                 title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
@@ -182,16 +188,21 @@ shinyUI(
                                           actionButton("hourlyId", tags$b(h4("19%, from")),
                                                        icon=icon("arrow-circle-down"),
                                                        class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
+                                background = "blue", width = 8, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
                                 
                               ),
-
+                              
                              #fluidRow(
-                               box(title=tags$h4(tags$b("Next 5-days Footfall Rates")),
-     
-                                  width = 6, solidHeader = FALSE, status = "primary",
-                                  plotOutput("forecasted_footfall", width = "99%", height = "260px"))
-                            ),
+                                box(
+                                  width = 4, status = "primary", solidHeader = TRUE,
+                                  title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
+                                  leafletOutput("mapLeeds", height=300)
+                                  
+                                )
+                                #)
+                                
+                                
+                             ),
 
                             fluidRow(
                               # box(
@@ -201,7 +212,7 @@ shinyUI(
                               
 
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 12, height = "540px",
+                                       box(width = 8, height = "540px",
                                          title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                                    #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
                                                    ##tags$b(tags$h1(textOutput("lastHourCount"))),
@@ -211,23 +222,18 @@ shinyUI(
                                          solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
                                          plotOutput("footfall_history", width = "99%", height = "430px")
                                          
-                                       ))
+                                       )),
+                              
+                              #fluidRow(
+                              box(title=tags$h4(tags$b("Next 5-days Footfall Rates")),
+                                  
+                                  width = 4, solidHeader = FALSE, status = "primary",
+                                  plotOutput("forecasted_footfall", width = "99%", height = "430px"))
+                            )
       
                             ),
-                            
-                          fluidRow(
-                            box(
-                              width = 12, status = "primary", solidHeader = TRUE,
-                              title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                              leafletOutput("mapLeeds", height=500)
-                              
-                            )
-                            #)
-                            
-                            
-                          )
 
-                    ),
+                    #),
                     
        #)   
                     #),
