@@ -340,7 +340,8 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
-  end_date <- Sys.Date()
+  #end_date <- Sys.Date()
+  end_date <- as.Date("2019-12-31")
   
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
@@ -354,7 +355,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   Outliers <- merged_Datasetd$outlier
   
   x_backup <- x
-  dateLabels = seq(as.Date("2009/12/31"), Sys.Date(), by = "year")
+  dateLabels = seq(as.Date("2009/12/31"), as.Date("2019-12-31"), by = "year")
   
   #using ggplot2
     xy_1 <- as.data.frame(cbind(x, y))  
@@ -785,6 +786,9 @@ shinyServer(function(input, output, session){
   #parameter file directory
   parameter_directory <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/")
   
+  #directory for other items
+  other_dir <- paste0(ROOT_DIR, "/lcc-footfall/webapp/misc/")
+  
   #IMPORTING DATASETS
   #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   #full=TRUE),read.csv, header=TRUE))
@@ -792,12 +796,25 @@ shinyServer(function(input, output, session){
   
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-                                                        
+  
+  #extract the predictors info that have weather information.
+  predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
+  
+  
   dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-                                                                
+    
+  
+  updateSelectizeInput(session, 'x2', choices = list(
+    Eastern = c(`Rhode Island` = 'RI', `New Jersey` = 'NJ'),
+    Western = c(`Oregon` = 'OR', `Washington` = 'WA'),
+    Middle = list(Iowa = 'IA')
+  ), selected = 'IA')
+  
+  
+                                                             
     #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
   
@@ -871,8 +888,8 @@ shinyServer(function(input, output, session){
   #missing dates in the predictors information
   if(nrow(missData_Predictors)>0){
     output$missed_Pred_Info <- DT::renderDataTable({
-      DT::datatable(apply(missData_Predictors, 2, rev))
-    })
+      DT::datatable(apply(missData_Predictors, 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
+      })
     
     #to hide "missing data" warning
     #if(nrow(missData_Predictors)>0){
@@ -888,7 +905,6 @@ shinyServer(function(input, output, session){
                                           "An 'upload' button will appear after a valid file has been uploaded", "<br>",
                                           "<br>",
                                           "Weather information can be obtained from any of the following websites:")})
-                                          "<br>"
     output$testHTML3_pred <- renderText({paste("<b>1. https://sci.ncas.ac.uk/leedsweather/")})
     output$testHTML4_pred <- renderText({paste("<b>2. https://www.wunderground.com/weather/gb/leeds")})
     }
@@ -908,12 +924,18 @@ shinyServer(function(input, output, session){
       shinyjs::hide("timeFormatWrong3")
       #shinyjs::hide("typo_camera_Name3")
       shinyjs::hide("resolve_issue3")
+      shinyjs::hide("Re-train Prediction Model")
       
       req(input$file3)
       #To check the gaps that an uploaded file fill
       uploaded_file3 <- read.csv(input$file3$datapath,
                                 header = TRUE,
                                 sep = ",")#,
+      
+      #import the predictor information
+      predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+      #extract the predictors info that have weather information.
+      predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
       
       startTimeC <- Sys.time()
       
@@ -936,8 +958,9 @@ shinyServer(function(input, output, session){
     #checking the uploaded file
     leng_name3 <- uploaded_fieldnames(uploaded_file3, essential_Fields =  c("Date","mean_temp","rain")) #checking essential field names
     out_Len3 <- dateRange_Checker(predictors_info, uploaded_file3) #checking if dates falls outsides desired range 
-    overlap_Dates3 <- dateOverlap_Checker(predictors_info, uploaded_file3) #checking whether any of the uploaded record overlap with the dates in the database 
+    overlap_Dates3 <- dateOverlap_Checker(predictors_info_extract, uploaded_file3) #checking whether any of the uploaded record overlap with the dates in the database 
     Inspect_Time_Format3 <- detect_Time_Format_Error(uploaded_file3)#checking the date format
+
     #check_typo_in_Camera_Name3 <- check_typo_in_Camera_Name(data=uploaded_file3, lists_Loc_Correct3)
     
     essential_Fields <- c("Date", "mean_temp", "rain")
@@ -971,11 +994,14 @@ shinyServer(function(input, output, session){
       shinyjs::hide("timeFormatWrong3")
       #shinyjs::hide("typo_camera_Name3")
       shinyjs::hide("resolve_issue3")
+      shinyjs::hide("taskCompleted3")
+      shinyjs::hide("restart_app3")
       
       #turn on
-      output$Uploaded_file_checks_Passed3 <- renderText({paste("<b>File checks completed! No issues detected.")})
+      output$Uploaded_file_checks_Passed3 <- renderText({paste("<b>File checks completed! Click the button below to update predictors info.")})
       shinyjs::show("append_file3")
       shinyjs::show("append_button_Descrip3")
+      shinyjs::hide("Re-train Prediction Model")
       
       #aggregated the data and preview
       
@@ -988,13 +1014,24 @@ shinyServer(function(input, output, session){
       shinyjs::hide("append_file3")
       shinyjs::hide("append_button_Descrip3")
       
+      shinyjs::show("issues3")
+      shinyjs::show("fields_absent3")
+      shinyjs::show("fall_outside_daterange3")
+      shinyjs::show("date_Overlapping3")
+      shinyjs::show("timeFormatWrong3")
+      #shinyjs::hide("typo_camera_Name3")
+      shinyjs::show("resolve_issue3")
+      shinyjs::hide("taskCompleted3")
+      shinyjs::hide("restart_app3")
+      shinyjs::hide("Re-train Prediction Model")
+      
       output$issues3 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1_3==1){
         output$fields_absent3 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'mean_temp', 'rain'")})}
       if(issue2_3==1){
-        output$fall_outside_daterange3 <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
+        output$fall_outside_daterange3 <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the already loaded data and the current date")})}
       if(issue3_3==1){
-        output$date_Overlapping3 <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
+        output$date_Overlapping3 <- renderText({print("*  Weather info. for one or more of the uploaded dates have previously been uploaded!")})}
       if(issue4_3==1){
         output$timeFormatWrong3 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       #if(issue5_3==1){
@@ -1007,98 +1044,101 @@ shinyServer(function(input, output, session){
     })
     
     
-    observeEvent(input$aggre_HF_confirm, {
+    observeEvent(input$append_file3, {
       
-      req(input$file2)
+      req(input$file3)
       #To check the gaps that an uploaded file fill
       #Check whether this is necessary again!
-      uploaded_file2 <- read.csv(input$file2$datapath,
+      uploaded_file3 <- read.csv(input$file3$datapath,
                                  header = TRUE,
                                  sep = ",")#,
       
       
+      #weatherInfo <- read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/to be uploaded/weather_info.csv", sep=",", head=TRUE)
+      #head(data) #data[2130,]
       
-      # shinyjs::show("processingbar2")
-      # 
-      # output$processing_append <- renderText({print("Processing....")}) 
-      # #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
-      # #output$aggre_HF_processing <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
-      # 
-      # #to remove whitespace in teh location name column
-      # uploaded_file2 <- remove_whitespace(uploaded_file2)
-      # 
-      # 
-      # shinyjs::hide("aggre_HF_confirm")
-      # shinyjs::hide("aggre_HF")
-      # shinyjs::hide("Uploaded_file_checks_Passed_1")
-      # 
-      # #subset the data for only the necessary fields
-      # orig_Data_Subset <- uploaded_file2[,c("Date","Hour","InCount", "LocationName")]
-      # head(orig_Data_Subset)
-      # 
-      # #get the most recent date from the uploaded dataset
-      # max_Date <- max(uniq_Dates(orig_Data_Subset))
-      # 
-      # print("100000")
-      # max_Date <- max(uniq_Dates(orig_Data_Subset))
-      # 
-      # #to generate aggregated dataset at varying temporal scales
-      # print(max_Date)
-      # 
-      # #create a list of time aggregate
-      # #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
-      # hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-      # 
-      # print("200000")
-      # 
-      # time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-      # 
-      # 
-      # result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")
-      # print("300000")
-      # 
-      # print("3500000")
-      # 
-      # #removes location typo in the dataset
-      # aggregate_Location <- aggregate_Location(orig_Data_sub=result1)        
-      # #-----------------------------------         
-      # 
-      # 
-      # for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
-      #   
-      #   #if(i==1){
-      #   print (hours_of_the_Day[[j]])
-      #   #aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[j]])
-      #   aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
-      #   print("500000")
-      #   
-      #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
-      #   outlier_events <- outliers(data=aggregate_time_of_the_Day)
-      #   #append the outlier list to the result
-      #   finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
-      #   colnames(finalresult)<- c("Date","InCount","outlier")
-      #   
-      #   #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
-      #   write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
-      #   
-      #   write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
-      #   
-      #   print("300000")
-      # }
-      # 
-      # shinyjs::hide("processingbar2")
-      # output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
-      # output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
-      # output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
-      # shinyjs::hide("processing_append")
+      #convert date to appropriate format
+      predictors_info <- convert_Date(predictors_info) ##  predictors_info[1:5, 1:5]
+      weatherInfo <- convert_Date(uploaded_file3) ##weatherInfo
+      
+      id_to_update <- which(predictors_info$Date %in% weatherInfo$Date)
+      
+      #for(h in 1:nrow(weatherInfo)){ #h<-1
+      predictors_info[id_to_update, c("mean_temp")] <- weatherInfo$mean_temp
+      predictors_info[id_to_update, c("rain")] <- weatherInfo$rain
+      predictors_info[id_to_update, c("status")] <- 1
+      #}
+      
+      write.table(predictors_info, file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",")
+      
+      shinyjs::show("taskCompleted3")
+   
+      output$taskCompleted3 <- renderText({paste(tags$p(tags$b(h4("The Weather information for the specified date(s) have been updated successfully!"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
+      
+      output$restart_app3 <- renderText({paste(tags$p(tags$b(h4("Please, restart app. to effect these changes."))))}) 
+      
+      shinyjs::hide("append_file3")
+      
+      shinyjs::show("Re-train Prediction Model")
     })
     
-    
-    
-    
-  #})
-  
-  
+# #action to re-train prediction model
+# observeEvent(input$Re-train_Prediction_Model, priority=10, {
+#     
+    # #re-import the updated data to retrain the model.
+    # predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)	
+    # 
+    # #updated predictors
+    # predictors_info_extract <- data_to_re-train_Model[which(data_to_re-train_Model$status==1),]  
+    # 
+    # #convert dates to right format
+    # predictors_info_extract <- convert_Date(predictors_info_extract)	
+    # 
+    # #extract the mode recent last three years
+    # predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date),]
+    # 
+    # #subset the last 3 years dataset to train the model (re-stricted to 3 years for computational reasons)
+    # predictors_info_extract_subset <- predictors_info_extract_subset[1:1095, ]
+    # 
+    # #drop 'un-needed' fields (for re-train)
+    # predictors_info_extract_subset_dropFields <- subset(predictors_info_extract_subset, select=-c("Date","status"))
+    # 
+    # #import the footfall data (daily aggregates)
+    # 
+    # dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+    # 
+    # #remove the outlier and "NA", and drop the outlier 'column'
+    # dayTime_HF_aggre_MINUS_outlier <- dayTime_HF_aggre[which(dayTime_HF_aggre$outlier==2),]
+    # dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c("outlier"))
+    # 
+    # #To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
+    # dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier)
+    # predictors_info_extract_subset_dropFields <- convert_Date(predictors_info_extract_subset_dropFields)
+    # 
+    # #now merge both datasets using the 'Date' column
+    # merge_Dataset_to_Train <- merge(x = dayTime_HF_aggre_MINUS_outlier, y = predictors_info_extract_subset_dropFields, by = "Date", all.x = TRUE)
+    # 
+    # merge_Dataset_to_Train <- as.data.frame(merge_Dataset_to_Train)
+    # 
+    # #predictive model
+    # pred_model <- lm(y ~ ., data = merge_Dataset_to_Train)
+    # 
+    # 
+    # #export the model
+    # save(pred_model, file = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/random_forest_model.rda")
+    # save(pred_model, file = paste(other_dir, "random_forest_model.rda")   
+    #      
+    #      
+#     
+#     shinyjs::show("restart_app3")
+#     
+#     
+#     
+#     
+#     
+#   })
+#   
+#   
     
 #    Create predictor information up to 2020....
   

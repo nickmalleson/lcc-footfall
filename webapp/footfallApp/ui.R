@@ -82,7 +82,7 @@ shinyUI(
                     menuItem( 
                       tags$b('FOOTFALL DASHBOARD'), tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting", 
+                    menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting" 
                              
                       # sliderInput("n", "Number of points:",
                       #                    min = 10, max = 200, value = 50, step = 10),
@@ -97,9 +97,9 @@ shinyUI(
                       #              choices = c("Line-Dot", "Line"),
                       #              selected = "Line"),
                       
-                      sliderInput("day_ahead", "Days ahead to forecast", 1, 5, 3) #)
-                      
-                      # dateInput("dateToPredict", "Show footfall forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy"),
+                      # sliderInput("day_ahead", "Days ahead to forecast", 1, 5, 3), #)
+                      # 
+                      # dateInput("dateToPredict", "Select Date to forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 7, format = "dd/mm/yy")
                       
                       # radioButtons("algorithm", "Change Forecast Algorithm", 
                       #              choices = c("Random Forest", "XGBoost","Regression"),
@@ -170,38 +170,47 @@ shinyUI(
                               tags$head(
                                 tags$style(HTML(".fa{font-size: 20px; }"))),
 
-                              # box(
-                              #   title = p(tags$h3(tags$b("A Scenario:")), #tags$h4(textOutput("today")), 
-                              #             #tags$b(tags$h1(textOutput("todaysfootfallCount"))),
-                              #             #tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
-                              #             actionButton("hourlyId2", tags$b(h4("19%, from")),
-                              #                          icon=icon("arrow-circle-down"),
-                              #                          class = "btn-xs", title = "Update")),#, tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                              #   background = "blue", width = 3, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI25") 
-                              # 
-                              # ),
-                              
-                              box(
-                                title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
-                                          tags$b(tags$h1(textOutput("todaysfootfallCount"))),
-                                          tags$head(tags$style("#todaysfootfallCount{font-size:80px; font-family: Georgia;#run{background-color:orange}")), #Georgia, 
-                                          actionButton("hourlyId", tags$b(h4("19%, from")),
-                                                       icon=icon("arrow-circle-down"),
-                                                       class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard1"))) ), 
-                                background = "blue", width = 8, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI") 
+                              box(tags$b(h4("Set Weather Conditions:")), "  ",
+                                fluidRow(
+                                  box(
+                                    dateInput("dateToPredict", "Select Date to forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
+                                    #),
+                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
+                                  )
+                                ),
+                                fluidRow(
+                                  box(
+                                    #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
+                                    
+                                    selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),
+                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI30") 
+                                    
+                                  )
+                                ),
+                                fluidRow( 
+                                  box(
+                                    #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
+                                    
+                                    selectizeInput('rainfall_level', 'Rainfall', choices = c("None", "Light", "Moderate", "Heavy")),
+                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI31") 
+                                  )
+                                ),
                                 
-                              ),
+                                width = 2, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI32") 
+                              ), 
+                              
+                              tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
+                                       box(width = 10, height = "540px",
+                                           title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
+                                           ),
+                                           solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
+                                           plotOutput("footfall_history", width = "100%", height = "430px")
+                                           
+                                       ))
+                              
                               
                              #fluidRow(
-                                box(
-                                  width = 4, status = "primary", solidHeader = TRUE,
-                                  title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                                  leafletOutput("mapLeeds", height=300)
-                                  
-                                )
-                                #)
-                                
-                                
+                               
                              ),
 
                             fluidRow(
@@ -210,24 +219,25 @@ shinyUI(
                               #   title = "Footfall history",
                               #   plotOutput("chart"))
                               
-
-                              tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 8, height = "540px",
-                                         title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
-                                                   #tags$style("MORE TO TALK ABOUT"{font-size:80px; font-family: Georgia}")),
-                                                   ##tags$b(tags$h1(textOutput("lastHourCount"))),
-                                                   #tags$head(tags$style("#lastHourCount{font-size:80px; font-family: Georgia}")), #Georgia,
-                                                   #tags$b(tags$h4("Go to 'Settings' page..."))
-                                                   ),
-                                         solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
-                                         plotOutput("footfall_history", width = "99%", height = "430px")
-                                         
-                                       )),
+                              box(
+                                width = 4, status = "primary", solidHeader = TRUE,
+                                title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
+                                leafletOutput("mapLeeds", height=430)
+                                
+                              ),
                               
-                              #fluidRow(
-                              box(title=tags$h4(tags$b("Next 5-days Footfall Rates")),
+                              box(
+                                width = 2, status = "primary", solidHeader = TRUE,
+                                title = tags$b('Factors influencing Footfall Rate (ordered by Importance)')
+                                #leafletOutput("mapLeeds", height=300)
+                                
+                              ),
+                              #)
+                              
+                        #fluidRow(
+                              box(title=tags$h4(tags$b("Next 5-days Footfall Patterns")),
                                   
-                                  width = 4, solidHeader = FALSE, status = "primary",
+                                  width = 6, solidHeader = FALSE, status = "primary",
                                   plotOutput("forecasted_footfall", width = "99%", height = "430px"))
                             )
       
@@ -311,16 +321,15 @@ shinyUI(
                                               htmlOutput("warning_cameraLocation")
                                      ),
                                      
-                                     tabPanel(title = tags$b('Update Predictors'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Update Weather Info.'), status = "warning", solidHeader = T, background = "aqua",
                                               id='update_predictors',
-                                              box(tags$p(tags$b(h4("List of dates with missing predictors (Temperature and Rain intensity)"))),  tags$hr(), 
+                                              box(tags$p(tags$b(h4("List of dates with missing Weather information (Temperature and Rain intensity)"))),  tags$hr(), 
                                                   tabPanel("predict_Info", DT::dataTableOutput("missed_Pred_Info")),
                                                   width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI14"),
                                                   tags$hr(),
-                                     
+                                              htmlOutput("testHTML1_pred"),
                                               #htmlOutput("notify_pred"),
                                               htmlOutput("text2_pred"),
-                                              htmlOutput("testHTML1_pred"),
                                               htmlOutput("testHTML3_pred"),
                                               htmlOutput("testHTML4_pred")
                                               #htmlOutput("otherInfo_pred")
@@ -359,7 +368,7 @@ shinyUI(
                                               textOutput("date_Overlapping3"),
                                               textOutput("timeFormatWrong3"),
                                               #textOutput("typo_camera_Name3"),
-                                              #tags$hr(), # 
+                                              tags$hr(), # 
                                               htmlOutput("resolve_issue3"),
                                               useShinyjs(),
                                               htmlOutput("append_button_Descrip3"),
@@ -371,8 +380,11 @@ shinyUI(
                                               #fluidRow(column(1, align="center", offset = 0, 
                                               ###actionButton("confirm_Append", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                               #)),
-                                              tags$hr() # 
-                                              ###htmlOutput("confirm_Append"),
+                                              tags$hr(), # 
+                                              htmlOutput("taskCompleted3"),
+                                              tags$hr(),
+                                              actionButton("Re-train_Prediction_Model", "Re-train Prediction Model", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              htmlOutput("restart_app3")
                                               #),
                                               
                                               
