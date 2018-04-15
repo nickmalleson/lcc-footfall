@@ -185,7 +185,7 @@ shinyUI(
                                   box(
                                     #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                     
-                                    selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),  #assumed equivalent temperature for the choices: "Very Low=0", "Low=5", "Moderate=10", "High=15")
+                                    selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),  #assumed equivalent temperature for the choices: "Very Low=5", "Low=10", "Moderate=15", "High=28")
                                     column(4,
                                       htmlOutput("picture")
                                     ),

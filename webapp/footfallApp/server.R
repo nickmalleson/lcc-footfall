@@ -339,7 +339,7 @@ auc_plot <- function(y, plotStyle=1){
 }
 
 # plot function for the big HF panel
-auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, chartType="Dot"){
+auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = y_new, addTrend = FALSE, chartType="Dot"){
   
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -358,7 +358,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
   Outliers <- merged_Datasetd$outlier
   
   x_backup <- x
-  dateLabels = seq(as.Date("2009/12/31"), as.Date("2019-12-31"), by = "year")
+  dateLabels = seq(as.Date("2009/01/01"), as.Date("2019-01-01"), by = "year")
   
   #using ggplot2
     xy_1 <- as.data.frame(cbind(x, y))  
@@ -400,6 +400,8 @@ if(chartType=="Dot"){
             #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) + 
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
+            geom_point(predicted_Point, col = "blue") + #adding the predicted point
+            
             geom_vline(xintercept = min(Date),  
                        color = "grey", size=1.5) +
             #geom_vline(xintercept = 2000, linetype="dotted", 
@@ -422,6 +424,8 @@ if(chartType=="Dot"){
              geom_point(color="blue", size = 1.5) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
+            geom_point(predicted_Point, col = "blue") + #adding the predicted point
+            
             geom_vline(xintercept = min(Date),  
                        color = "grey", size=1.5) +
             #geom_vline(xintercept = 2000, linetype="dotted", 
@@ -449,6 +453,8 @@ if(chartType=="Dot"){
               geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
               geom_point(color="blue", size = 1) +
+              
+              geom_point(predicted_Point, col = "blue") + #adding the predicted point
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
               #alpha = 0.3,fill = "blue") +
               geom_vline(xintercept = min(Date),  
@@ -473,6 +479,9 @@ if(chartType=="Dot"){
               geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
               geom_point(color="blue", size = 1) +
+              
+              geom_point(predicted_Point, col = "blue") + #adding the predicted point
+              
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
               #alpha = 0.3,fill = "blue") +
               geom_vline(xintercept = min(Date),  
@@ -1179,12 +1188,13 @@ shinyServer(function(input, output, session){
       cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
       
       #train the model  - regression
-      pred_model <- lm(InCount ~ ., data = cleaned_data_for_training)
+      #pred_model <- lm(InCount ~ ., data = cleaned_data_for_training)
+      pred_model <- randomForest(InCount ~., data=cleaned_data_for_training)
       
       #save the model
       save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
       ##Using randomForest algorithm
-      randomForest <- randomForest(y ~., data=train)
+      #randomForest <- randomForest(y ~., data=train)
       
       
       
@@ -1348,77 +1358,138 @@ shinyServer(function(input, output, session){
   #----------------------------------------------------------
   #predict by selecting a date 
   
-  observe({
+ ## observe({
     
-       #initialisation
-       temp_Value <- 0
-       rain_Value <- 0
-       #http://www.holiday-weather.com/leeds/averages/
-       #non_Selectable_Date <- c(as.Date("2018-05-15"), as.Date("2018-12-25"), as.Date("2019-01-01"),as.Date("2019-12-25"))
-
-       #prediction parameters from UI
-       input_dateToForecast = as.Date(input$dateToForecast)
-       input_temp_level = as.character(input$temp_level)
-       input_rain_level = as.character(input$rainfall_level)
-       
-       #initialise temperature and rainfall value
-
-       #load prediction model
-       load(paste(other_dir, "random_forest_model.rda", sep=""))
-       
-       #import othe predictors for the date specified
-       #import the predictor information
-       predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-       #extract the predictors info that have weather information.
-       predictors_info <- convert_Date(predictors_info)  
-       
-       x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
-       
-       #return the value for the corresponding temperature selected
-       if(input_temp_level=="Very Low"){temp_Value=0} 
-       else if(input_temp_level=="Low"){temp_Value=5}
-       else if(input_temp_level=="Moderate"){temp_Value=10}
-       else {temp_Value=15}
-       
-       print(temp_Value)
-       print("==============================")
-      
-       x_new$mean_temp <- temp_Value
-       
-       #return the value for the corresponding rain level selected
-       if(input_rain_level=="None"){rain_Value=0} 
-       else if(input_rain_level=="Light"){rain_Value=0.5}
-       else {rain_Value=10}
-       
-       print(rain_Value)
-       print("==============================")
-       
-       x_new$rain <- rain_Value
-      
-       #drop "Date", "status" columns 
-       x_new <- subset(x_new, select = -c(Date, status))
-
-       #predict footfall rate for the selected Date, temperature and rain values
-       y_new <- predict(pred_model, newdata = x_new) 
-
-       y_new <- data.frame(input_dateToForecast, y_new)
-       # colnames(result_to_plot) <- c("x","y")
-          # 
-       print(temp_Value)
-       print(rain_Value)
-       print(x_new)
-       print(y_new)
-       print("==============================")   
+       # #initialisation
+       # temp_Value <- 0
+       # rain_Value <- 0
+       # #http://www.holiday-weather.com/leeds/averages/
+       # #non_Selectable_Date <- c(as.Date("2018-05-15"), as.Date("2018-12-25"), as.Date("2019-01-01"),as.Date("2019-12-25"))
+       # 
+       # #prediction parameters from UI
+       # input_dateToForecast = as.Date(input$dateToForecast)
+       # input_temp_level = as.character(input$temp_level)
+       # input_rain_level = as.character(input$rainfall_level)
+       # 
+       # #initialise temperature and rainfall value
+       # 
+       # #load prediction model
+       # load(paste(other_dir, "random_forest_model.rda", sep=""))
+       # 
+       # #import othe predictors for the date specified
+       # #import the predictor information
+       # predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+       # #extract the predictors info that have weather information.
+       # predictors_info <- convert_Date(predictors_info)  
+       # 
+       # x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
+       # 
+       # #return the value for the corresponding temperature selected
+       # if(input_temp_level=="Very Low"){temp_Value=5} 
+       # else if(input_temp_level=="Low"){temp_Value=10}
+       # else if(input_temp_level=="Moderate"){temp_Value=15}
+       # else {temp_Value=28}
+       # 
+       # print(temp_Value)
+       # print("==============================")
+       # 
+       # x_new$mean_temp <- temp_Value
+       # 
+       # #return the value for the corresponding rain level selected
+       # if(input_rain_level=="None"){rain_Value=0} 
+       # else if(input_rain_level=="Light"){rain_Value=0.5}
+       # else {rain_Value=10}
+       # 
+       # print(rain_Value)
+       # print("==============================")
+       # 
+       # x_new$rain <- rain_Value
+       # 
+       # #drop "Date", "status" columns 
+       # x_new <- subset(x_new, select = -c(Date, status))
+       # 
+       # #predict footfall rate for the selected Date, temperature and rain values
+       # y_new <- predict(pred_model, x_new) 
+       # 
+       # y_new <- data.frame(input_dateToForecast, y_new)
+       # colnames(y_new) <- c("x","y")
+       # # 
+       # print(temp_Value)
+       # print(rain_Value)
+       # print(x_new)
+       # print(y_new)
+       # print("==============================")   
           
-  })
+##  })
  
 #plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
 
+    #initialisation
+    temp_Value <- 0
+    rain_Value <- 0
+    #http://www.holiday-weather.com/leeds/averages/
+    #non_Selectable_Date <- c(as.Date("2018-05-15"), as.Date("2018-12-25"), as.Date("2019-01-01"),as.Date("2019-12-25"))
+    
+    #prediction parameters from UI
+    input_dateToForecast = as.Date(input$dateToForecast)
+    input_temp_level = as.character(input$temp_level)
+    input_rain_level = as.character(input$rainfall_level)
+    
+    #initialise temperature and rainfall value
+    
+    #load prediction model
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    
+    #import othe predictors for the date specified
+    #import the predictor information
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    #extract the predictors info that have weather information.
+    predictors_info <- convert_Date(predictors_info)  
+    
+    x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
+    
+    #return the value for the corresponding temperature selected
+    if(input_temp_level=="Very Low"){temp_Value=5} 
+    else if(input_temp_level=="Low"){temp_Value=10}
+    else if(input_temp_level=="Moderate"){temp_Value=15}
+    else {temp_Value=28}
+    
+    print(temp_Value)
+    print("==============================")
+    
+    x_new$mean_temp <- temp_Value
+    
+    #return the value for the corresponding rain level selected
+    if(input_rain_level=="None"){rain_Value=0} 
+    else if(input_rain_level=="Light"){rain_Value=0.5}
+    else {rain_Value=10}
+    
+    print(rain_Value)
+    print("==============================")
+    
+    x_new$rain <- rain_Value
+    
+    #drop "Date", "status" columns 
+    x_new <- subset(x_new, select = -c(Date, status))
+    
+    #predict footfall rate for the selected Date, temperature and rain values
+    y_new <- predict(pred_model, x_new) 
+    
+    Type_dummy <- 1
+    outlier_dummy <-2
+    
+    y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
+    colnames(y_new) <- c("Type","Date","InCount", "Outliers")   #data.frame(Type, Date, InCount, Outliers)
+    # 
+    print(temp_Value)
+    print(rain_Value)
+    print(x_new)
+    print(y_new)
+    print("==============================")   
   #to set chart type
   chartType = input$chartType
-    
   #to set time segmentation to plot
   plotOptn = input$timeOftheDayInput
 
@@ -1426,19 +1497,19 @@ shinyServer(function(input, output, session){
   if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
   } else if(plotOptn=="Daytime"){
     data <- convert_Date(dayTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
   }else if(plotOptn=="Evening"){
     data <- convert_Date(eveningTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
   }else if(plotOptn=="Night"){
     data <- convert_Date(nightTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, chartType=input$chartType)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
   }
 #} 
 
