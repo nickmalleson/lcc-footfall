@@ -24,6 +24,8 @@ library(emojifont)
 require("ggrepel")
 library(maps)
 library(owmr)
+library(data.table)
+library(dplyr)
 
 
 #for progressbar animation
@@ -173,9 +175,9 @@ shinyUI(
                               box(tags$b(h4("Set Weather Conditions:")), "  ",
                                 fluidRow(
                                   box(
-                                    dateInput("dateToPredict", "Select Date to forecast for:", value = Sys.Date(), min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
+                                    dateInput("dateToForecast", "Select Date to forecast for:", value = NULL, min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
                                     #),
-                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
+                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
                                   )
                                 ),
                                 fluidRow(
@@ -183,7 +185,10 @@ shinyUI(
                                     #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                     
                                     selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),
-                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI30") 
+                                    column(4,
+                                      htmlOutput("picture")
+                                    ),
+                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI30") 
                                     
                                   )
                                 ),
@@ -192,18 +197,18 @@ shinyUI(
                                     #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                     
                                     selectizeInput('rainfall_level', 'Rainfall', choices = c("None", "Light", "Moderate", "Heavy")),
-                                    width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI31") 
+                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI31") 
                                   )
                                 ),
                                 
-                                width = 2, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI32") 
+                                background="maroon", width = 2, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI32") 
                               ), 
                               
                               tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
                                        box(width = 10, height = "540px",
                                            title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
                                            ),
-                                           solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
+                                           background="blue", solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
                                            plotOutput("footfall_history", width = "100%", height = "430px")
                                            
                                        ))
@@ -383,7 +388,7 @@ shinyUI(
                                               tags$hr(), # 
                                               htmlOutput("taskCompleted3"),
                                               tags$hr(),
-                                              actionButton("Re-train_Prediction_Model", "Re-train Prediction Model", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              actionButton("train_Prediction_Model", "Re-train Prediction Model", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                                               htmlOutput("restart_app3")
                                               #),
                                               

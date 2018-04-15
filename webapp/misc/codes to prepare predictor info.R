@@ -230,7 +230,7 @@ write.table(Monday_through, file="Monday.csv", sep=",")
 seven_Ones <- c(1, 1, 1, 1, 1, 1, 1)
 
 
-dateLabels <- seq(as.Date("2018-01-01"), as.Date("2018-12-31"), by="day")
+dateLabels <- seq(as.Date("2019-01-01"), as.Date("2019-12-31"), by="day")
 
 Monday_through <- matrix(0, length(dateLabels), 52)
 
@@ -252,6 +252,253 @@ write.table(Monday_through, file="Monday.csv", sep=",")
 
 
 write.table(Monday_through, file="Monday.csv", sep=",")
+
+
+
+
+
+#function to show gaps in the dates in the historical datasets
+missingData <- function(data){
+  dataValues <- data$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  #dataValues <- cbind(min(dateField), "missing dates(months)")
+  dataValues <- dateField   
+  #append current date to the list..
+  dataValues <- rbind(dataValues, as.character(Sys.Date()))
+  #to identify gaps in the dataset.
+  DF <- as.Date(dataValues)
+  DF_Dates <- diff(DF)
+  missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]+1))
+  colnames(missing_Dates) <- c("from","to","No_of_days")
+  appdI <- matrix("2000-03-03",1,3)
+  colnames(appdI) <- c("from","to","No_of_days")
+  missing_Dates <- rbind(missing_Dates, appdI)
+  return(missing_Dates)
+}
+
+
+
+
+#LIST FOR FUNCTIONS TO CHECK ERRORS IN THE DATASET
+#function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
+uploaded_fieldnames <- function(data=, essential_Fields){
+  #essential_Fields <- c("Date","mean_temp","rain")
+  names_uploaded <- essential_Fields %in% colnames(data)
+  leng_name <- length(which(names_uploaded=="TRUE"))
+  return(leng_name)
+}
+
+
+#function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, and with date converted to date type
+convert_Date <- function(data){
+  #first convert the data to the right format i.e. "yyyy-mm-dd"
+  dataValues <- data$Date
+  DateFromData <- as.character(dataValues)
+  #To ensure "Date" column conform to the format "yyyy-mm-dd"
+  dateField <- matrix(DateFromData,,1)
+  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  #to detect dates not in right format (i.e. yyyy-mm-dd)
+  converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
+  listInconvertible <- which(!is.na(converDate1))
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  #append back to the dataset
+  data$Date <- dateField
+  return(data)
+}
+
+uploaded_fieldnames()
+
+new_uploadedd <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/to be uploaded/weather_info.csv", sep=",", head=TRUE)
+
+leng_name3 <- uploaded_fieldnames(new_uploadedd, essential_Fields =  c("Date","mean_temp","rain")) #che
+
+
+
+	predictors_info <- read.table(file="C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/predictors_info.csv", sep=",", head=TRUE)
+
+	#extract the predictors info that have weather information.
+  	predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
+
+	weatherInfo <- read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/to be uploaded/weather_info.csv", sep=",", head=TRUE)
+	#head(data) #data[2130,]
+
+	#convert date to appropriate format
+	predictors_info <- convert_Date(predictors_info) ##  predictors_info[1:5, 1:5]
+	weatherInfo <- convert_Date(weatherInfo) ##weatherInfo
+	
+	id_to_update <- which(predictors_info$Date %in% weatherInfo$Date)
+
+	#for(h in 1:nrow(weatherInfo)){ #h<-1
+		predictors_info[id_to_update, c("mean_temp")] <- weatherInfo$mean_temp
+		predictors_info[id_to_update, c("rain")] <- weatherInfo$rain
+	#}
+install.packages("glm")
+library(glm)
+
+predictors_info_extract[nrow(predictors_info_extract),]
+data[1:5, 1:5]
+
+
+ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
+HF_directory = paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
+#directory for the aggregated HF
+file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
+#parameter file directory
+parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/")
+#directory for other items
+other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
+  
+
+#action to re-train prediction model
+observeEvent(input$Re-train_Prediction_Model, priority=10, {
+    
+	#re-import the updated data to retrain the model.
+	predictors <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)	
+	aggre_footfall <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+
+dayTime_HF_aggre_MINUS_outlier[1:10, 1:10]
+joined_dataset_for_Training[1:10, 1:10]
+
+
+
+#function to merge footfall aggregate with predictors and train the model
+
+model <- function(aggre_footfall, predictors, modelName ="randomForest") {
+
+	# extract days with status 1 (i.e. rows with weather information)
+	predictors_info_extract <- predictors[which(predictors$status==1),]  
+
+	#convert dates to right format
+	predictors_info_extract <- convert_Date(predictors_info_extract)	
+
+  	#order by dates and extract the mode recent last three years
+	predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date, decreasing = TRUE),]
+	predictors_info_extract_subset <- predictors_info_extract_subset[1:1095, ] #365 * 3
+
+	#drop 'un-needed' fields (for re-train)
+	###predictors_info_extract_subset_dropFields <- subset(predictors_info_extract_subset, select=-c("Date","status"))
+  
+	#import the footfall data (daily aggregates)
+
+	#dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+
+	#remove the outlier and "NA", and drop the outlier 'column'
+	dayTime_HF_aggre_MINUS_outlier <- aggre_footfall[which(aggre_footfall$outlier==2),]
+	dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c(outlier))
+
+	#To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
+	dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier)
+	predictors_info_extract_subset <- convert_Date(predictors_info_extract_subset)
+
+	#now merge both datasets using the 'Date' column
+	#library(dplyr)	
+	joined_Footfall_Predictors <- left_join(dayTime_HF_aggre_MINUS_outlier, predictors_info_extract_subset, by=c("Date","Date"))
+
+
+
+
+
+head(joined_Footfall_Predictors)
+
+	setDT(dayTime_HF_aggre_MINUS_outlier)
+	setDT(predictors_info_extract_subset)
+
+	joined_dataset_for_Training <- dayTime_HF_aggre_MINUS_outlier[predictors_info_extract_subset, on = c('Date','Date')]
+
+df2[df1, on = c('id','dates')]
+	merge_Dataset_to_Train <- [dayTime_HF_aggre_MINUS_outlier[, y = predictors_info_extract_subset, by = "Date", all.x = TRUE, all.y = TRUE)
+
+#head(merge_Dataset_to_Train)
+#head(dayTime_HF_aggre_MINUS_outlier)
+#head(predictors_info_extract_subset)
+
+
+	merge_Dataset_to_Train <- as.data.frame(merge_Dataset_to_Train)
+	
+	#predictive model
+ 	pred_model <- lm(y ~ ., data = merge_Dataset_to_Train)
+	
+
+	#export the model
+	save(pred_model, file = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/random_forest_model.rda")
+	save(pred_model, file = paste(other_dir, "random_forest_model.rda")   
+
+}
+
+model(aggre_footfall, predictors)
+
+	#apply linear regression
+
+    shinyjs::show("restart_app3")
+        
+  })
+
+#code to predict values of x for a certain date or range of dates
+
+PREDICTING SECTION HAVING SET ALL PARAMETERS
+
+from calender, select date range...
+
+	#newdf <- data.frame(x = rnorm(20))
+	## load the model
+	load(file = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/random_forest_model.rda")
+	#load(file = paste(other_dir, "random_forest_model.rda"))
+	#load(paste(other_dir, "random_forest_model.rda"))
+
+	#load the predictors for the date specified, check if not available (current date ...) ...list the dates,, dates to predict(check against 
+	#database and see if not avaialbe and return message to say, it is not available...)
+	> ## predict for the new `x`s for the data specified
+	
+	merge_Dataset_to_Train                              bbbbbbbbbbb
+	
+	predict(m1, newdata = newdf)
+
+	#after the prediction....store the prediction somewhere, to keep tract of the accuracy.
+
+
+disable 25th of december.. 
+
+
+
+
+#for every new day's prediction.... we have records kept.
+
+> set.seed(345)
+> df <- data.frame(x = rnorm(20))
+> df <- transform(df, y = 5 + (2.3 * x) + rnorm(20))
+> ## model
+> m1 <- lm(y ~ x, data = df)
+> ## save this model
+> save(m1, file = "my_model1.rda")
+> 
+> ## a month later, new observations are available: 
+> newdf <- data.frame(x = rnorm(20))
+> ## load the model
+> load("my_model1.rda")
+> ## predict for the new `x`s in `newdf`
+> predict(m1, newdata = newdf)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

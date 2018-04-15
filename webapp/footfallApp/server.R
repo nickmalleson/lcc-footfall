@@ -25,6 +25,8 @@ library(emojifont)
 require("ggrepel")
 library(maps)
 library(owmr)
+library(data.table)
+library(dplyr)
 
 ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
@@ -375,6 +377,10 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, addTrend = FALSE, 
 
     Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
+    flush.console()
+    print(current_Date_Index)
+    print("...........................................")
     #x <- as.Date(as.vector(xy_1$x))
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
@@ -403,6 +409,9 @@ if(chartType=="Dot"){
             geom_vline(xintercept = min(Date), linetype="dashed", 
                        color = "brown", size=0.5) + #current date
             
+            geom_vline(xintercept = current_Date_Index, linetype="dashed",
+                       color = "green", size=1) + #current date
+            
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
           #scale_x_discrete(labels = x_backup)
     ) }
@@ -421,6 +430,9 @@ if(chartType=="Dot"){
             
             geom_vline(xintercept = min(Date), linetype="dashed", 
                        color = "brown", size=0.5) + #current date
+            
+            geom_vline(xintercept = current_Date_Index, linetype="dashed", 
+                       color = "green", size=1) + #current date
             
             geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) + 
             
@@ -448,6 +460,9 @@ if(chartType=="Dot"){
               geom_vline(xintercept = min(Date), linetype="dashed", 
                          color = "brown", size=0.5) + #current date
               
+              geom_vline(xintercept = current_Date_Index, linetype="dashed", 
+                         color = "green", size=1) + #current date
+              
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
             #scale_x_discrete(labels = x_backup)
       ) }
@@ -468,6 +483,9 @@ if(chartType=="Dot"){
               
               geom_vline(xintercept = min(Date), linetype="dashed", 
                          color = "brown", size=0.5) + #current date
+              
+              geom_vline(xintercept = current_Date_Index, linetype="dashed",  
+                         color = "green", size=1) + #current date
               
               geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) + 
               
@@ -760,6 +778,44 @@ remove_whitespace <- function(data){                           #head(data)
 }
 
 
+#Preparing dataset for training
+#function to merge footfall aggregate with predictors 
+data_Preparation_for_training <- function(aggre_footfall, predictors, modelName ="randomForest", training_length_in_yrs = 3) {
+  
+  # extract days with status 1 (i.e. rows with weather information)
+  predictors_info_extract <- predictors[which(predictors$status==1),]  
+  
+  #convert dates to right format
+  predictors_info_extract <- convert_Date(predictors_info_extract)	
+  
+  #order by dates and extract the mode recent last three years
+  predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date, decreasing = TRUE),]
+  predictors_info_extract_subset <- predictors_info_extract_subset[1:(training_length_in_yrs*365), ] 
+  
+ 
+  #remove the outlier and "NA", and drop the outlier 'column'
+  dayTime_HF_aggre_MINUS_outlier <- aggre_footfall[which(aggre_footfall$outlier==2),]
+  dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c(outlier))
+  
+  #To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
+  dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier)
+  predictors_info_extract_subset <- convert_Date(predictors_info_extract_subset)
+  
+  #now merge both datasets using the 'Date' column
+  setDT(dayTime_HF_aggre_MINUS_outlier)
+  setDT(predictors_info_extract_subset)
+  
+  joined_dataset_for_Training <- dayTime_HF_aggre_MINUS_outlier[predictors_info_extract_subset, on = c('Date','Date')]
+  
+  #remove records with InCount == "NA"
+  joined_dataset_for_Training <- joined_dataset_for_Training[which(joined_dataset_for_Training$InCount!="NA"),]
+  
+  #drop "Date.1" & "status" columns
+  joined_dataset_for_Training <- subset(joined_dataset_for_Training, select=-c(Date, Date.1, status))
+  
+  return(joined_dataset_for_Training)
+}
+
 
 
 #to restrict the file upload size to 120MB
@@ -780,14 +836,14 @@ shinyServer(function(input, output, session){
   
   #setting the directories
   #directory for the historical HF
-  HF_directory = paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
+  HF_directory = paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
   #directory for the aggregated HF
-  file_here <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
+  file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
   #parameter file directory
-  parameter_directory <- paste0(ROOT_DIR,"/lcc-footfall/webapp/downloaded_footfall dataset/")
+  parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/")
   
   #directory for other items
-  other_dir <- paste0(ROOT_DIR, "/lcc-footfall/webapp/misc/")
+  other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
   
   #IMPORTING DATASETS
   #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
@@ -807,13 +863,30 @@ shinyServer(function(input, output, session){
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
     
   
-  updateSelectizeInput(session, 'x2', choices = list(
-    Eastern = c(`Rhode Island` = 'RI', `New Jersey` = 'NJ'),
-    Western = c(`Oregon` = 'OR', `Washington` = 'WA'),
-    Middle = list(Iowa = 'IA')
-  ), selected = 'IA')
-  
-  
+  # image2 sends pre-rendered images
+  # output$myImage <- renderImage({
+  #   #list(src = "http://data-informed.com/wp-content/uploads/2013/11/R-language-logo-224x136.png",
+  #   list(src = paste(other_dir, "temp_VeryLow.png"),
+  #        contentType = 'image/png',
+  #        width = 224,
+  #        height = 136,
+  #        alt = "This is image alternate text")
+  # })
+
+#   src = paste(other_dir, "temp_VeryLow.jpg")
+#   output$picture<-renderText({c('<img src="',src,'">')})
+# #   
+#   filename <- normalizePath(file.path(other_dir,
+#                                       paste('temp_VeryLow', '.png', sep='')))
+#   
+#   # Return a list containing the filename and alt text
+#   #list(src = filename,
+#        #alt = paste("Image number", input$n))
+#   
+# }, deleteFile = FALSE)
+
+
+
                                                              
     #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
@@ -1046,6 +1119,8 @@ shinyServer(function(input, output, session){
     
     observeEvent(input$append_file3, {
       
+      #shinyjs::hide("Re-train Prediction Model")
+      
       req(input$file3)
       #To check the gaps that an uploaded file fill
       #Check whether this is necessary again!
@@ -1075,85 +1150,35 @@ shinyServer(function(input, output, session){
    
       output$taskCompleted3 <- renderText({paste(tags$p(tags$b(h4("The Weather information for the specified date(s) have been updated successfully!"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
       
-      output$restart_app3 <- renderText({paste(tags$p(tags$b(h4("Please, restart app. to effect these changes."))))}) 
+      output$restart_app3 <- renderText({paste(tags$p(tags$b(h4("Re-training completed!  Please, restart app. to effect these changes."))))}) 
       
       shinyjs::hide("append_file3")
       
       shinyjs::show("Re-train Prediction Model")
     })
     
-# #action to re-train prediction model
-# observeEvent(input$Re-train_Prediction_Model, priority=10, {
-#     
-    # #re-import the updated data to retrain the model.
-    # predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)	
-    # 
-    # #updated predictors
-    # predictors_info_extract <- data_to_re-train_Model[which(data_to_re-train_Model$status==1),]  
-    # 
-    # #convert dates to right format
-    # predictors_info_extract <- convert_Date(predictors_info_extract)	
-    # 
-    # #extract the mode recent last three years
-    # predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date),]
-    # 
-    # #subset the last 3 years dataset to train the model (re-stricted to 3 years for computational reasons)
-    # predictors_info_extract_subset <- predictors_info_extract_subset[1:1095, ]
-    # 
-    # #drop 'un-needed' fields (for re-train)
-    # predictors_info_extract_subset_dropFields <- subset(predictors_info_extract_subset, select=-c("Date","status"))
-    # 
-    # #import the footfall data (daily aggregates)
-    # 
-    # dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-    # 
-    # #remove the outlier and "NA", and drop the outlier 'column'
-    # dayTime_HF_aggre_MINUS_outlier <- dayTime_HF_aggre[which(dayTime_HF_aggre$outlier==2),]
-    # dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c("outlier"))
-    # 
-    # #To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
-    # dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier)
-    # predictors_info_extract_subset_dropFields <- convert_Date(predictors_info_extract_subset_dropFields)
-    # 
-    # #now merge both datasets using the 'Date' column
-    # merge_Dataset_to_Train <- merge(x = dayTime_HF_aggre_MINUS_outlier, y = predictors_info_extract_subset_dropFields, by = "Date", all.x = TRUE)
-    # 
-    # merge_Dataset_to_Train <- as.data.frame(merge_Dataset_to_Train)
-    # 
-    # #predictive model
-    # pred_model <- lm(y ~ ., data = merge_Dataset_to_Train)
-    # 
-    # 
-    # #export the model
-    # save(pred_model, file = "C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/misc/random_forest_model.rda")
-    # save(pred_model, file = paste(other_dir, "random_forest_model.rda")   
-    #      
-    #      
-#     
-#     shinyjs::show("restart_app3")
-#     
-#     
-#     
-#     
-#     
-#   })
-#   
-#   
     
-#    Create predictor information up to 2020....
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    
+    #procedure to re-train prediction model
+    observeEvent(input$train_Prediction_Model, priority=10, {
+      
+      #re-import the updated data to retrain the model.
+      predictors <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)	
+      aggre_footfall <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+      
+      
+      cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
+      
+      #train the model
+      pred_model <- lm(InCount ~ ., data = cleaned_data_for_training)
+      
+      #save the model
+      save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
+      
+      
+      shinyjs::show("restart_app3")
+      
+    })
   
   
     
@@ -1294,6 +1319,21 @@ shinyServer(function(input, output, session){
     auc_plot(y, plotStyle=2)
   })
  
+  
+  #PARAMETER SETTINGS FOR 
+  #to set chart type
+  #   inputForecast = input$dateToForecast
+  #   temp_level = input$temp_level
+  # #to set time segmentation to plot
+  #   rainfall_level = input$rainfall_level
+  
+  
+  observe({
+    
+    
+    
+  })
+  
  
 #plot footfall history
   output$footfall_history <- renderPlot({
