@@ -26,6 +26,7 @@ library(maps)
 library(owmr)
 library(data.table)
 library(dplyr)
+library(randomForest)
 
 
 #for progressbar animation
@@ -84,7 +85,7 @@ shinyUI(
                     menuItem( 
                       tags$b('FOOTFALL DASHBOARD'), tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
-                    menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting" 
+                    #menuItem(div(style="text-align:center","~ Forecast (Settings)"), tabName ="forecastSetting" 
                              
                       # sliderInput("n", "Number of points:",
                       #                    min = 10, max = 200, value = 50, step = 10),
@@ -107,7 +108,7 @@ shinyUI(
                       #              choices = c("Random Forest", "XGBoost","Regression"),
                       #              selected = "Random Forest")
                       
-                    ),
+                   # ),
                     
                     menuItem(div(style="text-align:center","~ History (Settings)"), tabName ="historyAndForecastSetting", 
                       
@@ -123,10 +124,10 @@ shinyUI(
                       
                       #checkboxInput("showOutliers", label="Show Outliers?", value = FALSE),
                       
-                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1), #use calculation 
+                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1) #use calculation 
                       
 
-                      checkboxInput("prediction", label="Show prediction?", value = FALSE)
+                      #checkboxInput("prediction", label="Show prediction?", value = FALSE)
                       
                     ),
                     
@@ -219,23 +220,24 @@ shinyUI(
                               box(
                                 width = 4, status = "primary", solidHeader = TRUE,
                                 title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
-                                leafletOutput("mapLeeds", height=430)
+                                leafletOutput("mapLeeds", height=420)
                                 
                               ),
                               
-                              box(
-                                width = 2, status = "primary", solidHeader = TRUE,
-                                title = tags$b('Factors influencing Footfall Rate (ordered by Importance)')
+                              #box(
+                                #width = 2, status = "primary", solidHeader = TRUE,
+                                #title = tags$b('Factors influencing Footfall Rate (ordered by Importance)')
                                 #leafletOutput("mapLeeds", height=300)
                                 
-                              ),
+                              #),
                               #)
                               
                         #fluidRow(
-                              box(title=tags$h4(tags$b("Next 5-days Footfall Patterns")),
-                                  
-                                  width = 6, solidHeader = TRUE, status = "primary",
-                                  plotOutput("forecasted_footfall", width = "100%", height = "420px"))
+                              box(
+                                width = 8, solidHeader = TRUE, status = "primary",
+                                title = tags$b('Next 5-days Footfall Patterns based on Forecasted Weather (http://openweathermap.org/api)'),
+                                plotOutput("forecasted_footfall", height = "420px")
+                            )
                             )
       
                             ),
