@@ -175,20 +175,20 @@ shinyUI(
                               box(tags$b(h4("Set Weather Conditions:")), "  ",
                                 fluidRow(
                                   box(
-                                    dateInput("dateToForecast", "Select Date to forecast for:", value = NULL, min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
+                                    dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
                                     #),
-                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
+                                    background="black", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
                                   )
                                 ),
                                 fluidRow(
                                   box(
                                     #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                     
-                                    selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),
+                                    selectizeInput('temp_level', 'Temperature', choices = c("Very Low", "Low", "Moderate", "High")),  #assumed equivalent temperature for the choices: "Very Low=0", "Low=5", "Moderate=10", "High=15")
                                     column(4,
                                       htmlOutput("picture")
                                     ),
-                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI30") 
+                                    background="black", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI30") 
                                     
                                   )
                                 ),
@@ -196,33 +196,25 @@ shinyUI(
                                   box(
                                     #title = p(tags$h4(textOutput("today")), tags$h3(tags$b("Footfall Count:")),
                                     
-                                    selectizeInput('rainfall_level', 'Rainfall', choices = c("None", "Light", "Moderate", "Heavy")),
-                                    background="blue", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI31") 
+                                    selectizeInput('rainfall_level', 'Rainfall', choices = c("None", "Light", "Heavy")), #assumed equivalent rainfall measure for the choices: "None=0, "Light=0.5", "Heavy=10"
+                                    background="black", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI31") 
                                   )
                                 ),
                                 
-                                background="maroon", width = 2, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI32") 
+                                background="green", width = 2, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI32") 
                               ), 
                               
-                              tabPanel(title = "Footfall history", status = "primary", solidHeader = TRUE, 
-                                       box(width = 10, height = "540px",
-                                           title = p(tags$h4(tags$b("Historical Patterns and Trend of Footfall Data"))
-                                           ),
-                                           background="blue", solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
-                                           plotOutput("footfall_history", width = "100%", height = "430px")
-                                           
-                                       ))
-                              
-                              
-                             #fluidRow(
-                               
+                                
+                             # tabPanel(title = tags$h4(tags$b("Footfall history")), status = "primary", solidHeader = TRUE,
+                             box(tags$b(h4('Historical Patterns and Trend of Footfall Data')), "  ",
+                              box(width = 12, height = "450px", solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
+                                  #title = p(tags$b('Historical Patterns and Trend of Footfall Data')),
+                                    plotOutput("footfall_history", width = "100%", height = "430px")
+                                       ) , width = 10)
+                                         
                              ),
 
                             fluidRow(
-                              # box(
-                              #   width = 12, height = "300px", status="primary", solidHeader = FALSE,
-                              #   title = "Footfall history",
-                              #   plotOutput("chart"))
                               
                               box(
                                 width = 4, status = "primary", solidHeader = TRUE,
@@ -242,8 +234,8 @@ shinyUI(
                         #fluidRow(
                               box(title=tags$h4(tags$b("Next 5-days Footfall Patterns")),
                                   
-                                  width = 6, solidHeader = FALSE, status = "primary",
-                                  plotOutput("forecasted_footfall", width = "99%", height = "430px"))
+                                  width = 6, solidHeader = TRUE, status = "primary",
+                                  plotOutput("forecasted_footfall", width = "100%", height = "420px"))
                             )
       
                             ),
@@ -371,7 +363,7 @@ shinyUI(
                                               textOutput("fields_absent3"),
                                               textOutput("fall_outside_daterange3"),
                                               textOutput("date_Overlapping3"),
-                                              textOutput("timeFormatWrong3"),
+                                              #textOutput("timeFormatWrong3"),
                                               #textOutput("typo_camera_Name3"),
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue3"),
