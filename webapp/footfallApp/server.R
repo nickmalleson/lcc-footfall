@@ -1177,11 +1177,14 @@ shinyServer(function(input, output, session){
       
       cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
       
-      #train the model
+      #train the model  - regression
       pred_model <- lm(InCount ~ ., data = cleaned_data_for_training)
       
       #save the model
       save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
+      ##Using randomForest algorithm
+      randomForest <- randomForest(y ~., data=train)
+      
       
       
       shinyjs::show("restart_app3")
@@ -1340,7 +1343,9 @@ shinyServer(function(input, output, session){
   #observeEvent(input$dateToForecast, {
     
     
-    #predict by selecting a date 
+
+  #----------------------------------------------------------
+  #predict by selecting a date 
   
   observe({
     
@@ -1369,16 +1374,6 @@ shinyServer(function(input, output, session){
        x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
        
        #return the value for the corresponding temperature selected
-       if(input_rain_level=="None"){rain_Value=0} 
-          else if(input_rain_level=="Light"){rain_Value=0.5}
-          else {rain_Value=10}
-
-        print(temp_Value)
-        print("==============================")
-      
-       x_new$mean_temp <- temp_Value
-       
-       #return the value for the corresponding rain level selected
        if(input_temp_level=="Very Low"){temp_Value=0} 
        else if(input_temp_level=="Low"){temp_Value=5}
        else if(input_temp_level=="Moderate"){temp_Value=10}
@@ -1386,57 +1381,35 @@ shinyServer(function(input, output, session){
        
        print(temp_Value)
        print("==============================")
-       x_new$rain <- input_rain_level
-         
-         x_new <- subset(x_new, select = -c(Date, status))
-       #calculate different levels of temperature and rainfall
-       # temp_Levels <- summary(predictors_info$mean_temp)  #0, 5, 10, 15 
-       # rain_Levels <- summary(predictors_info$rain)      #0, 0.5, 10
+      
+       x_new$mean_temp <- temp_Value
        
-       #inputDate <- as.character(as.Date("2018-04-20"))
+       #return the value for the corresponding rain level selected
+       if(input_rain_level=="None"){rain_Value=0} 
+       else if(input_rain_level=="Light"){rain_Value=0.5}
+       else {rain_Value=10}
        
-  #      if(input..==()
-  #         inputTemp <- c(0, 5, 10, 15)
-  #         inputRain <- c(0, 0.5, 5)
-  # }
-  #         
- 
-          
-          # #predict footfall rate for the date
-          # y_new <- predict(pred_model, newdata = x_new) 
-          # 
-          # result_to_plot <- data.frame(inputDate, y_new)
-          # colnames(result_to_plot) <- c("x","y")
-          # 
-          
-          
+       print(rain_Value)
+       print("==============================")
        
-       
-       print(paste("Date entered is:", as.character(input$dateToForecast)))
-       
-       
-       
-       
-       
-       # if(as.Date(input$dateToForecast) %in% non_Selectable_Date){
-       #   
-       #   print("lsjdflasjf;ldsjfHUSHFDSFDHFSHFKDKJFS")
-       #   showModal(modalDialog(
-       #        title = "Error message",
-       #        paste("The selected date: ", input$dateToForecast,  ", is not allowed!", sep=""),
-       #        easyClose = TRUE))
-       # }
-       
-       
-             
-     })
-    
-    # temp_level = input$temp_level
-    # 
-    # # #to set time segmentation to plot
-    # rainfall_level = input$rainfall_level
+       x_new$rain <- rain_Value
+      
+       #drop "Date", "status" columns 
+       x_new <- subset(x_new, select = -c(Date, status))
 
-  
+       #predict footfall rate for the selected Date, temperature and rain values
+       y_new <- predict(pred_model, newdata = x_new) 
+
+       y_new <- data.frame(input_dateToForecast, y_new)
+       # colnames(result_to_plot) <- c("x","y")
+          # 
+       print(temp_Value)
+       print(rain_Value)
+       print(x_new)
+       print(y_new)
+       print("==============================")   
+          
+  })
  
 #plot footfall history
   output$footfall_history <- renderPlot({
