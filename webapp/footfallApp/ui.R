@@ -27,7 +27,10 @@ library(owmr)
 library(data.table)
 library(dplyr)
 library(randomForest)
+library(ROpenWeatherMap)
 
+#api key for downloading weather forecast...(http://openweathermap.org/)
+api_key="c8a930a2e30b695551e57d375a67d76e"
 
 #for progressbar animation
 jscode <- "
@@ -207,7 +210,7 @@ shinyUI(
                               
                                 
                              # tabPanel(title = tags$h4(tags$b("Footfall history")), status = "primary", solidHeader = TRUE,
-                             box(tags$b(h4('Historical Patterns and Trend of Footfall Data')), "  ",
+                             box(tags$b(h4('Historical Pattern (blue line) + Forecast (red point)')), "  ",
                               box(width = 12, height = "450px", solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
                                   #title = p(tags$b('Historical Patterns and Trend of Footfall Data')),
                                     plotOutput("footfall_history", width = "100%", height = "430px")
@@ -235,7 +238,7 @@ shinyUI(
                         #fluidRow(
                               box(
                                 width = 8, solidHeader = TRUE, status = "primary",
-                                title = tags$b('Next 5-days Footfall Patterns based on Forecasted Weather (http://openweathermap.org/api)'),
+                                title = tags$b("Estimates of next 5 days footfall rates (using Weather forecast from 'http://openweathermap.org/api')"),
                                 plotOutput("forecasted_footfall", height = "420px")
                             )
                             )

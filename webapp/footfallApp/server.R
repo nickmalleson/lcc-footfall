@@ -28,6 +28,15 @@ library(owmr)
 library(data.table)
 library(dplyr)
 library(randomForest)
+library(ROpenWeatherMap)
+
+
+#owmr package allows talking to ROpenWeatherMap website
+
+#api key for downloading weather forecast...(http://openweathermap.org/)
+
+owmr_settings("c8a930a2e30b695551e57d375a67d76e")  #Open weather forecast api key 
+
 
 ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
@@ -370,22 +379,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
     
-    #dummyInCount <- matrix(0, nrow(xy_1), 1)
-    #dummyInCount <- xy_1$y
-    #dummyInCount[which(as.vector(!is.na(xy_1$y)))] <- as.vector(xy_1$y[which(as.vector(!is.na(xy_1$y)))])
-    
-    #flush.console()
-    #print(xy_1)
-    #print(dummyInCount)
-    #print(Outliers)
-    #print()
-    
-    ##xy_1 <- cbind(xy_1[,c("xy_1Type","x", "y")], dummyInCount) #, Outliers)
+ 
     colnames(xy_1) <- c("Type","x","y")   #, "Outliers")
-    
-    #combine the predicted point
-    #xy_1 <- rbind(xy_1, predicted_Point)
-    
+
     x<-xy_1$x
     y<-xy_1$y
     #to adjust the start of plot
@@ -401,10 +397,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     #Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     
     xy_1 <- data.frame(Type, Date, InCount) #, Outliers)
-    #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
-    #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
-    #points(min(x):max(x), y, col="blue", cex=0.5)
-    #if(trendLine==character(0)){
+
     mean_InCount <-  mean(xy_1$InCount)
     
     flush.console()
@@ -413,12 +406,6 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
 if(chartType=="Dot"){
   if(addTrend==FALSE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-            #geom_point(color="blue", size = 1.5) +
-            #geom_point(color="blue", size = 2) +
-            #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) +
-            #geom_area(aes(ymin = 0 + 3000,ymax = y),
-            #alpha = 0.3,fill = "blue") +
-            #geom_point(predicted_Point, col = "blue") + #adding the predicted point
 
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
@@ -433,7 +420,7 @@ if(chartType=="Dot"){
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
             
-            geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
             
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
@@ -444,11 +431,7 @@ if(chartType=="Dot"){
 
   if(addTrend==TRUE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-             #geom_point(color="blue", size = 1.5) +
-            #geom_area(aes(ymin = 0 + 3000,ymax = y),
-            #alpha = 0.3,fill = "blue") +
-            #geom_point(predicted_Point, col = "blue") + #adding the predicted point
-
+ 
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
             #geom_vline(xintercept = 2000, linetype="dotted",
@@ -462,7 +445,7 @@ if(chartType=="Dot"){
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
             
-            geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
             
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
@@ -479,12 +462,7 @@ if(chartType=="Dot"){
     if(addTrend==FALSE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
-              #geom_point(color=xy_1Type, size = 2) +
-
-
-              #geom_point(predicted_Point, col = "blue") + #adding the predicted point
-              #geom_area(aes(ymin = 0 + 3000,ymax = y),
-              #alpha = 0.3,fill = "blue") +
+  
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
               #geom_vline(xintercept = 2000, linetype="dotted",
@@ -498,7 +476,7 @@ if(chartType=="Dot"){
               geom_vline(xintercept = current_Date_Index, linetype="dashed",
                          color = "grey", size=1) + #current date
               
-              geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+              geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
               
               geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                          color = "green", size=1) +
@@ -512,13 +490,7 @@ if(chartType=="Dot"){
     if(addTrend==TRUE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
-              #geom_point(color=xy_1Type, size = 2) +
-              #geom_point(color="blue", size = 1) +
-
-              #geom_point(predicted_Point, col = "blue") + #adding the predicted point
-
-              #geom_area(aes(ymin = 0 + 3000,ymax = y),
-              #alpha = 0.3,fill = "blue") +
+ 
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
               #geom_vline(xintercept = 2000, linetype="dotted",
@@ -532,7 +504,7 @@ if(chartType=="Dot"){
               geom_vline(xintercept = current_Date_Index, linetype="dashed",
                          color = "grey", size=1) + #current date
               
-              geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+              geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
               
               geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                          color = "green", size=1) +
@@ -869,6 +841,14 @@ data_Preparation_for_training <- function(aggre_footfall, predictors, modelName 
 }
 
 
+#function to convert temp from Kelvin to Celcius
+Data_kelvin_to_celsius <- function(data) {
+  #Converts Kelvin to Celsius
+  data$main.temp <- data$main.temp - 273.15
+  return(data)
+}
+
+
 
 #to restrict the file upload size to 120MB
 options(shiny.maxRequestSize=200*1024^2) 
@@ -923,31 +903,7 @@ shinyServer(function(input, output, session){
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
     
   
-  # image2 sends pre-rendered images
-  # output$myImage <- renderImage({
-  #   #list(src = "http://data-informed.com/wp-content/uploads/2013/11/R-language-logo-224x136.png",
-  #   list(src = paste(other_dir, "temp_VeryLow.png"),
-  #        contentType = 'image/png',
-  #        width = 224,
-  #        height = 136,
-  #        alt = "This is image alternate text")
-  # })
-
-#   src = paste(other_dir, "temp_VeryLow.jpg")
-#   output$picture<-renderText({c('<img src="',src,'">')})
-# #   
-#   filename <- normalizePath(file.path(other_dir,
-#                                       paste('temp_VeryLow', '.png', sep='')))
-#   
-#   # Return a list containing the filename and alt text
-#   #list(src = filename,
-#        #alt = paste("Image number", input$n))
-#   
-# }, deleteFile = FALSE)
-
-
-
-                                                             
+ 
     #reverse the table
   hist_table <- apply(history_footfall, 2, rev)
   
@@ -1355,8 +1311,59 @@ shinyServer(function(input, output, session){
     auc_plot(y, plotStyle=2)
   })
   
+  
+  
+  
+#to forecast next 5-days footfall  
   output$forecasted_footfall <- renderPlot({
-    #today's prediction
+ 
+    #streaming 3-hourly aggregates of weather forecast from "https://sci.ncas.ac.uk/leedsweather/", for next 5-days
+    weather_forecast <- get_forecast(lat = 53.8013, lon = -1.548567, cnt = 40) #coord of city centre
+    
+    Date <- substr(weather_forecast$list$dt_txt, 1, 10)
+    uniqueDates <- data.frame(unique(Date))
+    colnames(uniqueDates) <- "Date"
+    
+    weather_forecast <- cbind(Date, weather_forecast$list[, c("main.temp","rain.3h")])
+    
+    #aggregate
+    temp_fiveDays <- aggregate(main.temp ~ Date, data = weather_forecast, FUN = mean, drop = FALSE)
+    temp_fiveDays <- Data_kelvin_to_celsius(temp_fiveDays)
+    #where temp is "NA" (due to instrument breakdown), substitute "5"
+    temp_fiveDays <- merge(x = uniqueDates, y = temp_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
+    temp_fiveDays$main.temp[is.na(temp_fiveDays$main.temp)] <- 5
+    
+    rain_fiveDays <- aggregate(rain.3h ~ Date, data = weather_forecast, FUN = mean, na.action = na.omit)
+    #where rain is "NA" (due to instrument breakdown), substitute "0"
+    rain_fiveDays <- merge(x = uniqueDates, y = rain_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
+    rain_fiveDays$rain.3h[is.na(rain_fiveDays$rain.3h)] <- 0
+
+    #import othe predictors for the date specified
+    #import the predictor information
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    predictors_info <- convert_Date(predictors_info)  
+    
+    #extract the independent variables of today and the next five days.
+    x_new_5_days <- predictors_info[which(predictors_info$Date == temp_fiveDays$Date), ]                #head(predictors_info_subset)
+
+    #add weather temp and rain data
+    x_new_5_days$mean_temp <- temp_fiveDays
+    x_new_5_days$rain <- rain_fiveDays
+    
+    #print(x_new_5_days)
+    
+    #drop "Date", "status" columns 
+    x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
+    
+    #load prediction model
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    
+    #predict footfall rate for the selected Date, temperature and rain values
+    y_new_5_days <- round(predict(pred_model, x_new_5_days), digits = 0)
+    
+ 
+    
+       #today's prediction
     todaysPred <- 4  #to change this later
     
     c <- 1:5
@@ -1367,6 +1374,8 @@ shinyServer(function(input, output, session){
     auc_plot3(y=prediction_Combined) #, chartType = input$forecast_chartType
   })
   
+  
+
   output$evening_footfall <- renderPlot({
     c <- 1:25
     #generate some random number
@@ -1384,86 +1393,6 @@ shinyServer(function(input, output, session){
   })
  
   
-  #PARAMETER SETTINGS FOR 
-  #to set chart type
-  
-  #   inputForecast = input$dateToForecast
-  #   temp_level = input$temp_level
-  # #to set time segmentation to plot
-  #   rainfall_level = input$rainfall_level
-  
-  
-  #observeEvent(input$dateToForecast, {
-    
-    
-
-  #----------------------------------------------------------
-  #predict by selecting a date 
-  
- ## observe({
-    
-       # #initialisation
-       # temp_Value <- 0
-       # rain_Value <- 0
-       # #http://www.holiday-weather.com/leeds/averages/
-       # #non_Selectable_Date <- c(as.Date("2018-05-15"), as.Date("2018-12-25"), as.Date("2019-01-01"),as.Date("2019-12-25"))
-       # 
-       # #prediction parameters from UI
-       # input_dateToForecast = as.Date(input$dateToForecast)
-       # input_temp_level = as.character(input$temp_level)
-       # input_rain_level = as.character(input$rainfall_level)
-       # 
-       # #initialise temperature and rainfall value
-       # 
-       # #load prediction model
-       # load(paste(other_dir, "random_forest_model.rda", sep=""))
-       # 
-       # #import othe predictors for the date specified
-       # #import the predictor information
-       # predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-       # #extract the predictors info that have weather information.
-       # predictors_info <- convert_Date(predictors_info)  
-       # 
-       # x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
-       # 
-       # #return the value for the corresponding temperature selected
-       # if(input_temp_level=="Very Low"){temp_Value=5} 
-       # else if(input_temp_level=="Low"){temp_Value=10}
-       # else if(input_temp_level=="Moderate"){temp_Value=15}
-       # else {temp_Value=28}
-       # 
-       # print(temp_Value)
-       # print("==============================")
-       # 
-       # x_new$mean_temp <- temp_Value
-       # 
-       # #return the value for the corresponding rain level selected
-       # if(input_rain_level=="None"){rain_Value=0} 
-       # else if(input_rain_level=="Light"){rain_Value=0.5}
-       # else {rain_Value=10}
-       # 
-       # print(rain_Value)
-       # print("==============================")
-       # 
-       # x_new$rain <- rain_Value
-       # 
-       # #drop "Date", "status" columns 
-       # x_new <- subset(x_new, select = -c(Date, status))
-       # 
-       # #predict footfall rate for the selected Date, temperature and rain values
-       # y_new <- predict(pred_model, x_new) 
-       # 
-       # y_new <- data.frame(input_dateToForecast, y_new)
-       # colnames(y_new) <- c("x","y")
-       # # 
-       # print(temp_Value)
-       # print(rain_Value)
-       # print(x_new)
-       # print(y_new)
-       # print("==============================")   
-          
-##  })
- 
 #plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
@@ -1481,15 +1410,12 @@ shinyServer(function(input, output, session){
     
     #initialise temperature and rainfall value
     
-    #load prediction model
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
     
     #import othe predictors for the date specified
     #import the predictor information
     predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-    #extract the predictors info that have weather information.
     predictors_info <- convert_Date(predictors_info)  
-    
+    #extract the predictors info for the specified Date
     x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
     
     #return the value for the corresponding temperature selected
@@ -1515,6 +1441,9 @@ shinyServer(function(input, output, session){
     
     #drop "Date", "status" columns 
     x_new <- subset(x_new, select = -c(Date, status))
+    
+    #load prediction model
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
     
     #predict footfall rate for the selected Date, temperature and rain values
     y_new <- round(predict(pred_model, x_new), digits = 0)
