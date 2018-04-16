@@ -523,7 +523,7 @@ if(chartType=="Dot"){
 #}
 
 #function to plot...points and lines for forecast
-auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
+auc_plot3 <- function(y){ #, chartType="Dot"
   
   xy_1 <- y
   
@@ -533,22 +533,12 @@ auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
   d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
   
   dateLabels = seq(Sys.Date(), (Sys.Date()+(nrow(d)-1)), by = "day")
+  dayLabels =   weekdays(as.Date(dateLabels))
   
   d <- cbind(d, dateLabels)
-  # if(chartType=="Line"){
-  #   print(ggplot(d, aes(Date, InCount)) +
-  #           #
-  #           geom_label_repel(aes(label = InCount), color = 'black',
-  #                            size = 3.5) + 
-  #           theme(legend.position=" ") +
-  #           geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.3, fill="blue") 
-  #           #geom_line(color="blue", size = 0) 
-  #   )}
-  
-  #colr <- data.frame("grey100", "white")
     
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
-    print(ggplot(d, aes(Date, InCount)) + ylim(-1,max(50)) +
+    print(ggplot(d, aes(Date, InCount)) + #ylim(-1,max(50)) +
       geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
       #geom_point(aes(Date, InCount, color=colr), size = 9) +
       theme(legend.position=" ") +
@@ -556,6 +546,8 @@ auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
       geom_line(color="blue", size = 0)+ 
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=9) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
+        annotate(geom = "text", x = d$Date, y = -1000, label = dayLabels, size = 4) +
+        
       geom_text_repel(
         aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
         size = 5,
@@ -565,31 +557,11 @@ auc_plot3 <- function(y=prediction_Combined){ #, chartType="Dot"
         box.padding=0.5, point.padding = 1.6, segment.size = 0)
         #arrow=arrow(length=unit(0.04, 'npc')), force = 1)
     )
-  #}
-  # 
-  # if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
-  #   ggplot(d) + ylim(-1,max(50)) +
-  #     geom_point(aes(x, y, color=factor(xy_1Type)), size = 9) +
-  #     geom_text(aes(x,y,label=label),family='fontawesome-webfont', size=9) +
-  #     theme(legend.position=" ") +
-  #     ##geom_ribbon(aes(ymin=0, ymax=y), alpha=0.3, fill="blue") +
-  #     #geom_line()+ 
-  #     geom_text_repel(
-  #       aes(x, y, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
-  #       size = 8,
-  #       family = 'Times',
-  #       fontface = 'bold',
-  #       box.padding=0.5, point.padding = 1.6, segment.color = "black", segment.size = 0.05,
-  #       arrow=arrow(length=unit(0.04, 'npc')), force = 1)
-  # }
 }
-
 
 
 #------------------------
 #function to calculate percentage increase in prediction
-
-
 vector_perc_diff <- function(data){
   table_R <- matrix(0, length(data)-1, 4)
   for (i in 2:length(data)){ #i<-2
@@ -1344,11 +1316,14 @@ shinyServer(function(input, output, session){
     predictors_info <- convert_Date(predictors_info)  
     
     #extract the independent variables of today and the next five days.
-    x_new_5_days <- predictors_info[which(predictors_info$Date == temp_fiveDays$Date), ]                #head(predictors_info_subset)
+    x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]            #head(predictors_info_subset)
 
+    print(x_new_5_days)
+    print("===============")
     #add weather temp and rain data
-    x_new_5_days$mean_temp <- temp_fiveDays
-    x_new_5_days$rain <- rain_fiveDays
+    x_new_5_days$mean_temp <- temp_fiveDays$main.temp
+    x_new_5_days$rain <- rain_fiveDays$rain.3h
+    
     
     #print(x_new_5_days)
     
@@ -1359,19 +1334,15 @@ shinyServer(function(input, output, session){
     load(paste(other_dir, "random_forest_model.rda", sep=""))
     
     #predict footfall rate for the selected Date, temperature and rain values
-    y_new_5_days <- round(predict(pred_model, x_new_5_days), digits = 0)
+    y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
     
- 
     
-       #today's prediction
-    todaysPred <- 4  #to change this later
-    
-    c <- 1:5
-    #set.seed(123)
-    cc <- c(todaysPred, sample(c^2))
-    prediction_Combined <- vector_perc_diff(cc)
+    print(y_new_5_days)
+    print("===============")
+
+    y_new_5_days <- vector_perc_diff(y_new_5_days)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot3(y=prediction_Combined) #, chartType = input$forecast_chartType
+    auc_plot3(y=y_new_5_days) #, chartType = input$forecast_chartType
   })
   
   
