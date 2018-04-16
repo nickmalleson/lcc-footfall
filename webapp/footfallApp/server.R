@@ -532,9 +532,9 @@ auc_plot3 <- function(y){ #, chartType="Dot"
   
   d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
   
-  dateLabels = seq(Sys.Date(), (Sys.Date()+(nrow(d)-1)), by = "day")
+  dateLabels = seq(Sys.Date()+1, (Sys.Date()+1 +(nrow(d)-1)), by = "day")
   dayLabels =   weekdays(as.Date(dateLabels))
-  
+
   d <- cbind(d, dateLabels)
     
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
@@ -544,9 +544,15 @@ auc_plot3 <- function(y){ #, chartType="Dot"
       theme(legend.position=" ") +
       geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.4, fill="blue") +
       geom_line(color="blue", size = 0)+ 
-      geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=9) + #nudge_x=0, nudge_y=0
+      geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
-        annotate(geom = "text", x = d$Date, y = -1000, label = dayLabels, size = 4) +
+        annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
+        
+        #coord_flip(ylim = c(75000,250000)) +
+        coord_cartesian(ylim = c((min(d$InCount)-(min(d$InCount)/3)), (max(d$InCount)+(max(d$InCount)/8)))) + 
+        #coord_cartesian(xlim = 0, max(d$Date)+1) + 
+        #coord_cartesian(xlim = c(0, 5)) +
+        theme(plot.margin=unit(c(1,1,1.5,1.2),"cm")) + 
         
       geom_text_repel(
         aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
