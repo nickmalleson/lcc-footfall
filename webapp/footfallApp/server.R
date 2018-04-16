@@ -349,13 +349,17 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
   
-  #Join ('Date' field) the created date list with the data. 
+  #Join 
   merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE, all.y = TRUE)
   merged_Datasetd  <- as.data.frame(merged_Datasetd)
   
-  x <- as.character(as.Date(merged_Datasetd$Date))
-  y <- merged_Datasetd$InCount
-  Outliers <- merged_Datasetd$outlier
+  #flush.console()
+  #print(merged_Datasetd)
+  
+  #combine historical data and predicted.
+  x <- c(as.character(as.Date(merged_Datasetd$Date)), as.character(as.Date(predicted_Point$Date)))
+  y <- c(merged_Datasetd$InCount, predicted_Point$InCount)
+  Outliers <- c(merged_Datasetd$outlier, predicted_Point$outlier)
   
   x_backup <- x
   dateLabels = seq(as.Date("2009/01/01"), as.Date("2019-01-01"), by = "year")
@@ -363,14 +367,24 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
   #using ggplot2
     xy_1 <- as.data.frame(cbind(x, y))  
     xy_1Type <- rep(1, nrow(xy_1))
-    #xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
+    xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
     
-    dummyInCount <- matrix(0, nrow(xy_1), 1)
-    dummyInCount[which(as.vector(!is.na(xy_1$y)))] <- as.vector(xy_1$y[which(as.vector(!is.na(xy_1$y)))])
+    #dummyInCount <- matrix(0, nrow(xy_1), 1)
+    #dummyInCount <- xy_1$y
+    #dummyInCount[which(as.vector(!is.na(xy_1$y)))] <- as.vector(xy_1$y[which(as.vector(!is.na(xy_1$y)))])
     
-    xy_1 <- cbind(xy_1[,c("xy_1Type","x")], dummyInCount, Outliers)
-    colnames(xy_1) <- c("Type","x","y", "Outliers")
+    #flush.console()
+    #print(xy_1)
+    #print(dummyInCount)
+    #print(Outliers)
+    #print()
+    
+    ##xy_1 <- cbind(xy_1[,c("xy_1Type","x", "y")], dummyInCount) #, Outliers)
+    colnames(xy_1) <- c("Type","x","y")   #, "Outliers")
+    
+    #combine the predicted point
+    #xy_1 <- rbind(xy_1, predicted_Point)
     
     x<-xy_1$x
     y<-xy_1$y
@@ -384,128 +398,156 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     print("...........................................")
     #x <- as.Date(as.vector(xy_1$x))
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    #Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     
-    xy_1 <- data.frame(Type, Date, InCount, Outliers)
+    xy_1 <- data.frame(Type, Date, InCount) #, Outliers)
     #plot(c(0, length(x)), c(min(as.numeric(y)), max(as.numeric(y))), type='n', xlab="X", ylab="Y", axes=F)
     #plot(c(min(x), max(x)), c(min(y), max(y)), type='n', xlab="X", ylab="Y", axes=F)
     #points(min(x):max(x), y, col="blue", cex=0.5)
     #if(trendLine==character(0)){
+    mean_InCount <-  mean(xy_1$InCount)
     
-if(chartType=="Dot"){   
-  if(addTrend==FALSE){  
-    print(ggplot(xy_1, aes(Date, InCount, group=Outliers)) +
-            geom_point(color="blue", size = 1.5) +
+    flush.console()
+    print(xy_1[nrow(xy_1),])
+    
+if(chartType=="Dot"){
+  if(addTrend==FALSE){
+    print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
+            #geom_point(color="blue", size = 1.5) +
             #geom_point(color="blue", size = 2) +
-            #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) + 
+            #geom_point(aes(xy_1$InCount[which(xy_1$Outliers==1)], col = "red")) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
-            geom_point(predicted_Point, col = "blue") + #adding the predicted point
-            
-            geom_vline(xintercept = min(Date),  
+            #geom_point(predicted_Point, col = "blue") + #adding the predicted point
+
+            geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
-            #geom_vline(xintercept = 2000, linetype="dotted", 
+            #geom_vline(xintercept = 2000, linetype="dotted",
             #color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
-            
-            geom_vline(xintercept = min(Date), linetype="dashed", 
+
+            geom_vline(xintercept = min(Date), linetype="dashed",
                        color = "brown", size=0.5) + #current date
-            
+
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
-                       color = "green", size=1) + #current date
+                       color = "grey", size=1) + #current date
             
-            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+            geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+            
+            geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
+                       color = "green", size=1) +
+
+            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
           #scale_x_discrete(labels = x_backup)
     ) }
-  
+
   if(addTrend==TRUE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-             geom_point(color="blue", size = 1.5) +
+             #geom_point(color="blue", size = 1.5) +
             #geom_area(aes(ymin = 0 + 3000,ymax = y),
             #alpha = 0.3,fill = "blue") +
-            geom_point(predicted_Point, col = "blue") + #adding the predicted point
-            
-            geom_vline(xintercept = min(Date),  
+            #geom_point(predicted_Point, col = "blue") + #adding the predicted point
+
+            geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
-            #geom_vline(xintercept = 2000, linetype="dotted", 
+            #geom_vline(xintercept = 2000, linetype="dotted",
             #color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
-            
-            geom_vline(xintercept = min(Date), linetype="dashed", 
+
+            geom_vline(xintercept = min(Date), linetype="dashed",
                        color = "brown", size=0.5) + #current date
+
+            geom_vline(xintercept = current_Date_Index, linetype="dashed",
+                       color = "grey", size=1) + #current date
             
-            geom_vline(xintercept = current_Date_Index, linetype="dashed", 
-                       color = "green", size=1) + #current date
+            geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
             
-            geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) + 
-            
-            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+            geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
+                       color = "green", size=1) +
+
+            geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) +
+
+            scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
           #scale_x_discrete(labels = x_backup)
     ) }
 }
-    
+
   #to generate regular plot
   if(chartType=="Line"){
-    if(addTrend==FALSE){  
+    if(addTrend==FALSE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
-              geom_point(color="blue", size = 1) +
-              
-              geom_point(predicted_Point, col = "blue") + #adding the predicted point
+
+
+              #geom_point(predicted_Point, col = "blue") + #adding the predicted point
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
               #alpha = 0.3,fill = "blue") +
-              geom_vline(xintercept = min(Date),  
+              geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
-              #geom_vline(xintercept = 2000, linetype="dotted", 
+              #geom_vline(xintercept = 2000, linetype="dotted",
               #color = "red", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
-              
-              geom_vline(xintercept = min(Date), linetype="dashed", 
+
+              geom_vline(xintercept = min(Date), linetype="dashed",
                          color = "brown", size=0.5) + #current date
+
+              geom_vline(xintercept = current_Date_Index, linetype="dashed",
+                         color = "grey", size=1) + #current date
               
-              geom_vline(xintercept = current_Date_Index, linetype="dashed", 
-                         color = "green", size=1) + #current date
+              geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
               
-              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+              geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
+                         color = "green", size=1) +
+              
+             # geom_point(aes(size = qsec))
+
+              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
             #scale_x_discrete(labels = x_backup)
       ) }
-    
+
     if(addTrend==TRUE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
               #geom_point(color=xy_1Type, size = 2) +
-              geom_point(color="blue", size = 1) +
-              
-              geom_point(predicted_Point, col = "blue") + #adding the predicted point
-              
+              #geom_point(color="blue", size = 1) +
+
+              #geom_point(predicted_Point, col = "blue") + #adding the predicted point
+
               #geom_area(aes(ymin = 0 + 3000,ymax = y),
               #alpha = 0.3,fill = "blue") +
-              geom_vline(xintercept = min(Date),  
+              geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
-              #geom_vline(xintercept = 2000, linetype="dotted", 
+              #geom_vline(xintercept = 2000, linetype="dotted",
               #color = "red", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
-              
-              geom_vline(xintercept = min(Date), linetype="dashed", 
+
+              geom_vline(xintercept = min(Date), linetype="dashed",
                          color = "brown", size=0.5) + #current date
+
+              geom_vline(xintercept = current_Date_Index, linetype="dashed",
+                         color = "grey", size=1) + #current date
               
-              geom_vline(xintercept = current_Date_Index, linetype="dashed",  
-                         color = "green", size=1) + #current date
+              geom_point(color= c(rep("blue", (length(Type)-1)), "dodgerblue4") , size = c(rep(1, (length(Type)-1)), 4)  ) +
               
-              geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) + 
-              
-              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))]) 
+              geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
+                         color = "green", size=1) +
+
+              geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) +
+
+              scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
             #scale_x_discrete(labels = x_backup)
       ) }
     
+ 
+    }
   }
   
-  }
+ # }
 #}
 
 #function to plot...points and lines for forecast
@@ -1475,13 +1517,13 @@ shinyServer(function(input, output, session){
     x_new <- subset(x_new, select = -c(Date, status))
     
     #predict footfall rate for the selected Date, temperature and rain values
-    y_new <- predict(pred_model, x_new) 
+    y_new <- round(predict(pred_model, x_new), digits = 0)
     
-    Type_dummy <- 1
+    Type_dummy <- 2
     outlier_dummy <-2
     
     y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
-    colnames(y_new) <- c("Type","Date","InCount", "Outliers")   #data.frame(Type, Date, InCount, Outliers)
+    colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
     # 
     print(temp_Value)
     print(rain_Value)
