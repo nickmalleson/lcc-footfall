@@ -211,7 +211,7 @@ shinyUI(
                                 
                              # tabPanel(title = tags$h4(tags$b("Footfall history")), status = "primary", solidHeader = TRUE,
                              box(tags$b(h4('Historical Pattern (blue line) + Forecast (red point)')), "  ",
-                              box(width = 12, height = "450px", solidHeader = FALSE, status = "primary", uiOutput("boxContentUI10"), 
+                              box(width = 12, height = "450px", solidHeader = FALSE, status = "success", uiOutput("boxContentUI10"), 
                                   #title = p(tags$b('Historical Patterns and Trend of Footfall Data')),
                                     plotOutput("footfall_history", width = "100%", height = "430px")
                                        ) , width = 10)
