@@ -531,7 +531,7 @@ auc_plot3 <- function(y){ #, chartType="Dot"
                      label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
   
   d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
-  
+  d$Perc =  d$Perc * -1
   dateLabels = seq(Sys.Date()+1, (Sys.Date()+1 +(nrow(d)-1)), by = "day")
   dayLabels =   weekdays(as.Date(dateLabels))
 
@@ -539,29 +539,24 @@ auc_plot3 <- function(y){ #, chartType="Dot"
     
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
     print(ggplot(d, aes(Date, InCount)) + #ylim(-1,max(50)) +
-      geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
-      #geom_point(aes(Date, InCount, color=colr), size = 9) +
+      geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 1) +
       theme(legend.position=" ") +
-      geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.4, fill="blue") +
-      geom_line(color="blue", size = 0)+ 
+      geom_ribbon(aes(ymin=0, ymax=InCount), alpha=0.1, fill="blue") +
+      geom_line(color="blue", size = 1.5)+ 
+      geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
-        annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
         
-        #coord_flip(ylim = c(75000,250000)) +
-        coord_cartesian(ylim = c((min(d$InCount)-(min(d$InCount)/3)), (max(d$InCount)+(max(d$InCount)/8)))) + 
-        #coord_cartesian(xlim = 0, max(d$Date)+1) + 
-        #coord_cartesian(xlim = c(0, 5)) +
-        theme(plot.margin=unit(c(1,1,1.5,1.2),"cm")) + 
+      annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
+        
+      coord_cartesian(ylim = c((min(d$InCount)-(min(d$InCount)/3)), (max(d$InCount)+(max(d$InCount)/8)))) + 
         
       geom_text_repel(
-        aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
-        size = 5,
-        nudge_x = 0, nudge_y = 0.5,
-        #family = 'Times',
-        fontface = 'bold',
-        box.padding=0.5, point.padding = 1.6, segment.size = 0)
-        #arrow=arrow(length=unit(0.04, 'npc')), force = 1)
+       aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
+       size = 5,
+       nudge_x = 0, nudge_y = 0.5,
+       fontface = 'bold',
+       box.padding=0.5, point.padding = 1.6, segment.size = 0)
     )
 }
 

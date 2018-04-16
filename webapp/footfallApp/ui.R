@@ -179,7 +179,7 @@ shinyUI(
                               box(tags$b(h4("Set Weather Conditions:")), "  ",
                                 fluidRow(
                                   box(
-                                    dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=Sys.Date() + 60, format = "dd/mm/yy"),
+                                    dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=Sys.Date() + 120, format = "dd/mm/yy"),
                                     #),
                                     background="black", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
                                   )
@@ -221,7 +221,7 @@ shinyUI(
                             fluidRow(
                               
                               box(
-                                width = 4, status = "primary", solidHeader = TRUE,
+                                width = 4, status = "success", solidHeader = TRUE,
                                 title = tags$b('Boundary of City of Leeds (Inset: City Central)'),
                                 leafletOutput("mapLeeds", height=420)
                                 
@@ -237,7 +237,7 @@ shinyUI(
                               
                         #fluidRow(
                               box(
-                                width = 8, solidHeader = TRUE, status = "primary",
+                                width = 8, solidHeader = TRUE, status = "success",
                                 title = tags$b("Estimates of next 5 days footfall rates (using Weather forecast from 'http://openweathermap.org/api')"),
                                 plotOutput("forecasted_footfall", height = "420px")
                             )
