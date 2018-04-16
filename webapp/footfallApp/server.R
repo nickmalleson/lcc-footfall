@@ -398,10 +398,20 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     
     xy_1 <- data.frame(Type, Date, InCount) #, Outliers)
 
+    #overall mean of the time series
     mean_InCount <-  mean(xy_1$InCount)
     
+    getUnique_year <- as.vector(allDays_inbetween)
+    sub_getUnique_year <- as.vector(substr(data$Date, 1, 4))
+    most_recent_year <- max(unique(sub_getUnique_year))
+    indEX1 <- which(substr(getUnique_year, 1,4) == most_recent_year)[1]
+    indEX2 <- length(allDays_inbetween)
+    ind_Foot <- data[which(substr(data$Date[order(data$Date)], 1,4) == most_recent_year), c("InCount")]
+    percentiles <- round(as.vector(quantile(ind_Foot, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm=TRUE)), digits=0)   # quartile
+    
     flush.console()
-    print(xy_1[nrow(xy_1),])
+    print(ind_Foot[1])
+    print("==============================================GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG==============================================")
     
 if(chartType=="Dot"){
   if(addTrend==FALSE){
@@ -424,6 +434,12 @@ if(chartType=="Dot"){
             
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
+            
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
           #scale_x_discrete(labels = x_backup)
@@ -451,6 +467,12 @@ if(chartType=="Dot"){
                        color = "green", size=1) +
 
             geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) +
+            
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+            geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
           #scale_x_discrete(labels = x_backup)
@@ -481,8 +503,12 @@ if(chartType=="Dot"){
               geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                          color = "green", size=1) +
               
-             # geom_point(aes(size = qsec))
-
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
+              
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
             #scale_x_discrete(labels = x_backup)
       ) }
@@ -510,6 +536,12 @@ if(chartType=="Dot"){
                          color = "green", size=1) +
 
               geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) +
+              
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+              geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
             #scale_x_discrete(labels = x_backup)
@@ -527,6 +559,9 @@ auc_plot3 <- function(y){ #, chartType="Dot"
   
   xy_1 <- y
   
+  print(xy_1)
+  print("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGDDDDDDDDDDDDDDDDDDDDDDDWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW")
+  
   labs <- data.frame(xy_1Type=c(1, 2),
                      label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
   
@@ -536,6 +571,7 @@ auc_plot3 <- function(y){ #, chartType="Dot"
   dayLabels =   weekdays(as.Date(dateLabels))
 
   d <- cbind(d, dateLabels)
+
     
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
     print(ggplot(d, aes(Date, InCount)) + #ylim(-1,max(50)) +
@@ -871,8 +907,8 @@ shinyServer(function(input, output, session){
   
   
   dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-  eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-  nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  #eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  #nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
     
   
@@ -892,15 +928,15 @@ shinyServer(function(input, output, session){
    })
   
 
-  output$eveningTimeData <- DT::renderDataTable({
-    eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
-    return(eveningTimeData)
-  })
-  
-  output$nightTimeData <- DT::renderDataTable({
-    nightTimeData <- DT::datatable(nightTime_HF_aggre)
-    return(nightTimeData)
-  })
+  # output$eveningTimeData <- DT::renderDataTable({
+  #   eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
+  #   return(eveningTimeData)
+  # })
+  # 
+  # output$nightTimeData <- DT::renderDataTable({
+  #   nightTimeData <- DT::datatable(nightTime_HF_aggre)
+  #   return(nightTimeData)
+  # })
 
   output$twentyFourHoursData <- DT::renderDataTable({
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
@@ -1320,7 +1356,10 @@ shinyServer(function(input, output, session){
     x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]            #head(predictors_info_subset)
 
     print(x_new_5_days)
-    print("===============")
+    print(temp_fiveDays)
+    print(rain_fiveDays)
+    
+    print("===============rrrrrrrrr================")
     #add weather temp and rain data
     x_new_5_days$mean_temp <- temp_fiveDays$main.temp
     x_new_5_days$rain <- rain_fiveDays$rain.3h
@@ -1441,20 +1480,22 @@ shinyServer(function(input, output, session){
   data <- convert_Date(twentyFourHours_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
-  } else if(plotOptn=="Daytime"){
+  } else if (plotOptn=="Daytime"){
     data <- convert_Date(dayTime_HF_aggre)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-  }else if(plotOptn=="Evening"){
-    data <- convert_Date(eveningTime_HF_aggre)     
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-  }else if(plotOptn=="Night"){
-    data <- convert_Date(nightTime_HF_aggre)     
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-  }
-#} 
+  } 
+  
+#   else if(plotOptn=="Evening"){
+#     data <- convert_Date(eveningTime_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
+#   }else if(plotOptn=="Night"){
+#     data <- convert_Date(nightTime_HF_aggre)     
+#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
+#   }
+# #} 
 
 # if(chartType=="Line"){  
 #   if(plotOptn=="Whole Day"){
@@ -1796,12 +1837,15 @@ shinyServer(function(input, output, session){
     #
     # #specifying the temporal segmentations to use for the data aggregation
      print(max_Date)
-     hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+     
+     hours_of_the_Day <- list(c(0:23), c(8:17))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
     #
      print("200000")
     #
     # #labels of time aggregation
-     time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+     #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+     time_aggregation <- c("twentyFour_Hours", "dayTime")
     #
     # #first aggregating HF count across stations for each hour of the day
      result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
@@ -1851,11 +1895,7 @@ shinyServer(function(input, output, session){
       
       #update the existing raw HF dataset too..-----------------------------
       #read the existing one and append the subset of updated one to it.
-      existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
-      #append the uploaded file
-      new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
-      history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-      
+
       shinyjs::hide("processingbar1")
       
       #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
@@ -1864,6 +1904,12 @@ shinyServer(function(input, output, session){
       
    }
 
+    existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+    #append the uploaded file
+    new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+
+    history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+    
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
     shinyjs::hide("confirm_Append")
@@ -2034,11 +2080,15 @@ observeEvent(input$aggre_HF_confirm, {
     
     #create a list of time aggregate
     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
-    hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+    #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+    
+    hours_of_the_Day <- list(c(0:23), c(8:17)) #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+    
     
     print("200000")
     
-    time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+    #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
+    time_aggregation <- c("twentyFour_Hours", "dayTime")
       
  
         result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")

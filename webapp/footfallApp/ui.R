@@ -119,8 +119,12 @@ shinyUI(
                                           choices = c("Dot", "Line"),
                                           selected = "Line"),
                              
+                      # radioButtons("timeOftheDayInput", "Modify Time of the Day",
+                      #              choices = c("Daytime", "Evening","Night", "Whole Day"),
+                      #              selected = "Whole Day"),
+                      
                       radioButtons("timeOftheDayInput", "Modify Time of the Day",
-                                   choices = c("Daytime", "Evening","Night", "Whole Day"),
+                                   choices = c("Daytime", "Whole Day"),
                                    selected = "Whole Day"),
                       
                       checkboxInput("trendLine", label="Add trend line?", value = FALSE),
@@ -179,7 +183,7 @@ shinyUI(
                               box(tags$b(h4("Set Weather Conditions:")), "  ",
                                 fluidRow(
                                   box(
-                                    dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=Sys.Date() + 120, format = "dd/mm/yy"),
+                                    dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=as.Date("2019-12-31"), format = "dd/mm/yy"),
                                     #),
                                     background="black", width = 12, solidHeader = TRUE, status = "primary", uiOutput("boxContentUI33") 
                                   )
@@ -270,28 +274,28 @@ shinyUI(
                                           
                                  ),
                                  
-                                 tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                          id='eveningTime',
-                                          box(
-                                            tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
-                                            br(),
-                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI21") 
-                                          )
-                                          
-                                 ),
+                                 # tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                 #          id='eveningTime',
+                                 #          box(
+                                 #            tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
+                                 #            br(),
+                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI21") 
+                                 #          )
+                                 #          
+                                 # ),
                                  
-                                 tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                          id='nightTime',
-                                          box(
-                                            tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
-                                            br(),
-                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI22") 
-                                            
-                                          )
-                                          
-                                 ),
+                                 # tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                 #          id='nightTime',
+                                 #          box(
+                                 #            tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
+                                 #            br(),
+                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI22") 
+                                 #            
+                                 #          )
+                                 #          
+                                 # ),
                                  
                                  tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                           id='twentyfourHour',
