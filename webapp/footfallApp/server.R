@@ -30,6 +30,8 @@ library(dplyr)
 library(randomForest)
 library(ROpenWeatherMap)
 
+# Manually set the time zone
+Sys.setenv(TZ="Europe/London")
 
 #owmr package allows talking to ROpenWeatherMap website
 
@@ -38,8 +40,8 @@ library(ROpenWeatherMap)
 owmr_settings("c8a930a2e30b695551e57d375a67d76e")  #Open weather forecast api key 
 
 
-ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
-#ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
+#ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
+ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
 
 
 #option(digits.secs = 1)
