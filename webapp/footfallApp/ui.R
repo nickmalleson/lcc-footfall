@@ -45,6 +45,56 @@ $('.slider-animate-button').trigger('click');
 }
 "
 
+
+
+jscode2 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode3 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode4 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode5 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode6 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode7 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode8 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
+jscode9 <- "
+shinyjs.play = function() {
+$('.slider-animate-button').trigger('click');
+}
+"
+
 # Define UI for application that ...
 shinyUI(
 
@@ -231,15 +281,17 @@ shinyUI(
                                 
                               ),
                               
-                              #box(
-                                #width = 2, status = "primary", solidHeader = TRUE,
-                                #title = tags$b('Factors influencing Footfall Rate (ordered by Importance)')
-                                #leafletOutput("mapLeeds", height=300)
-                                
-                              #),
-                              #)
                               
-                        #fluidRow(
+                              
+                              
+                              
+                              
+                              
+                              
+                              
+                              
+                              
+                              
                               box(
                                 width = 8, solidHeader = TRUE, status = "success",
                                 title = tags$b("Estimates of next 5 days footfall rates (using Weather forecast from 'http://openweathermap.org/api')"),
@@ -249,10 +301,6 @@ shinyUI(
       
                             ),
 
-                    #),
-                    
-       #)   
-                    #),
                     
                     tabItem(tabName = "settings",
                             
@@ -641,44 +689,5 @@ shinyUI(
   )
   
 )
-
-
-
-
-#  #tabPanel(title = "....", status = "primary", solidHeader = TRUE,  
-#   box(
-#     title = p(tags$h4(tags$b("Next 5 day/Daily Forecast")), 
-#     width = 6, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI2"),
-#     plotOutput("afternoon_footfall", width = "120%", height = "250px")
-#     
-#width = 8, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI12")  # ),
-# )),
-#), 
-
-# box(
-#   title = p(tags$h4(tags$b("Night (9pm-8am)")), tags$h4(textOutput("tomorrowDay_3")),
-#             tags$b(tags$h1(textOutput("lastWeekCount"))),
-#             tags$head(tags$style("#lastWeekCount{font-size:60px; font-family: Georgia}")),  
-#             actionButton("hourlyId", tags$b("43%, from"),
-#                          icon=icon("arrow-circle-up"),
-#                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard3"))) ),  
-#   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI3"), 
-#   plotOutput("evening_footfall", width = "100%", height = "50px")
-#   
-# )
-
-# box(
-#   title = p(tags$h4(tags$b("24-Hours")), tags$h4(textOutput("tomorrowDay_4")),
-#             tags$b(tags$h1(textOutput("lastWeekCounty"))),
-#             tags$head(tags$style("#lastWeekCounty{font-size:60px; font-family: Georgia}")), #Georgia, 
-#             actionButton("hourlyId", tags$b("23%, from"),
-#                          icon=icon("arrow-circle-up"),
-#                          class = "btn-xs", title = "Update"), tags$b(tags$h4(textOutput("dateOnPredictionBoard4"))) ), 
-#   width = 3, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI4"), 
-#   plotOutput("all_footfall", width = "100%", height = "50px")
-#   
-# ) 
-#),
-
 
 
