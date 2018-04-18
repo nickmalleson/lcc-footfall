@@ -47,53 +47,6 @@ $('.slider-animate-button').trigger('click');
 
 
 
-jscode2 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode3 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode4 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode5 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode6 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode7 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode8 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
-
-jscode9 <- "
-shinyjs.play = function() {
-$('.slider-animate-button').trigger('click');
-}
-"
 
 # Define UI for application that ...
 shinyUI(
