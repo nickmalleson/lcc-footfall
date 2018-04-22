@@ -92,7 +92,9 @@ subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   
   cam_ID <- which(colnames(orig_Data)==cameraLoc)
   #append to real data
-  orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data$Hour, unique_field, orig_Data$InCount, as.character(orig_Data[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
+  #orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data$Hour, unique_field, orig_Data$InCount, as.character(orig_Data[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
+  orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data_Conv$Hour, unique_field, orig_Data_Conv$InCount, as.character(orig_Data_Conv[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
+  #head(orig_Data_sub)
   orig_Data_sub<-as.data.frame(orig_Data_sub)
   colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id") #head(orig_Data_sub)
   return(orig_Data_sub)
