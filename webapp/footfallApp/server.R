@@ -84,7 +84,7 @@ convert_Time_Format <- function(data){
 subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   #create unique field for the dataset#
   #convert date to appropriate format
-  orig_Data_Conv <- convert_Date(orig_Data) #### #head(orig_Data_Conv) #nrow(orig_Data_Conv)
+  orig_Data_Conv <- convert_Date(orig_Data, TimeField = TRUE) #### #head(orig_Data_Conv) #nrow(orig_Data_Conv)
   
   #create unique field (i.e. combination of date and time)
   unique_field <- matrix(paste(orig_Data_Conv$Date, orig_Data_Conv$Hour, sep="-"),,1)
@@ -723,7 +723,7 @@ uniq_Dates <- function(data){
 }
 
 #function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, and with date converted to date type
-convert_Date <- function(data){
+convert_Date <- function(data, TimeField = FALSE){
   #first convert the data to the right format i.e. "yyyy-mm-dd"
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
@@ -736,8 +736,16 @@ convert_Date <- function(data){
   dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
   #append back to the dataset
   data$Date <- dateField
+  if(TimeField==TRUE){
+    #ensure "Hour" field is in right format i.e. 0, 1, 2, ....23.
+    dataValues_t <- data$Hour
+    hourField <- as.numeric(substr(dataValues_t, 1, 2)) 
+    data$Hour <- hourField
+  }
   return(data)
 }
+
+
 
 #LIST FOR FUNCTIONS TO CHECK ERRORS IN THE DATASET
 #function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
@@ -787,6 +795,32 @@ detect_Time_Format_Error <- function(data){
   return(timeF)
 }
 
+# #function to remove trailing and leading whitespace in the names of camera location
+# check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
+#   #are these all the camera locations expected
+#   unique_Camera_Loc <- as.vector(lists_Loc_Correct)  #head(orig_Data_sub)
+#   #remove whitespaces in the location names  
+#   vec_Name <- trimws(as.vector(data$LocationName), which="right") #trailing whitespace
+#   vec_Name <- trimws(vec_Name, which="left") #leading whitespace
+#   unique_Camera_Loc_from_Data <- unique(vec_Name)
+#   check_Loc <- length(which((unique_Camera_Loc_from_Data%in%unique_Camera_Loc)==FALSE))
+#   if(check_Loc==0){issue0=0}
+#   if(check_Loc!=0){issue0=1}
+#   return(issue0)
+# }
+# 
+
+#function to remove whitespace in the names of camera location
+remove_whiteSpace_in_Camera_Name <- function(data, lists_Loc_Correct){
+  vec_Name <- trimws(as.vector(data$LocationName), which="right") #trailing whitespace
+  vec_Name <- trimws(vec_Name, which="left") #leading whitespace
+  vec_Name <- matrix(vec_Name,,1)
+  colnames(vec_Name) <- "LocationName"
+  data$LocationName <- vec_Name
+  return(data)
+}
+
+
 #function to detect typo in the list of camera location
 check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
   #are these all the camera locations expected
@@ -821,7 +855,7 @@ data_Preparation_for_training <- function(aggre_footfall, predictors, modelName 
   predictors_info_extract <- predictors[which(predictors$status==1),]  
   
   #convert dates to right format
-  predictors_info_extract <- convert_Date(predictors_info_extract)	
+  predictors_info_extract <- convert_Date(predictors_info_extract, TimeField = FALSE)	
   
   #order by dates and extract the mode recent last three years
   predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date, decreasing = TRUE),]
@@ -833,8 +867,8 @@ data_Preparation_for_training <- function(aggre_footfall, predictors, modelName 
   dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c(outlier))
   
   #To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
-  dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier)
-  predictors_info_extract_subset <- convert_Date(predictors_info_extract_subset)
+  dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier, TimeField = FALSE)
+  predictors_info_extract_subset <- convert_Date(predictors_info_extract_subset, TimeField = FALSE)
   
   #now merge both datasets using the 'Date' column
   setDT(dayTime_HF_aggre_MINUS_outlier)
@@ -988,6 +1022,7 @@ shinyServer(function(input, output, session){
   #missing dates in the predictors information
   if(nrow(missData_Predictors)>0){
     output$missed_Pred_Info <- DT::renderDataTable({
+      #DT::datatable(apply(missData_Predictors[2:nrow(missData_Predictors)], 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       DT::datatable(apply(missData_Predictors, 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       })
     
@@ -1161,8 +1196,8 @@ shinyServer(function(input, output, session){
       #head(data) #data[2130,]
       
       #convert date to appropriate format
-      predictors_info <- convert_Date(predictors_info) ##  predictors_info[1:5, 1:5]
-      weatherInfo <- convert_Date(uploaded_file3) ##weatherInfo
+      predictors_info <- convert_Date(predictors_info, TimeField = FALSE) ##  predictors_info[1:5, 1:5]
+      weatherInfo <- convert_Date(uploaded_file3, TimeField = FALSE) ##weatherInfo
       
       id_to_update <- which(predictors_info$Date %in% weatherInfo$Date)
       
@@ -1352,7 +1387,7 @@ shinyServer(function(input, output, session){
     #import othe predictors for the date specified
     #import the predictor information
     predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-    predictors_info <- convert_Date(predictors_info)  
+    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
     
     #extract the independent variables of today and the next five days.
     x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]            #head(predictors_info_subset)
@@ -1427,7 +1462,7 @@ shinyServer(function(input, output, session){
     #import othe predictors for the date specified
     #import the predictor information
     predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-    predictors_info <- convert_Date(predictors_info)  
+    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
     #extract the predictors info for the specified Date
     x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
     
@@ -1479,11 +1514,11 @@ shinyServer(function(input, output, session){
 
 #if(chartType=="Dot"){  
   if(plotOptn=="Whole Day"){
-  data <- convert_Date(twentyFourHours_HF_aggre)     
+  data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
   } else if (plotOptn=="Daytime"){
-    data <- convert_Date(dayTime_HF_aggre)     
+    data <- convert_Date(dayTime_HF_aggre, TimeField = FALSE)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
   } 
@@ -1681,7 +1716,7 @@ shinyServer(function(input, output, session){
 
   output$otherInfo <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:","<br>",
                                         "(a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'","<br>",
-                                        "(b) 'Hour' - 'Hour of the day', i.e. 0, 1, 2, .... 23.", 
+                                        "(b) 'Hour' - 'Hour of the day', either in the format 'hh:mm', or i.e. 0, 1, 2, .... 23.", 
                                         "(c) 'InCount' - Hourly aggregate of footfall count", "<br>",
                                         "(d) 'LocationName' - Containing the names assigned to camera locations", "<br>",
                                         "<br>",
@@ -1695,7 +1730,7 @@ shinyServer(function(input, output, session){
   output$why_re_gen_HF2 <- renderText({paste("CAUTION: This means that you want to replace the existing historical HF file, generate new aggregates of the historical HF, and re-train the prediction. The results are used to generate the HF profiles on the 'DASHBOARD' page")})
   
   output$regen_HF_warning <- renderText({paste("<b>Warning: If you want to replace the historical HF file, to generate new aggregates and training the prediction model can take up to two and half hours!")})
-  output$append_button_Descrip <- renderText({paste("<b> By clicking the 'append' button, different aggregates, based on the four time segmentations i.e. c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7)) will be generated")})
+  output$append_button_Descrip <- renderText({paste("<b> By clicking the 'append' button, the different aggregates, based on two time segmentations i.e. c(0:23) and c(8:17), representing the 'whole day' and 'daytime' footfall respectively, will be generated")})
   
   }
 
@@ -1733,14 +1768,14 @@ shinyServer(function(input, output, session){
     issue1 = 0
     issue2 = 0
     issue3 = 0
-    issue4 = 0
+    #issue4 = 0
     issue5 = 0
    
     #checking whether the uploaded file contain essential fields
     leng_name <- uploaded_fieldnames(uploaded_file, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
-    Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file)
+    #Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file)
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file, lists_Loc_Correct)
     
 
@@ -1755,15 +1790,17 @@ shinyServer(function(input, output, session){
     if(overlap_Dates>0){
       issue3<-1}
     
-    if(Inspect_Time_Format>0){
-      issue4<-1
-    }
+    #if(Inspect_Time_Format>0){
+      #issue4<-1
+    #}
+    
     if(check_typo_in_Camera_Name>0){
       issue5<-1
     }
     
     # 
-    total_issues <- issue1 + issue2 + issue3 + issue4 + issue5
+    #total_issues <- issue1 + issue2 + issue3 + issue4 + issue5
+    total_issues <- issue1 + issue2 + issue3 + issue5 #+ issue5
     
     #if there is no issues, then show "Upload" button
     if(total_issues==0){
@@ -1772,7 +1809,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("fields_absent")
       shinyjs::hide("fall_outside_daterange")
       shinyjs::hide("date_Overlapping")
-      shinyjs::hide("timeFormatWrong")
+      #shinyjs::hide("timeFormatWrong")
       shinyjs::hide("typo_camera_Name")
       shinyjs::hide("resolve_issue")
       
@@ -1799,8 +1836,8 @@ shinyServer(function(input, output, session){
         output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
       if(issue3==1){
         output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
-      if(issue4==1){
-        output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
+      #if(issue4==1){
+        #output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       if(issue5==1){
         output$typo_camera_Name <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check 'Parameter' tab for correct spellings of location names.")})
       }
@@ -1832,7 +1869,10 @@ shinyServer(function(input, output, session){
     
     # print("line2")
     # #subset the data for only the necessary fields
-     uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
+    uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
+     
+     #removing possible whitespaces in the names of camera location
+    uploadedData_Subset <- remove_whiteSpace_in_Camera_Name(uploadedData_Subset)
     #
     # #get the most recent date from the uploaded dataset
      max_Date <- max(uniq_Dates(uploadedData_Subset))
@@ -1852,7 +1892,9 @@ shinyServer(function(input, output, session){
     # #first aggregating HF count across stations for each hour of the day
      result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
     # print("300000")
-    #
+    
+    print("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
+    print(result1)
     # print("3500000")
     #
     # print("line3")
@@ -1959,13 +2001,13 @@ observe({
     issue1_1 = 0
     #issue2 = 0
     #issue3 = 0
-    issue4_1 = 0
+    #issue4_1 = 0
     issue5_1 = 0
 
     #checking whether the uploaded file contain essential fields
     leng_name <- uploaded_fieldnames(uploaded_file2, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
 
-    Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file2)
+    #Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file2)
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file2, lists_Loc_Correct)
     
     
@@ -1980,21 +2022,23 @@ observe({
     #if(overlap_Dates>0){
       #issue3<-1}
     
-    if(Inspect_Time_Format>0){
-      issue4_1<-1
-    }
+    #if(Inspect_Time_Format>0){
+      #issue4_1<-1
+    #}
+    
     if(check_typo_in_Camera_Name>0){
       issue5_1<-1
     }
     
-    total_issues_1 <- issue1_1 + issue4_1 + issue5_1  #issue2 + issue3 + 
+    #total_issues_1 <- issue1_1 + issue4_1 + issue5_1  #issue2 + issue3 + 
+    total_issues_1 <- issue1_1 + issue5_1  #issue2 + issue3 + 
     
     #if there is no issues, then show "Upload" button
     if(total_issues_1==0){
       #turn off
       output$issues_1 <- renderText({paste(" ")})
       output$fields_absent_1 <- renderText({print(" ")})
-      output$timeFormatWrong_1 <- renderText({paste(" ")})
+      #output$timeFormatWrong_1 <- renderText({paste(" ")})
       output$typo_camera_Name_1 <- renderText({paste(" ")})
       output$resolve_issue_1 <- renderText({paste(" ")})
       
@@ -2016,8 +2060,8 @@ observe({
       output$issues_1 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1_1==1){
         output$fields_absent_1 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
-      if(issue4_1==1){
-        output$timeFormatWrong_1 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
+      #if(issue4_1==1){
+        #output$timeFormatWrong_1 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       if(issue5_1==1){
         output$typo_camera_Name_1 <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check under 'Parameter' tab for correct location names.")})
       }

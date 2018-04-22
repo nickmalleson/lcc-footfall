@@ -1,7 +1,7 @@
 Site,LocationName,BRCYear,BRCMonthName,BRCWeekNum,DayName,Date,Hour,InCount,OutCount,ReportCount,FactoredInCount,FactoredOutCount,FactoredReportCount
-Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,00:00,40,0,40,40,0,40
-Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,01:00,28,0,28,28,0,28
-Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,02:00,13,0,13,13,0,13
+Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,0,40,0,40,40,0,40
+Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,1,28,0,28,28,0,28
+Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,2,13,0,13,13,0,13
 Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,03:00,42,0,42,42,0,42
 Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,04:00,39,0,39,39,0,39
 Leeds,Albion Street South,2017,June,22,Thursday,01-Jun-17,05:00,57,0,57,57,0,57
@@ -5756,6 +5756,6 @@ Leeds,Headrow,2017,June,26,Friday,30-Jun-17,17:00,1375,0,1375,1375,0,1375
 Leeds,Headrow,2017,June,26,Friday,30-Jun-17,18:00,992,0,992,992,0,992
 Leeds,Headrow,2017,June,26,Friday,30-Jun-17,19:00,539,0,539,539,0,539
 Leeds,Headrow,2017,June,26,Friday,30-Jun-17,20:00,478,0,478,478,0,478
-Leeds,Headrow,2017,June,26,Friday,30-Jun-17,21:00,362,0,362,362,0,362
-Leeds,Headrow,2017,June,26,Friday,30-Jun-17,22:00,432,0,432,432,0,432
-Leeds,Headrow,2017,June,26,Friday,30-Jun-17,23:00,308,0,308,308,0,308
+Leeds,Headrow,2017,June,26,Friday,30-Jun-17,21,362,0,362,362,0,362
+Leeds,Headrow,2017,June,26,Friday,30-Jun-17,22,432,0,432,432,0,432
+Leeds,Headrow,2017,June,26,Friday,30-Jun-17,23,308,0,308,308,0,308

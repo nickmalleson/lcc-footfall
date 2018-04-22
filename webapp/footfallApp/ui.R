@@ -46,8 +46,6 @@ $('.slider-animate-button').trigger('click');
 "
 
 
-
-
 # Define UI for application that ...
 shinyUI(
 
@@ -152,8 +150,8 @@ shinyUI(
                     
 
 
-                    # menuItem("Footfall details", tabName ="predictors"
-                             
+                    # menuItem("Footfall details", tabName ="predictors"# I need to uncomment this..
+                    ###menuItem("Footfall details", tabName = "predictors")   
                     # conditionalPanel(
                     # 
                     #   historical_footCopy <- dataTableOutput('history'),
@@ -486,7 +484,7 @@ shinyUI(
                                               textOutput("fields_absent"),
                                               textOutput("fall_outside_daterange"),
                                               textOutput("date_Overlapping"),
-                                              textOutput("timeFormatWrong"),
+                                              #textOutput("timeFormatWrong"),
                                               textOutput("typo_camera_Name"),
                                               tags$hr(), # 
                                               htmlOutput("resolve_issue"),
@@ -581,7 +579,7 @@ shinyUI(
                                                   tags$hr(), # 
                                                   htmlOutput("issues_1"),
                                                   textOutput("fields_absent_1"),
-                                                  textOutput("timeFormatWrong_1"),
+                                                  #textOutput("timeFormatWrong_1"),
                                                   textOutput("typo_camera_Name_1"),
                                                   tags$hr(), # 
                                                   htmlOutput("resolve_issue_1"),
