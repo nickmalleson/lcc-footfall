@@ -703,8 +703,8 @@ missingData <- function(data, indicatorField = FALSE){
   
   #for 'predictor' table, remove those whose 'temp' and 'rain' column have been updated (i.e. with entry '1')
   if(indicatorField==TRUE){
-    dataValues = dataValues[which(data$status != 0),]
-    #data = data[which(as.vector(data$Date) < Sys.Date()),]
+    dataIndd = which(data$status == 0)
+    dataValues = dataValues[-dataIndd,] #isolate the 'yet-to-be-updated' dates
   }
   
   #to identify gaps in the dataset.
@@ -717,8 +717,21 @@ missingData <- function(data, indicatorField = FALSE){
   appdI <- matrix("2000-03-03",1,3)
   colnames(appdI) <- c("from","to","No_of_days")
   missing_Dates <- rbind(missing_Dates, appdI)
+  #remove dates with less than one day
+  missing_Dates <- missing_Dates[which(as.vector(missing_Dates[,3]) != 1),]
+  #if number of rows of the table is greater than 3, remove the last row
+  
+  if(nrow(missing_Dates)>2){ #>2
+    missing_Dates = missing_Dates[-nrow(missing_Dates),]
+    ##missing_Dates = missing_Dates[(4:nrow(missing_Dates)),]
+  }
+  #if 'missing_Dates' is one row, 
+  if(nrow(missing_Dates)==2){ #>2
+    missing_Dates <- as.data.frame(missing_Dates[1,])
+  }
   return(missing_Dates)
 }
+
 
 
 #function to return list of unique dates in a dataset
@@ -1199,7 +1212,7 @@ shinyServer(function(input, output, session){
     
     observeEvent(input$append_file3, {
       
-      #shinyjs::hide("Re-train Prediction Model")
+      shinyjs::hide("Re-train Prediction Model")
       
       req(input$file3)
       #To check the gaps that an uploaded file fill
