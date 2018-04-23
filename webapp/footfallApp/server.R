@@ -721,6 +721,12 @@ missingData <- function(data, indicatorField = FALSE){
   missing_Dates <- missing_Dates[which(as.vector(missing_Dates[,3]) != 1),]
   #if number of rows of the table is greater than 3, remove the last row
   
+  if(nrow(missing_Dates)==1){ #>2
+    missing_Dates = matrix(0, 0, 3)
+    colnames(missing_Dates) <- c("from","to","No_of_days")
+    missing_Dates <- as.data.frame(missing_Dates)
+  }
+  
   if(nrow(missing_Dates)>2){ #>2
     missing_Dates = missing_Dates[-nrow(missing_Dates),]
     ##missing_Dates = missing_Dates[(4:nrow(missing_Dates)),]
@@ -731,6 +737,8 @@ missingData <- function(data, indicatorField = FALSE){
   }
   return(missing_Dates)
 }
+
+
 
 
 
@@ -972,11 +980,12 @@ shinyServer(function(input, output, session){
   predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
   
   
-  dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  #dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  #dayTime_HF_aggre <- convert_Date(dayTime_HF_aggre)
   #eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   #nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-    
+  twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
   
  
     #reverse the table
@@ -988,10 +997,10 @@ shinyServer(function(input, output, session){
   
 
   #HISTORICAL HF VISUALISATION
-  output$dayTimeData <- DT::renderDataTable({
-     dayTIme_HT_Table <- DT::datatable(dayTime_HF_aggre)
-     return(dayTIme_HT_Table)
-   })
+  # output$dayTimeData <- DT::renderDataTable({
+  #    dayTIme_HT_Table <- DT::datatable(dayTime_HF_aggre)
+  #    return(dayTIme_HT_Table)
+  #  })
   
 
   # output$eveningTimeData <- DT::renderDataTable({
@@ -1546,15 +1555,17 @@ shinyServer(function(input, output, session){
   plotOptn = input$timeOftheDayInput
 
 #if(chartType=="Dot"){  
-  if(plotOptn=="Whole Day"){
+  #if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
-  } else if (plotOptn=="Daytime"){
-    data <- convert_Date(dayTime_HF_aggre, TimeField = FALSE)     
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-  } 
+  #} 
+  
+  # else if (plotOptn=="Daytime"){
+  #   data <- convert_Date(dayTime_HF_aggre, TimeField = FALSE)     
+  #   par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+  #   auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
+  #} 
   
 #   else if(plotOptn=="Evening"){
 #     data <- convert_Date(eveningTime_HF_aggre)     
@@ -1786,6 +1797,9 @@ shinyServer(function(input, output, session){
                               header = TRUE,
                               sep = ",")#,
     
+    #to take care of data with null records (new/latest footfall data downloads)
+    uploaded_file <- uploaded_file[which(!is.na(uploaded_file$InCount)),]
+    
     #uploading file
     startTimeC <- Sys.time()
     
@@ -1832,7 +1846,6 @@ shinyServer(function(input, output, session){
       issue5<-1
     }
     
-    # 
     #total_issues <- issue1 + issue2 + issue3 + issue4 + issue5
     total_issues <- issue1 + issue2 + issue3 + issue5 #+ issue5
     
@@ -1871,7 +1884,7 @@ shinyServer(function(input, output, session){
       if(issue2==1){
         output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
       if(issue3==1){
-        output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the footfall database")})}
+        output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the existing footfall database")})}
       #if(issue4==1){
         #output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       if(issue5==1){
@@ -1901,6 +1914,9 @@ shinyServer(function(input, output, session){
                               header = TRUE,
                               sep = ",")#,
     
+    #to take care of data with null records (new/latest footfall data downloads)
+    uploaded_file <- uploaded_file[which(!is.na(uploaded_file$InCount)),]
+    
     shinyjs::show("processingbar1")
     
     # print("line2")
@@ -1917,13 +1933,15 @@ shinyServer(function(input, output, session){
      print(max_Date)
      #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
      
-     hours_of_the_Day <- list(c(0:23), c(8:17))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+     #hours_of_the_Day <- list(c(0:23), c(8:17))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+     hours_of_the_Day <- list(c(0:23))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
     #
      print("200000")
     #
     # #labels of time aggregation
      #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-     time_aggregation <- c("twentyFour_Hours", "dayTime")
+     #time_aggregation <- c("twentyFour_Hours", "dayTime")
+     time_aggregation <- c("twentyFour_Hours")
     #
     # #first aggregating HF count across stations for each hour of the day
      result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
@@ -1936,7 +1954,13 @@ shinyServer(function(input, output, session){
     # print("line3")
     aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
     # #-----------------------------------
-    #
+   
+    #'Hour' field check
+    #HourField <- uploaded_file$Hour
+    
+    
+    
+    
   if(aggregate_Location!=1){
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
     #
@@ -1954,9 +1978,6 @@ shinyServer(function(input, output, session){
 
       #Import the existing corresponding aggregate file
       existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
- 
-      #write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
-      #write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",") 
       
       existing_time_aggre_HF_Updated <- as.data.frame(rbind(existing_time_aggre_HF, update_aggregate))
       
@@ -1970,8 +1991,12 @@ shinyServer(function(input, output, session){
       aggregates_updated <- cbind(existing_time_aggre_HF_Updated, outlier_events)
       colnames(aggregates_updated)<- c("Date","InCount","outlier")
       
+      aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),]
+      
+      aggregates_updated <- convert_Date(aggregates_updated)
       #writing the data aggregates based on four time segmentations
       write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
       
       #update the existing raw HF dataset too..-----------------------------
       #read the existing one and append the subset of updated one to it.
@@ -1987,22 +2012,27 @@ shinyServer(function(input, output, session){
     existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
     #append the uploaded file
     new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
-
-    history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-
+    
+    #new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),]
+    
+    new_Raw_HF <- convert_Date(new_Raw_HF)
+    
+    ####history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+    write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
     shinyjs::hide("confirm_Append")
   }
-    
+   
+    #when no update is made (i.e. occurs in the case where one or more camera is down for the entire dataset to be uploaded) 
     if(aggregate_Location==1){
   
       existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
       #append the uploaded file
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       
-      history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("append")
@@ -2189,13 +2219,14 @@ observeEvent(input$aggre_HF_confirm, {
     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
     
-    hours_of_the_Day <- list(c(0:23), c(8:17)) #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-    
+    #hours_of_the_Day <- list(c(0:23), c(8:17)) #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
+    hours_of_the_Day <- list(c(0:23)) #, c(18:21), 
     
     print("200000")
     
     #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-    time_aggregation <- c("twentyFour_Hours", "dayTime")
+    #time_aggregation <- c("twentyFour_Hours", "dayTime")
+    time_aggregation <- c("twentyFour_Hours")
       
  
         result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")

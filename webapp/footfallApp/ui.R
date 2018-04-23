@@ -124,9 +124,9 @@ shinyUI(
                       #              choices = c("Daytime", "Evening","Night", "Whole Day"),
                       #              selected = "Whole Day"),
                       
-                      radioButtons("timeOftheDayInput", "Modify Time of the Day",
-                                   choices = c("Daytime", "Whole Day"),
-                                   selected = "Whole Day"),
+                      # radioButtons("timeOftheDayInput", "Modify Time of the Day",
+                      #              choices = c("Daytime", "Whole Day"),
+                      #              selected = "Whole Day"),
                       
                       checkboxInput("trendLine", label="Add trend line?", value = FALSE),
                       
