@@ -679,13 +679,18 @@ day_function <- function(){
   dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()), sep = "")
   print(dayT)}
 
-#function to show gaps in the dates in the historical datasets
-missingData <- function(data){
+
+#function to list the gaps in the dates field of a datasets
+missingData <- function(data, indicatorField = FALSE){
+  #to subset the dataset first based on field on interest (specifically to deal with 'predictors' table)
+  if(indicatorField==TRUE){
+    data = data[which(as.vector(data$Date) < Sys.Date()),]
+    #data = data[which(as.vector(data$Date) < Sys.Date()),]
+  }
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
-  #To ensure "Date" column conform to the format "yyyy-mm-dd"
   dateField <- matrix(DateFromData,,1)
-  colnames(dateField) <- c("Date") # data[1:10000,] head(data)
+  colnames(dateField) <- c("Date") 
   #to detect dates not in right format (i.e. yyyy-mm-dd)
   converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
   listInconvertible <- which(!is.na(converDate1))
@@ -695,6 +700,13 @@ missingData <- function(data){
   dataValues <- dateField   
   #append current date to the list..
   dataValues <- rbind(dataValues, as.character(Sys.Date()))
+  
+  #for 'predictor' table, remove those whose 'temp' and 'rain' column have been updated (i.e. with entry '1')
+  if(indicatorField==TRUE){
+    dataValues = dataValues[which(data$status != 0),]
+    #data = data[which(as.vector(data$Date) < Sys.Date()),]
+  }
+  
   #to identify gaps in the dataset.
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
@@ -707,8 +719,6 @@ missingData <- function(data){
   missing_Dates <- rbind(missing_Dates, appdI)
   return(missing_Dates)
 }
-
-
 
 
 #function to return list of unique dates in a dataset
@@ -1003,7 +1013,7 @@ shinyServer(function(input, output, session){
   
   
   #create a list dates occuring in the dataset
-  missData_Predictors <- missingData(data=predictors_info)
+  missData_Predictors <- missingData(data=predictors_info, indicatorField = TRUE)
   
   flush.console()
   print(missData_Predictors)
@@ -1386,7 +1396,10 @@ shinyServer(function(input, output, session){
     temp_fiveDays <- merge(x = uniqueDates, y = temp_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
     temp_fiveDays$main.temp[is.na(temp_fiveDays$main.temp)] <- 5
     
-    rain_fiveDays <- aggregate(rain.3h ~ Date, data = weather_forecast, FUN = mean, na.action = na.omit)
+    #converting the 3 hours rain values to its corresponding 5 minutes aggregates (i.e. equivalence of values from 'http://sci.ncas.ac.uk/leedsweather/')
+    weather_forecast$rain.3h <- weather_forecast$rain.3h * 3/5
+    
+    rain_fiveDays <- aggregate(rain.3h ~ Date, data = weather_forecast, FUN = sum, na.action = na.omit)
     #where rain is "NA" (due to instrument breakdown), substitute "0"
     rain_fiveDays <- merge(x = uniqueDates, y = rain_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
     rain_fiveDays$rain.3h[is.na(rain_fiveDays$rain.3h)] <- 0
