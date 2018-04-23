@@ -480,6 +480,8 @@ shinyUI(
                                               #htmlOutput("processing"),
                                               htmlOutput("Uploaded_file_checks_Passed"),
                                               tags$hr(), # 
+                                              htmlOutput("reload_APP"),
+                                              tags$hr(), #  
                                               htmlOutput("issues"),
                                               textOutput("fields_absent"),
                                               textOutput("fall_outside_daterange"),

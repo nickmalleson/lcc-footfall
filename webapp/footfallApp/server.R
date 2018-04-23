@@ -211,14 +211,19 @@ aggregate_Location <- function(orig_Data_sub){
     print(paste("point2", i, length(uniqId)))
   }
   
-  write.table(loc_agg_data, file="backuploc_agg_data.csv", sep=",", row.names=FALSE) 
+  #  write.table(loc_agg_data, file="backuploc_agg_data.csv", sep=",", row.names=FALSE) 
   
   #clean it up
   loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]  #head(loc_agg_data)
-  rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
-  loc_agg_data <- as.data.frame(loc_agg_data)
-  colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
-  return(loc_agg_data)
+  if(nrow(loc_agg_data)!=0){
+    rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
+    loc_agg_data <- as.data.frame(loc_agg_data)
+    colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
+    return(loc_agg_data)}
+  
+  if(nrow(loc_agg_data)==0){
+    loc_agg_data = 1
+    return(loc_agg_data)}
   
 }
 
@@ -1743,6 +1748,7 @@ shinyServer(function(input, output, session){
     shinyjs::hide("append")
     shinyjs::hide("append_button_Descrip") #   
     shinyjs::hide("confirm_Append")
+    shinyjs::hide("reload_APP")
     #shinyjs::hide("aggre_HF_processing")
     })
 
@@ -1814,6 +1820,7 @@ shinyServer(function(input, output, session){
       #shinyjs::hide("timeFormatWrong")
       shinyjs::hide("typo_camera_Name")
       shinyjs::hide("resolve_issue")
+      shinyjs::hide("reload_APP")
       
       #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed! No issues detected.")})
@@ -1830,6 +1837,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("Uploaded_file_checks_Passed")
       shinyjs::hide("append")
       shinyjs::hide("append_button_Descrip")
+      shinyjs::hide("reload_APP")
       
       output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1==1){
@@ -1903,7 +1911,7 @@ shinyServer(function(input, output, session){
     aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
     # #-----------------------------------
     #
-    #
+  if(aggregate_Location!=1){
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
     #
        print (hours_of_the_Day[[j]])
@@ -1955,10 +1963,35 @@ shinyServer(function(input, output, session){
     new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
 
     history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-    
+
+
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
     shinyjs::hide("confirm_Append")
+  }
+    
+    if(aggregate_Location==1){
+  
+      existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+      #append the uploaded file
+      new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+      
+      history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+      
+      shinyjs::hide("append_button_Descrip")
+      shinyjs::hide("append")
+      shinyjs::hide("confirm_Append")   
+      
+      showModal(modalDialog(
+        title = "Missing Data!",
+        "Data from one or more camera location is missing. The aggregated time series will not be updated! However, HF file would be updated. Please, wait while the processing is completed!",
+        easyClose = FALSE
+      ))
+    }
+    output$reload_APP <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))})
+    shinyjs::hide("processingbar1")
+    shinyjs::show("reload_APP")
+    shinyjs::hide("Uploaded_file_checks_Passed")
     
   })
    
