@@ -262,39 +262,6 @@ shinyUI(
                         box(title = tags$p(tags$b(h4("Preview of Footfall Data Aggregates"))),
                           tabBox(width = 12, height = 800,
                                  
-                                 # tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                 #          id='dayTime',
-                                 #          box(
-                                 #            tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
-                                 #            br(),
-                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI20")          
-                                 #          )
-                                 #          
-                                 # ),
-                                 
-                                 # tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                 #          id='eveningTime',
-                                 #          box(
-                                 #            tabPanel("eveningTime_data", DT::dataTableOutput("eveningTimeData")),
-                                 #            br(),
-                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI21") 
-                                 #          )
-                                 #          
-                                 # ),
-                                 
-                                 # tabPanel(title = tags$b('HF NightTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                 #          id='nightTime',
-                                 #          box(
-                                 #            tabPanel("nightTime_data", DT::dataTableOutput("nightTimeData")),
-                                 #            br(),
-                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI22") 
-                                 #            
-                                 #          )
-                                 #          
-                                 # ),
                                  
                                  tabPanel(title = tags$b('HF 24-Hour Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                           id='twentyfourHour',
@@ -611,32 +578,17 @@ shinyUI(
                                                   hr(),
                                                 width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI17") 
                                               )
-                                              #rm(list = ls())  
+
                                      )
-                                     #tab2
-                                     ##htmlOutput("testHTML1"),
-                                    
- 
-                                     #tags$hr() # 
+
      
                              )
                         )
                                  
-                                 
-                                     
-                          #) ##################
-                          #),
-                          
-                          
-                          #fluidRow(
-                            #)###
-                    )#setting end
-                    
 
-                   # )
+                    )
                     
-                    
-                  ) #body
+                  ) 
                 )
                 
   )
