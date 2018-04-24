@@ -2012,12 +2012,17 @@ shinyServer(function(input, output, session){
       existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
       existing_time_aggre_HF <- as.data.frame(existing_time_aggre_HF)
       
-      print(existing_time_aggre_HF[2800:nrow(existing_time_aggre_HF),])
+      Date_Combined <- c(existing_time_aggre_HF$Date, as.character(update_aggregate$Date))
+      InCount_Combined <- c(existing_time_aggre_HF$InCount, as.character(update_aggregate$InCount))
+      data_Combined <- cbind(Date_Combined, InCount_Combined) 
+      
+      print(data_Combined[2800:nrow(data_Combined),])
       print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+      
       existing_time_aggre_HF_Updated <- rbind(existing_time_aggre_HF, update_aggregate)
       
-      print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
-      print("******************************************************")
+      #print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
+      #print("******************************************************")
       
       # print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
       # print("###############################################")
