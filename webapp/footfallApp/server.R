@@ -1864,7 +1864,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("reload_APP")
       
       #turn on
-      output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed! No issues detected.")})
+      output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed!")})
       shinyjs::show("append")
       shinyjs::show("append_button_Descrip")
       
@@ -2135,7 +2135,7 @@ observe({
       output$resolve_issue_1 <- renderText({paste(" ")})
       
       #turn on
-      output$Uploaded_file_checks_Passed_1 <- renderText({paste("<b>File checks completed! No issues detected.")})
+      output$Uploaded_file_checks_Passed_1 <- renderText({paste("<b>File checks completed!")})
  
       shinyjs::show("aggre_HF")
       shinyjs::hide("aggre_HF_confirm")
