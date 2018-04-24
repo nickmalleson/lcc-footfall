@@ -974,9 +974,11 @@ shinyServer(function(input, output, session){
   #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   #full=TRUE),read.csv, header=TRUE))
   history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+  history_footfall <- convert_Date(history_footfall)
   
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+  predictors_info <- convert_Date(predictors_info)
   
   #extract the predictors info that have weather information.
   predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
@@ -1110,6 +1112,7 @@ shinyServer(function(input, output, session){
       
       #import the predictor information
       predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+      predictors_info <- convert_Date(predictors_info)
       #extract the predictors info that have weather information.
       predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
       predictors_info_extract_Current <- predictors_info_extract[which(predictors_info_extract$Date <= Sys.Date()),] #
@@ -1267,8 +1270,11 @@ shinyServer(function(input, output, session){
     observeEvent(input$train_Prediction_Model, priority=10, {
       
       #re-import the updated data to retrain the model.
-      predictors <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)	
+      predictors <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
+      predictors <- convert_Date(predictors)
+      
       aggre_footfall <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+      aggre_footfall <- convert_Date(aggre_footfall)
       
       cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
       
@@ -1988,6 +1994,8 @@ shinyServer(function(input, output, session){
        colnames(update_aggregate)<- c("Date","InCount","outlier")
       #Import the existing corresponding aggregate file
       existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
+      existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
+      
       existing_time_aggre_HF_Updated <- as.data.frame(rbind(existing_time_aggre_HF, update_aggregate))
       #drop the outlier field and re-compute a new one using the new data
       existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
@@ -2012,7 +2020,8 @@ shinyServer(function(input, output, session){
    }
 
     existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-    #append the uploaded file
+    existing_Raw_HF <- convert_Date(existing_Raw_HF) 
+       #append the uploaded file
     new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
     
     #new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),]
@@ -2032,6 +2041,7 @@ shinyServer(function(input, output, session){
     if(aggregate_Location==1){
   
       existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+      existing_Raw_HF <- convert_Date(existing_Raw_HF)
       #append the uploaded file
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       
