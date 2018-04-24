@@ -207,8 +207,8 @@ aggregate_Location <- function(orig_Data_sub){
     rownames(loc_agg_data) <- rep("100", nrow(loc_agg_data))
     
     loc_agg_data <- rbind(loc_agg_data, appd_Row)
-    flush.console()
-    print(paste("point2", i, length(uniqId)))
+    #flush.console()
+    #print(paste("point2", i, length(uniqId)))
   }
   
   #  write.table(loc_agg_data, file="backuploc_agg_data.csv", sep=",", row.names=FALSE) 
@@ -698,8 +698,10 @@ missingData <- function(data, indicatorField = FALSE){
   #append back to the dataset
   #dataValues <- cbind(min(dateField), "missing dates(months)")
   dataValues <- dateField   
+  dataValues <-   matrix(dataValues[order(dataValues[,1]),],,1)
   #append current date to the list..
   dataValues <- rbind(dataValues, as.character(Sys.Date()))
+  ##dataValues <- c(dataValues, as.character(Sys.Date()))
   
   #for 'predictor' table, remove those whose 'temp' and 'rain' column have been updated (i.e. with entry '1')
   if(indicatorField==TRUE){
@@ -1925,10 +1927,11 @@ shinyServer(function(input, output, session){
      
      #removing possible whitespaces in the names of camera location
     uploadedData_Subset <- remove_whiteSpace_in_Camera_Name(uploadedData_Subset)
-    #
+  
     # #get the most recent date from the uploaded dataset
      max_Date <- max(uniq_Dates(uploadedData_Subset))
     #
+     
     # #specifying the temporal segmentations to use for the data aggregation
      print(max_Date)
      #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
@@ -1954,59 +1957,57 @@ shinyServer(function(input, output, session){
     # print("line3")
     aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
     # #-----------------------------------
-   
+    
     #'Hour' field check
-    #HourField <- uploaded_file$Hour
+    HourField <- as.vector(is.na(aggregate_Location$Hour[1]))
     
-    
-    
-    
-  if(aggregate_Location!=1){
+    print(aggregate_Location)
+    print("l;jskdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;")
+    print(HourField)
+    print(length(HourField))
+
+  if(nrow(aggregate_Location)>1){
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
-    #
        print (hours_of_the_Day[[j]])
-    #
-       aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
-    #   print("500000")
-    #
-    #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
+      
+      if(HourField==FALSE){
+       aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])}
+      
+      if(HourField==TRUE){
+        aggregate_time_of_the_Day <- data.frame(cbind(aggregate_Location$Date, aggregate_Location$InCount))
+        colnames(aggregate_time_of_the_Day) <- c("Date", "InCount")
+        }
+       
+      print(aggregate_time_of_the_Day)
+      print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+          #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
        outlier_events <- outliers(data=aggregate_time_of_the_Day)
-    #
     #   #append the outlier list to the result
        update_aggregate <- cbind(aggregate_time_of_the_Day, outlier_events)
        colnames(update_aggregate)<- c("Date","InCount","outlier")
-
       #Import the existing corresponding aggregate file
       existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
-      
       existing_time_aggre_HF_Updated <- as.data.frame(rbind(existing_time_aggre_HF, update_aggregate))
-      
       #drop the outlier field and re-compute a new one using the new data
       existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
-
       #recompute the outlier
       outlier_events <- outliers(data=existing_time_aggre_HF_Updated)
-      
       #append the outlier list to the result
       aggregates_updated <- cbind(existing_time_aggre_HF_Updated, outlier_events)
       colnames(aggregates_updated)<- c("Date","InCount","outlier")
-      
       aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),]
-      
       aggregates_updated <- convert_Date(aggregates_updated)
       #writing the data aggregates based on four time segmentations
-      write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      
+      #####write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      
       #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
-      
       #update the existing raw HF dataset too..-----------------------------
-      #read the existing one and append the subset of updated one to it.
-
+      #read the existing one and append the subset of updated one to it
       shinyjs::hide("processingbar1")
-      
       #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
-      output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this!
-      
+      output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this
    }
 
     existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
@@ -2017,8 +2018,9 @@ shinyServer(function(input, output, session){
     
     new_Raw_HF <- convert_Date(new_Raw_HF)
     
-    ####history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-    write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+    #history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+    
+    #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
@@ -2032,7 +2034,7 @@ shinyServer(function(input, output, session){
       #append the uploaded file
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       
-      write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+      #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("append")

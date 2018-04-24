@@ -262,16 +262,16 @@ shinyUI(
                         box(title = tags$p(tags$b(h4("Preview of Footfall Data Aggregates"))),
                           tabBox(width = 12, height = 800,
                                  
-                                 tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
-                                          id='dayTime',
-                                          box(
-                                            tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
-                                            br(),
-                                            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
-                                            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI20")          
-                                          )
-                                          
-                                 ),
+                                 # tabPanel(title = tags$b('HF DayTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
+                                 #          id='dayTime',
+                                 #          box(
+                                 #            tabPanel("dayTime_data", DT::dataTableOutput("dayTimeData")),
+                                 #            br(),
+                                 #            "Remarks on the 'Outlier' column: '0' - 'missing'; '1' - 'Outlier'; '2' - 'valid'",
+                                 #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI20")          
+                                 #          )
+                                 #          
+                                 # ),
                                  
                                  # tabPanel(title = tags$b('HF EveningTime Aggre.'), status = "warning", solidHeader = T, background = "aqua",
                                  #          id='eveningTime',
