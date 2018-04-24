@@ -1807,6 +1807,7 @@ shinyServer(function(input, output, session){
     shinyjs::hide("append_button_Descrip") #   
     shinyjs::hide("confirm_Append")
     shinyjs::hide("reload_APP")
+    ##shinyjs::hide("required_aggreg")
     #shinyjs::hide("aggre_HF_processing")
     })
 
@@ -1882,6 +1883,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("resolve_issue")
       shinyjs::hide("reload_APP")
       
+      #shinyjs::show("required_aggreg")
       #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed!")})
       shinyjs::show("append")

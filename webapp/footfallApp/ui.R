@@ -434,10 +434,9 @@ shinyUI(
                                                 progressBar(id = "pb1", value = 0)
                                               ),
                                               
-                                              checkboxGroupInput("variable", "Variable:",
-                                                                 c("Cylinders" = "cyl",
-                                                                   "Transmission" = "am",
-                                                                   "Gears" = "gear")),
+                                              # checkboxGroupInput("required_aggreg", "Required Aggregation:",
+                                              #                    c("By Location:" = "by_loc",
+                                              #                      "By Time" = "By_time"), inline = TRUE),
                                               
                                               #actionButton("go", "Compute"),
                                               #fluidRow(column(1, align="center", offset = 0, 
