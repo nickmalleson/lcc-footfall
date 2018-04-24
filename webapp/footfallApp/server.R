@@ -947,6 +947,12 @@ shinyServer(function(input, output, session){
   #   return(Sys.Date())
   #   })
   
+  output$aggre_HF_by  <- renderText({
+    aggre_HF_by <- c("Time", "Location")
+  })
+  
+
+  
   output$dateText  <- renderText({
     paste("input$date is", as.character(input$date))
   })
@@ -1250,6 +1256,8 @@ shinyServer(function(input, output, session){
       predictors_info[id_to_update, c("rain")] <- weatherInfo$rain
       predictors_info[id_to_update, c("status")] <- 1
       #}
+      
+      predictors_info <- predictors_info[order(predictors_info$Date),] ######
       
       write.table(predictors_info, file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", row.names=FALSE)
       
@@ -2008,6 +2016,7 @@ shinyServer(function(input, output, session){
       aggregates_updated <- convert_Date(aggregates_updated)
       #writing the data aggregates based on four time segmentations
       
+      aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),] #####
       write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
       #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
@@ -2030,6 +2039,8 @@ shinyServer(function(input, output, session){
     
     #history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
     
+    new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
+    
     write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
     shinyjs::hide("append_button_Descrip")
@@ -2044,6 +2055,8 @@ shinyServer(function(input, output, session){
       existing_Raw_HF <- convert_Date(existing_Raw_HF)
       #append the uploaded file
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+      
+      new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
       
       write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
@@ -2265,8 +2278,10 @@ observeEvent(input$aggre_HF_confirm, {
         colnames(finalresult)<- c("Date","InCount","outlier")
         
         #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
+        finalresult <- finalresult[order(finalresult$Date),] #####
         write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
 
+        orig_Data_Subset <- orig_Data_Subset[order(orig_Data_Subset$Date),]
         write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
         print("300000")

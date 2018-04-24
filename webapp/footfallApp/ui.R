@@ -427,6 +427,17 @@ shinyUI(
                                                           '.tsv'
                                                         )),
                                               
+  
+                                              
+                                              # Subset for title types
+                                              # fluidPage(
+                                              # checkboxGroupInput(inputId = "HF_aggregates",
+                                              #                    label = "Aggregate HF By:",
+                                              #                    choices = levels(textOutput("aggre_HF_by")),
+                                              #                    selected = levels(textOutput("aggre_HF_by")))),
+                                              
+                                              #checkboxInput("trendLine", label="Add trend line?", value = FALSE),
+                                              
                                               #processing bar for uploading file (historical)
                                               fluidPage(
                                                 #tags$b("Loading..."), br(),
@@ -499,87 +510,87 @@ shinyUI(
                                               
                                      ), 
                                      
-                                     tabPanel(title = tags$b('Replace all HF records'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='gaps_missingData',
-                                              box(
-                                                tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
-                                                  tabPanel("history_footfall", DT::dataTableOutput("history")),
-                                                  tags$hr(),
-                                                  htmlOutput("HF_view"),
-                                                  htmlOutput("HF_directory"),
-                                                  
-                                                  tags$hr(),
-                                                  htmlOutput("why_re_gen_HF"),
-                                                  htmlOutput("why_re_gen_HF2"),
-                                                  tags$hr(),
-                                                  htmlOutput("regen_HF_warning"),
-                                                  tags$hr(),
-                                                  
-                                                  tags$style(".shiny-file-input-progress {display: none}"),
-                                                  
-                                                  fileInput('file2', 'Upload new raw footfall dataset to replace the existing historical footfall data (Max. size: 200MB)',
-                                                            accept = c(
-                                                              'text/csv',
-                                                              'text/comma-separated-values',
-                                                              'text/tab-separated-values',
-                                                              'text/plain',
-                                                              '.csv',
-                                                              '.tsv'
-                                                            )),
-                                                  
-                                                  #processing bar for uploading file (historical)
-                                                  fluidPage(
-                                                    #tags$b("Loading..."), br(),
-                                                    progressBar(id = "pb2", value = 0)
-                                                  ),
-                                                  
-                                                  htmlOutput("aggre_HF_processing"),
-                                                  
-                                                  tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
-                                                  useShinyjs(), extendShinyjs(text = jscode),
-                                                  #numericInput("seconds", "how many seconds your calculation will last?", value=6),
-                                                  tags$hr(),
-                                                  uiOutput("processingbar2"), 
-                                                  htmlOutput("processing_append"),
-                                                  
-                                                  #htmlOutput("processing"),
-                                                  #progressbar to upload file
-                                                  
-                                                  tags$hr(), # 
-                                                  htmlOutput("issues_1"),
-                                                  textOutput("fields_absent_1"),
-                                                  #textOutput("timeFormatWrong_1"),
-                                                  textOutput("typo_camera_Name_1"),
-                                                  tags$hr(), # 
-                                                  htmlOutput("resolve_issue_1"),
-                                                  htmlOutput("Uploaded_file_checks_Passed_1"),
-                                                  tags$hr(), # 
-                                                  actionButton("aggre_HF", "Generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                                  actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                                  verbatimTextOutput("default"),
-                                                  tags$hr(),
-                                                  htmlOutput("taskCompleted"),
-                                                  tags$hr(),
-                                                  htmlOutput("data_aggre_dir"),
-                                                  htmlOutput("reload_HF"),
-                                                  
-                                                  br(),
-                                                  
-                                                  #),
-                                                  
-                                                  
-                                                  #verbatimTextOutput("console"),
-                                                  # fluidPage(
-                                                  # shinyjs::useShinyjs(),
-                                                  # actionButton("btn","Click me"),
-                                                  # textOutput("text")),
-                                                  
-                                                  #),
-                                                  hr(),
-                                                width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI17") 
-                                              )
-
-                                     )
+                                     # tabPanel(title = tags$b('Replace all HF records'), status = "warning", solidHeader = T, background = "aqua",
+                                     #          id='gaps_missingData',
+                                     #          box(
+                                     #            tags$p(tags$b(h4("Existing raw HF dataset"))),  tags$hr(), # ,#"From: 'Most recent' to 'Earliest'",
+                                     #              tabPanel("history_footfall", DT::dataTableOutput("history")),
+                                     #              tags$hr(),
+                                     #              htmlOutput("HF_view"),
+                                     #              htmlOutput("HF_directory"),
+                                     #              
+                                     #              tags$hr(),
+                                     #              htmlOutput("why_re_gen_HF"),
+                                     #              htmlOutput("why_re_gen_HF2"),
+                                     #              tags$hr(),
+                                     #              htmlOutput("regen_HF_warning"),
+                                     #              tags$hr(),
+                                     #              
+                                     #              tags$style(".shiny-file-input-progress {display: none}"),
+                                     #              
+                                     #              fileInput('file2', 'Upload new raw footfall dataset to replace the existing historical footfall data (Max. size: 200MB)',
+                                     #                        accept = c(
+                                     #                          'text/csv',
+                                     #                          'text/comma-separated-values',
+                                     #                          'text/tab-separated-values',
+                                     #                          'text/plain',
+                                     #                          '.csv',
+                                     #                          '.tsv'
+                                     #                        )),
+                                     #              
+                                     #              #processing bar for uploading file (historical)
+                                     #              fluidPage(
+                                     #                #tags$b("Loading..."), br(),
+                                     #                progressBar(id = "pb2", value = 0)
+                                     #              ),
+                                     #              
+                                     #              htmlOutput("aggre_HF_processing"),
+                                     #              
+                                     #              tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                     #              useShinyjs(), extendShinyjs(text = jscode),
+                                     #              #numericInput("seconds", "how many seconds your calculation will last?", value=6),
+                                     #              tags$hr(),
+                                     #              uiOutput("processingbar2"), 
+                                     #              htmlOutput("processing_append"),
+                                     #              
+                                     #              #htmlOutput("processing"),
+                                     #              #progressbar to upload file
+                                     #              
+                                     #              tags$hr(), # 
+                                     #              htmlOutput("issues_1"),
+                                     #              textOutput("fields_absent_1"),
+                                     #              #textOutput("timeFormatWrong_1"),
+                                     #              textOutput("typo_camera_Name_1"),
+                                     #              tags$hr(), # 
+                                     #              htmlOutput("resolve_issue_1"),
+                                     #              htmlOutput("Uploaded_file_checks_Passed_1"),
+                                     #              tags$hr(), # 
+                                     #              actionButton("aggre_HF", "Generate aggregated HF", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                     #              actionButton("aggre_HF_confirm", "Continue", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                     #              verbatimTextOutput("default"),
+                                     #              tags$hr(),
+                                     #              htmlOutput("taskCompleted"),
+                                     #              tags$hr(),
+                                     #              htmlOutput("data_aggre_dir"),
+                                     #              htmlOutput("reload_HF"),
+                                     #              
+                                     #              br(),
+                                     #              
+                                     #              #),
+                                     #              
+                                     #              
+                                     #              #verbatimTextOutput("console"),
+                                     #              # fluidPage(
+                                     #              # shinyjs::useShinyjs(),
+                                     #              # actionButton("btn","Click me"),
+                                     #              # textOutput("text")),
+                                     #              
+                                     #              #),
+                                     #              hr(),
+                                     #            width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI17") 
+                                     #          )
+                                     # 
+                                     # )
 
      
                              )
