@@ -232,17 +232,7 @@ shinyUI(
                                 
                               ),
                               
-                              
-                              
-                              
-                              
-                              
-                              
-                              
-                              
-                              
-                              
-                              
+                      
                               box(
                                 width = 8, solidHeader = TRUE, status = "success",
                                 title = tags$b("Estimates of next 5 days footfall rates (using Weather forecast from 'http://openweathermap.org/api')"),
@@ -444,6 +434,11 @@ shinyUI(
                                                 progressBar(id = "pb1", value = 0)
                                               ),
                                               
+                                              checkboxGroupInput("variable", "Variable:",
+                                                                 c("Cylinders" = "cyl",
+                                                                   "Transmission" = "am",
+                                                                   "Gears" = "gear")),
+                                              
                                               #actionButton("go", "Compute"),
                                               #fluidRow(column(1, align="center", offset = 0, 
                                                 tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
@@ -508,7 +503,7 @@ shinyUI(
                                               
 
                                               
-                                     ), 
+                                     ) 
                                      
                                      # tabPanel(title = tags$b('Replace all HF records'), status = "warning", solidHeader = T, background = "aqua",
                                      #          id='gaps_missingData',
