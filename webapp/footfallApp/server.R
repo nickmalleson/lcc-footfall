@@ -848,7 +848,7 @@ detect_Time_Format_Error <- function(data){
 #   if(check_Loc!=0){issue0=1}
 #   return(issue0)
 # }
-# 
+#
 
 #function to remove whitespace in the names of camera location
 remove_whiteSpace_in_Camera_Name <- function(data, lists_Loc_Correct){
@@ -1974,9 +1974,10 @@ shinyServer(function(input, output, session){
        aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])}
       
       if(HourField==TRUE){
-        aggregate_time_of_the_Day <- data.frame(cbind(aggregate_Location$Date, aggregate_Location$InCount))
+        aggregate_time_of_the_Day <- subset(aggregate_Location, select=c(Date, InCount)) 
         colnames(aggregate_time_of_the_Day) <- c("Date", "InCount")
-        }
+      }
+      
        
       print(aggregate_time_of_the_Day)
       print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
@@ -1999,7 +2000,7 @@ shinyServer(function(input, output, session){
       aggregates_updated <- convert_Date(aggregates_updated)
       #writing the data aggregates based on four time segmentations
       
-      #####write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
       #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
       #update the existing raw HF dataset too..-----------------------------
@@ -2020,7 +2021,7 @@ shinyServer(function(input, output, session){
     
     #history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
     
-    #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+    write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
@@ -2034,7 +2035,7 @@ shinyServer(function(input, output, session){
       #append the uploaded file
       new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       
-      #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("append")
@@ -2053,8 +2054,6 @@ shinyServer(function(input, output, session){
     
   })
    
-
-  
   observe({
     shinyjs::hide("aggre_HF")
     #shinyjs::show("processingbar1")
