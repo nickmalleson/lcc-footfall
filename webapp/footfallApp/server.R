@@ -723,6 +723,11 @@ missingData <- function(data, indicatorField = FALSE){
   missing_Dates <- missing_Dates[which(as.vector(missing_Dates[,3]) != 1),]
   #if number of rows of the table is greater than 3, remove the last row
   
+  #if 'missing_Dates' is one row, 
+  if(nrow(missing_Dates)==2){ #>2
+    missing_Dates <- as.data.frame(missing_Dates[1,])
+  }
+  
   if(nrow(missing_Dates)==1){ #>2
     missing_Dates = matrix(0, 0, 3)
     colnames(missing_Dates) <- c("from","to","No_of_days")
@@ -733,10 +738,7 @@ missingData <- function(data, indicatorField = FALSE){
     missing_Dates = missing_Dates[-nrow(missing_Dates),]
     ##missing_Dates = missing_Dates[(4:nrow(missing_Dates)),]
   }
-  #if 'missing_Dates' is one row, 
-  if(nrow(missing_Dates)==2){ #>2
-    missing_Dates <- as.data.frame(missing_Dates[1,])
-  }
+
   return(missing_Dates)
 }
 
@@ -979,8 +981,8 @@ shinyServer(function(input, output, session){
   #IMPORTING DATASETS
   #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
                                                   #full=TRUE),read.csv, header=TRUE))
-  history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-  history_footfall <- convert_Date(history_footfall)
+  #history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+  #history_footfall <- convert_Date(history_footfall)
   
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
@@ -997,6 +999,7 @@ shinyServer(function(input, output, session){
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
   
+  history_footfall <- twentyFourHours_HF_aggre
  
   #   #reverse the table
   # hist_table <- apply(history_footfall, 2, rev)
@@ -2065,7 +2068,7 @@ shinyServer(function(input, output, session){
       print(aggregates_updated[2800:nrow(aggregates_updated),])
       print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
       
-      #####write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
       #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
       #update the existing raw HF dataset too..-----------------------------
@@ -2076,18 +2079,18 @@ shinyServer(function(input, output, session){
       output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this
    }
 
-    existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-    existing_Raw_HF <- convert_Date(existing_Raw_HF) 
+    ##existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+    ##existing_Raw_HF <- convert_Date(existing_Raw_HF) 
        #append the uploaded file
-    new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+    ##new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
     
     #new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),]
     
-    new_Raw_HF <- convert_Date(new_Raw_HF)
+    ##new_Raw_HF <- convert_Date(new_Raw_HF)
     
     #history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
     
-    new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
+    ##new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
     
     #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
@@ -2099,12 +2102,12 @@ shinyServer(function(input, output, session){
     #when no update is made (i.e. occurs in the case where one or more camera is down for the entire dataset to be uploaded) 
     if(aggregate_Location==1){
   
-      existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-      existing_Raw_HF <- convert_Date(existing_Raw_HF)
+      ##existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
+      ##existing_Raw_HF <- convert_Date(existing_Raw_HF)
       #append the uploaded file
-      new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
+      ##new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
       
-      new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
+      ##new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
       
       #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
       
