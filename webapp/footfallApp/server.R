@@ -296,7 +296,7 @@ footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
 #------------------------------------------
 
 #function to identify outliers
-outliers <- function(data=aggregate_time_of_the_Day){
+outliers <- function(data){ #=aggregate_time_of_the_Day
   x<-data
   hold_result <- matrix(0, nrow(x), 1)
   x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
@@ -2012,16 +2012,24 @@ shinyServer(function(input, output, session){
       existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
       existing_time_aggre_HF <- as.data.frame(existing_time_aggre_HF)
       
-      Date_Combined <- c(existing_time_aggre_HF$Date, as.character(update_aggregate$Date))
-      InCount_Combined <- c(existing_time_aggre_HF$InCount, as.character(update_aggregate$InCount))
-      data_Combined <- cbind(Date_Combined, InCount_Combined) 
+      Date_Combined <- c(existing_time_aggre_HF$Date, as.vector(update_aggregate$Date))
+      InCount_Combined <- c(existing_time_aggre_HF$InCount, as.vector(update_aggregate$InCount))
+      data_Combined <- as.data.frame(cbind(Date_Combined, InCount_Combined))
       
+      #print()
+      #print()
+      
+      colnames(data_Combined) <- c("Date","InCount")
       print(data_Combined[2800:nrow(data_Combined),])
+   
+      #data_Combined_InCount <- matrix(data_Combined$InCount,,1)
+      #print(data_Combined_InCount[2800:nrow(data_Combined_InCount),])
       print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
       
-      existing_time_aggre_HF_Updated <- rbind(existing_time_aggre_HF, update_aggregate)
+      ####existing_time_aggre_HF_Updated <- rbind(existing_time_aggre_HF, update_aggregate)
+      #convert_atomic <- matrix(data_Combined[,2],,1)
       
-      #print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
+      #print(convert_atomic)
       #print("******************************************************")
       
       # print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
@@ -2032,25 +2040,30 @@ shinyServer(function(input, output, session){
       # print(update_aggregate)
       
       #drop the outlier field and re-compute a new one using the new data
-      existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
+      #existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
       #recompute the outlier
-      outlier_events <- outliers(data=existing_time_aggre_HF_Updated)
+      outlier_events <- outliers(data=data_Combined)
       
-      # print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
-      # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       # 
       #append the outlier list to the result
-      aggregates_updated <- cbind(existing_time_aggre_HF_Updated, outlier_events)
+      aggregates_updated <- cbind(data_Combined, outlier_events)
       
       # print(aggregates_updated[2800:nrow(aggregates_updated),])
       # print("++++++++++++++++++++++++++++++++++++++++")
       # 
       colnames(aggregates_updated)<- c("Date","InCount","outlier")
+      
+      print(aggregates_updated[2800:nrow(aggregates_updated),])
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+      
       aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),]
       aggregates_updated <- convert_Date(aggregates_updated)
       #writing the data aggregates based on four time segmentations
       
       aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),] #####
+      
+      print(aggregates_updated[2800:nrow(aggregates_updated),])
+      print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
       
       #####write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
