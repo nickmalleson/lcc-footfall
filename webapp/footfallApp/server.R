@@ -329,10 +329,7 @@ auc_plot <- function(y, plotStyle=1){
     xy_1Type <- rep(1, nrow(xy_1))
     #xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
-    # a <- ggplot(data=xy_1, aes(x=x, y=y)) + geom_line() + geom_point()   # Left (to compare)  #gam for n > 1000.
-    # print(a)
-    #which(is.na(xy_1$InCount))
-    
+
     #plot(xy_1$Date, xy_1$InCount)  
      print(ggplot(xy_1, aes(x, y, group=xy_1Type)) +
              geom_line(color="blue", size = 1) +
@@ -367,14 +364,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
   
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
-  
-  #Join 
+    #Join 
   merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE, all.y = TRUE)
   merged_Datasetd  <- as.data.frame(merged_Datasetd)
-  
-  #flush.console()
-  #print(merged_Datasetd)
-  
   #combine historical data and predicted.
   x <- c(as.character(as.Date(merged_Datasetd$Date)), as.character(as.Date(predicted_Point$Date)))
   y <- c(merged_Datasetd$InCount, predicted_Point$InCount)
@@ -401,8 +393,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
 
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    #Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-    
+
     xy_1 <- data.frame(Type, Date, InCount) #, Outliers)
 
     #overall mean of the time series
@@ -447,12 +438,7 @@ if(chartType=="Dot"){
             geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
-            ###geom_text(data = txt,aes(label = lab),angle = 0, hjust = 0, vjust = 0)
-          
-
-            
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
-          #scale_x_discrete(labels = x_backup)
     ) }
 
   if(addTrend==TRUE){
@@ -460,8 +446,6 @@ if(chartType=="Dot"){
  
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
-            #geom_vline(xintercept = 2000, linetype="dotted",
-            #color = "red", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
 
@@ -488,7 +472,6 @@ if(chartType=="Dot"){
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
-          #scale_x_discrete(labels = x_backup)
     ) }
 }
 
@@ -500,8 +483,6 @@ if(chartType=="Dot"){
   
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
-              #geom_vline(xintercept = 2000, linetype="dotted",
-              #color = "red", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
 
@@ -535,8 +516,6 @@ if(chartType=="Dot"){
  
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
-              #geom_vline(xintercept = 2000, linetype="dotted",
-              #color = "red", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
 
@@ -563,23 +542,17 @@ if(chartType=="Dot"){
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
               
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
-            #scale_x_discrete(labels = x_backup)
       ) }
     
  
     }
   }
   
- # }
-#}
 
 #function to plot...points and lines for forecast
 auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
   
   xy_1 <- y
-  
-  #print(xy_1)
-  #print("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGDDDDDDDDDDDDDDDDDDDDDDDWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW")
   
   labs <- data.frame(xy_1Type=c(1, 2),
                      label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
@@ -651,33 +624,6 @@ vector_perc_diff <- function(data){
   return(table_R)
 }
 
-# labs <- data.frame(var=c("xy_1Type"),
-#                    label = fontawesome(c('fa-arrow-circle-up'))  )
-
-# labs <- data.frame(var=c("var1", "var2"),
-#                    label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
-# d <- merge(data, labs, by.x="var", by.y="var")
-
-# ggplot(d,aes(x=id,y=count,color=var))+
-#   geom_text(aes(label=label),family='fontawesome-webfont', size=8)+
-#   #geom_label_repel(aes(label = count,
-#   #fill = factor(var)), color = 'white',
-#   #size = 3.5) +
-#   #theme(legend.position = "bottom")+
-#   geom_line()+
-#   geom_text_repel(
-#     data = subset(d, var == "var1"), aes(label = count),
-#     size = 5,
-#     #box.padding = unit(0.5, "lines"),
-#     point.padding = unit(0.3, "lines")
-#   )
-
-# Set up API key
-# library(owmr)
-# owmr_settings("c8a930a2e30b695551e57d375a67d76e")
-# get_forecast("leeds", cnt = 120)
-# get_forecast("london", cnt = 100)
-
 #function to display time
 date_function <- function(){
   date_time <- Sys.time()
@@ -740,8 +686,6 @@ missingData <- function(data, indicatorField = FALSE){
   #to identify gaps in the dataset.
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
-  #missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
-  #missing_Dates <-   data.frame(from = (DF[DF_Dates>1]+1), to = (DF[c(1, DF_Dates)>1]-1), No_of_days = (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
   missing_Dates <-  data.frame((DF[DF_Dates>1]+1), (DF[c(1, DF_Dates)>1]-1), (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
   colnames(missing_Dates) <- c("from","to","No_of_days")
   appdI <- matrix("2000-03-03",1,3)
@@ -769,9 +713,6 @@ missingData <- function(data, indicatorField = FALSE){
 
   return(missing_Dates)
 }
-
-
-
 
 
 #function to return list of unique dates in a dataset
@@ -815,9 +756,6 @@ convert_Date <- function(data, TimeField = FALSE){
   return(data)
 }
 
-
-
-#LIST FOR FUNCTIONS TO CHECK ERRORS IN THE DATASET
 #function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
 uploaded_fieldnames <- function(data, essential_Fields){
   #essential_Fields <- c("Date","Hour","InCount", "LocationName")
@@ -865,20 +803,6 @@ detect_Time_Format_Error <- function(data){
   return(timeF)
 }
 
-# #function to remove trailing and leading whitespace in the names of camera location
-# check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
-#   #are these all the camera locations expected
-#   unique_Camera_Loc <- as.vector(lists_Loc_Correct)  #head(orig_Data_sub)
-#   #remove whitespaces in the location names  
-#   vec_Name <- trimws(as.vector(data$LocationName), which="right") #trailing whitespace
-#   vec_Name <- trimws(vec_Name, which="left") #leading whitespace
-#   unique_Camera_Loc_from_Data <- unique(vec_Name)
-#   check_Loc <- length(which((unique_Camera_Loc_from_Data%in%unique_Camera_Loc)==FALSE))
-#   if(check_Loc==0){issue0=0}
-#   if(check_Loc!=0){issue0=1}
-#   return(issue0)
-# }
-#
 
 #function to remove whitespace in the names of camera location
 remove_whiteSpace_in_Camera_Name <- function(data, lists_Loc_Correct){
@@ -972,11 +896,6 @@ options(shiny.maxRequestSize=200*1024^2)
 
 shinyServer(function(input, output, session){
 
-  #set current date for the calender
-  # output$change_Date <- renderText({ 
-  #   return(Sys.Date())
-  #   })
-  
   output$aggre_HF_by  <- renderText({
     aggre_HF_by <- c("Time", "Location")
   })
