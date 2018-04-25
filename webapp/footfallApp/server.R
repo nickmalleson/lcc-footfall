@@ -1489,6 +1489,12 @@ shinyServer(function(input, output, session){
     #drop "Date", "status" columns 
     x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
     
+    #load prediction model
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
+  
+    #predict footfall rate for the selected Date, temperature and rain values
+    y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
+    y_new_5_days <- vector_perc_diff(y_new_5_days)
     
     #--------------------	
     #collect five previous observation of the same week day
@@ -1509,13 +1515,6 @@ shinyServer(function(input, output, session){
       x_new_5_days_same_WeekDays [[k]] <- list(extract_Same_weekDay)
     }
     
-    
-    #load prediction model
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
-    
-    #predict footfall rate for the selected Date, temperature and rain values
-    y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
-    y_new_5_days <- vector_perc_diff(y_new_5_days)
     
     #generate predictions for the other past same weekdays predictors
     y_new_5_days_past_weekdays <- NULL
