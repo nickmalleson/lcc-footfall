@@ -584,8 +584,17 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
 
   #prepare the previous weeks data
   y_m <- melt(y_past)
-  y_m <- cbind(y_m, rep(1:length(unique(y_m$Var1)), length(unique(y_m$Var2))))
-  colnames(y_m) <- c("Var1","Var2","value","Var3")
+  colfunc <- colorRampPalette(c("black", "grey"))
+  colfunc <- colfunc(length(unique(y_m$Var2)))
+  #generate Ids
+  Ids1 <- NULL
+  Ids_co <- NULL
+  for(g in 1:length(unique(y_m$Var2))){   #g<-1
+    Ids <- c(Ids, rep(g, length(unique(y_m$Var1))))
+    Ids_col <- c(Ids_col, rep(colfunc[g], length(unique(y_m$Var1))))
+  } 
+  y_m <- cbind(y_m, Ids, Ids_col)
+  colnames(y_m) <- c("Var1","Var2","value","Var3", "Var4")
   y_m <- as.data.frame(y_m)
   
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
@@ -598,7 +607,7 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
         
-      geom_point(data = y_m, aes(x = Var2, y = value, size = y_m$Var3, group = Var2)) +
+        geom_point(data = y_m, aes(x = Var3, y = value, size = y_m$Var1, group = Var3, color=Var4)) +
         
       annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
         
@@ -1522,7 +1531,8 @@ shinyServer(function(input, output, session){
     #y_new_5_days_past_weekdays <- t(y_new_5_days_past_weekdays)
     rownames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
     y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
-    y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[2:ncol(y_new_5_days_past_weekdays),])
+    rownames(y_new_5_days_past_weekdays) <- 1:nrow(y_new_5_days_past_weekdays)
+    y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[,2:ncol(y_new_5_days_past_weekdays)])
   
     
     #####I WANT TO CARRY THIS FORWARD......
