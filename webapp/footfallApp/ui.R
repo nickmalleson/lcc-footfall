@@ -28,6 +28,7 @@ library(data.table)
 library(dplyr)
 library(randomForest)
 library(ROpenWeatherMap)
+require(reshape2)
 
 #api key for downloading weather forecast...(http://openweathermap.org/)
 api_key="c8a930a2e30b695551e57d375a67d76e"

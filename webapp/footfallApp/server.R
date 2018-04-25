@@ -29,6 +29,7 @@ library(data.table)
 library(dplyr)
 library(randomForest)
 library(ROpenWeatherMap)
+require(reshape2)
 
 # Manually set the time zone
 Sys.setenv(TZ="Europe/London")
@@ -1509,9 +1510,12 @@ shinyServer(function(input, output, session){
       y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, hold_Pred)
       
     }
+    
     colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
     y_new_5_days_past_weekdays <- as.data.frame(y_new_5_days_past_weekdays)
     
+    print(y_new_5_days_past_weekdays)
+    print("33333333333333333333333333333333333333333333333")
     #####I WANT TO CARRY THIS FORWARD......
     #print(y_new_5_days)
     #print("===============")
