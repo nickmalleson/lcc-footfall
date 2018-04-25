@@ -399,10 +399,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
-    #flush.console()
-    #print(current_Date_Index)
-    #print("...........................................")
-    #x <- as.Date(as.vector(xy_1$x))
+
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     #Outliers <-  as.numeric(as.vector(xy_1$Outliers))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     
@@ -419,9 +416,6 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     ind_Foot <- data[which(substr(data$Date[order(data$Date)], 1,4) == most_recent_year), c("InCount")]
     percentiles <- round(as.vector(quantile(ind_Foot, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm=TRUE)), digits=0)   # quartile
     
-    #flush.console()
-    #print(ind_Foot[1])
-    #print("==============================================GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG==============================================")
     
 if(chartType=="Dot"){
   if(addTrend==FALSE){
@@ -429,8 +423,7 @@ if(chartType=="Dot"){
 
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
-            #geom_vline(xintercept = 2000, linetype="dotted",
-            #color = "red", size=1.5) +
+
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
 
@@ -440,15 +433,18 @@ if(chartType=="Dot"){
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
             
-            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(2, (length(Type)-1)), 4)  ) +
             
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
             
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+            #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+            geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+            geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
             ###geom_text(data = txt,aes(label = lab),angle = 0, hjust = 0, vjust = 0)
@@ -475,7 +471,7 @@ if(chartType=="Dot"){
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
             
-            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
+            geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(2, (length(Type)-1)), 4)  ) +
             
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
@@ -483,9 +479,12 @@ if(chartType=="Dot"){
             geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) +
             
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+            #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+            geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+            geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
@@ -518,29 +517,16 @@ if(chartType=="Dot"){
                          color = "green", size=1) +
               
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
-              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'grey', alpha=0.9) +
- 
+              #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
-              #geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th Pctile", " (",most_recent_year,")", sep=""), size=3) +
-              
+              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
-              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
-              #geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th Pctile", " (",most_recent_year,")", sep=""), size=3) +
-              
+              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[5],yend=percentiles[5]), label=paste("Max.", " (",most_recent_year,")", sep=""), size=3, colour = 'grey', alpha=0.9) +
-              
-              #geom_text(data = txt,aes(label = lab),angle = 0, hjust = 0, vjust = 0)
-              #geom_text(data = percentiles,aes(label = prob),angle = 0, hjust = 0, vjust = 0) + 
-              # scale_color_manual(values = c("green", "red"), name = "Legend", 
-              #                    labels = c("V5", "V6")) +
-              
-              #scale_color_manual(values = c("red", "grey")) +
-              #theme_bw(base_size = 12) + theme(legend.position = "bottom") +
               
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
-            #scale_x_discrete(labels = x_backup)
+
       ) }
 
     if(addTrend==TRUE){
@@ -568,11 +554,14 @@ if(chartType=="Dot"){
               geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) +
               
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
+              #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+              geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-
+              
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
             #scale_x_discrete(labels = x_backup)
       ) }
@@ -1017,12 +1006,6 @@ shinyServer(function(input, output, session){
   #directory for other items
   other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
   
-  #IMPORTING DATASETS
-  #history_footfall <- do.call("rbind", lapply(list.files(HF_directory,
-                                                  #full=TRUE),read.csv, header=TRUE))
-  #history_footfall <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-  #history_footfall <- convert_Date(history_footfall)
-  
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
   predictors_info <- convert_Date(predictors_info)
@@ -1030,42 +1013,11 @@ shinyServer(function(input, output, session){
   #extract the predictors info that have weather information.
   predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
   
-  
-  #dayTime_HF_aggre <- read.table(file=paste(file_here, "dayTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-  #dayTime_HF_aggre <- convert_Date(dayTime_HF_aggre)
-  #eveningTime_HF_aggre <- read.table(file=paste(file_here, "eveningTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
-  #nightTime_HF_aggre <- read.table(file=paste(file_here, "nightTimeAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
   
   history_footfall <- twentyFourHours_HF_aggre
  
-  #   #reverse the table
-  # hist_table <- apply(history_footfall, 2, rev)
-  # 
-  # output$history <- renderDataTable(hist_table)
-  # 
-  
-  # historical_footfall <- read.table(file=ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/historical_footfall/historical_footfall_up_to_31_12_2016.csv", sep=",", head=TRUE)
-  # history_footfall <- historical_footfall
-  
-
-  #HISTORICAL HF VISUALISATION
-  # output$dayTimeData <- DT::renderDataTable({
-  #    dayTIme_HT_Table <- DT::datatable(dayTime_HF_aggre)
-  #    return(dayTIme_HT_Table)
-  #  })
-  
-
-  # output$eveningTimeData <- DT::renderDataTable({
-  #   eveningTimeData <- DT::datatable(eveningTime_HF_aggre)
-  #   return(eveningTimeData)
-  # })
-  # 
-  # output$nightTimeData <- DT::renderDataTable({
-  #   nightTimeData <- DT::datatable(nightTime_HF_aggre)
-  #   return(nightTimeData)
-  # })
 
   output$twentyFourHoursData <- DT::renderDataTable({
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
@@ -1082,21 +1034,10 @@ shinyServer(function(input, output, session){
                                                     "in the 'Historical Footfall (HF)' and 'Update HF' tabs respectively, ensure that the spellings of the camera (location) names","<br>",
                                                     "are exactly as typed here. Also, watch out for leading and trailing whitespaces in the names.")})
 
-  
-  #tab 'Update Predictors'
-  
-  #Summary of missing Predictors information (Specifically weather Information)
-  
-  
+
   #create a list dates occuring in the dataset
   missData_Predictors <- missingData(data=predictors_info, indicatorField = TRUE)
   
-  #flush.console()
-  #print(missData_Predictors)
-  
-  #print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-  
-  #print(missData_Predictors)
   #Note: the appended row in missingData function has to be removed. 
   if(length(missData_Predictors)==3){
     missData_Predictors #####address tis.... are you returning the entire table... need to resolve
@@ -1108,8 +1049,6 @@ shinyServer(function(input, output, session){
     output$msg_pred <- renderText({
       paste("<b>Predictor Info. is up-to-date!")
     })
-    ##shinyjs::hide("file1")  
-    ##shinyjs::hide("progressingbar2")  
   }
   
   #missing dates in the predictors information
@@ -1118,9 +1057,7 @@ shinyServer(function(input, output, session){
       #DT::datatable(apply(missData_Predictors[2:nrow(missData_Predictors)], 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       DT::datatable(apply(missData_Predictors, 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       })
-    
-    #to hide "missing data" warning
-    #if(nrow(missData_Predictors)>0){
+
     output$notify_pred <- renderText({ print("Issues")  }) 
     #}
     
@@ -1139,9 +1076,6 @@ shinyServer(function(input, output, session){
     
 
   #------------------------checking.., uploading and appending predictor information
-     #uploading file
-
-    
     observe({
     
       shinyjs::hide("append_file3")  
@@ -1149,8 +1083,6 @@ shinyServer(function(input, output, session){
       shinyjs::hide("fields_absent3")
       shinyjs::hide("fall_outside_daterange3")
       shinyjs::hide("date_Overlapping3")
-      #shinyjs::hide("timeFormatWrong3")
-      #shinyjs::hide("typo_camera_Name3")
       shinyjs::hide("resolve_issue3")
       shinyjs::hide("Re-train Prediction Model")
       
@@ -1182,17 +1114,12 @@ shinyServer(function(input, output, session){
     issue1_3 = 0
     issue2_3 = 0
     issue3_3 = 0
-    #issue4_3 = 0
-    #issue5_3 = 0
-    
+
     #checking the uploaded file
     leng_name3 <- uploaded_fieldnames(uploaded_file3, essential_Fields =  c("Date","mean_temp","rain")) #checking essential field names
     out_Len3 <- dateRange_Checker(predictors_info, uploaded_file3) #checking if dates falls outsides desired range 
     overlap_Dates3 <- dateOverlap_Checker(predictors_info_extract_Current, uploaded_file3) #checking whether any of the uploaded record overlap with the dates in the database 
-    #Inspect_Time_Format3 <- detect_Time_Format_Error(uploaded_file3)#checking the date format
 
-    #check_typo_in_Camera_Name3 <- check_typo_in_Camera_Name(data=uploaded_file3, lists_Loc_Correct3)
-    
     essential_Fields <- c("Date", "mean_temp", "rain")
     
     if(as.numeric(leng_name3)!=length(essential_Fields)){
@@ -1204,14 +1131,6 @@ shinyServer(function(input, output, session){
     if(overlap_Dates3>0){
       issue3_3<-1}
     
-    #if(Inspect_Time_Format3>0){
-      #issue4_3<-1
-    #}
-    #if(check_typo_in_Camera_Name3>0){
-      #issue5_3<-1
-    #}
-    
-    # 
     total_issues3 <- issue1_3 + issue2_3 + issue3_3 #+ issue4_3 #+ issue5_3
     
     #if there is no issues, then show "Upload" button
@@ -1221,8 +1140,6 @@ shinyServer(function(input, output, session){
       shinyjs::hide("fields_absent3")
       shinyjs::hide("fall_outside_daterange3")
       shinyjs::hide("date_Overlapping3")
-      #shinyjs::hide("timeFormatWrong3")
-      #shinyjs::hide("typo_camera_Name3")
       shinyjs::hide("resolve_issue3")
       shinyjs::hide("taskCompleted3")
       shinyjs::hide("restart_app3")
@@ -1232,9 +1149,7 @@ shinyServer(function(input, output, session){
       shinyjs::show("append_file3")
       shinyjs::show("append_button_Descrip3")
       shinyjs::hide("Re-train Prediction Model")
-      
-      #aggregated the data and preview
-      
+
     }
     
     if(total_issues3!=0){
@@ -1248,8 +1163,6 @@ shinyServer(function(input, output, session){
       shinyjs::show("fields_absent3")
       shinyjs::show("fall_outside_daterange3")
       shinyjs::show("date_Overlapping3")
-      #shinyjs::show("timeFormatWrong3")
-      #shinyjs::hide("typo_camera_Name3")
       shinyjs::show("resolve_issue3")
       shinyjs::hide("taskCompleted3")
       shinyjs::hide("restart_app3")
@@ -1262,12 +1175,7 @@ shinyServer(function(input, output, session){
         output$fall_outside_daterange3 <- renderText({print("*  One or more of the uploaded dates fall outside the expected date range (i.e. earliest date in the already loaded data and the current date")})}
       if(issue3_3==1){
         output$date_Overlapping3 <- renderText({print("*  Weather info. for one or more of the uploaded dates have previously been uploaded!")})}
-      #if(issue4_3==1){
-        #output$timeFormatWrong3 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
-      #if(issue5_3==1){
-        #output$typo_camera_Name3 <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check 'Parameter' tab for correct spellings of location names.")})
-     #}
-      
+
       output$resolve_issue3 <- renderText({paste("<b>Please, resolve issues and re-upload file.....")})
     }
     
@@ -1284,11 +1192,7 @@ shinyServer(function(input, output, session){
       uploaded_file3 <- read.csv(input$file3$datapath,
                                  header = TRUE,
                                  sep = ",")#,
-      
-      
-      #weatherInfo <- read.table("C:/Users/monsu/Documents/GitHub/lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/to be uploaded/weather_info.csv", sep=",", head=TRUE)
-      #head(data) #data[2130,]
-      
+
       #convert date to appropriate format
       predictors_info <- convert_Date(predictors_info, TimeField = FALSE) ##  predictors_info[1:5, 1:5]
       weatherInfo <- convert_Date(uploaded_file3, TimeField = FALSE) ##weatherInfo
@@ -1336,11 +1240,7 @@ shinyServer(function(input, output, session){
       
       #save the model
       save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
-      ##Using randomForest algorithm
-      #randomForest <- randomForest(y ~., data=train)
-      
-      
-      
+
       shinyjs::show("restart_app3")
       
     })
@@ -1374,20 +1274,7 @@ shinyServer(function(input, output, session){
                   playButton = "",
                   pauseButton = ""))})
 
-  
-  
-# #monitors file upload
-#   observeEvent(input$file2, priority=10, {
-#     js$play()
-#   })
-#   output$processingbar1 = renderUI({
-#     shinyjs::hide("processingbar1")
-#     sliderInput("slider", label = "", width = '300px',min = 0, max = 99,value = 0, step = 1, post="%  Done",
-#                 animate = animationOptions(
-#                   interval = (8*8), #5 seconds
-#                   playButton = "",
-#                   pauseButton = ""))})
-  
+
   autoInvalidate1 <- reactiveTimer(5000)
   
   #display today's date on the header
@@ -1456,9 +1343,6 @@ shinyServer(function(input, output, session){
     auc_plot(y, plotStyle=2)
   })
   
-  
-  
-  
 #to forecast next 5-days footfall  
   output$forecasted_footfall <- renderPlot({
  
@@ -1494,19 +1378,10 @@ shinyServer(function(input, output, session){
     #extract the independent variables of today and the next five days.
     x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]            #head(predictors_info_subset)
 
-    #print(x_new_5_days)
-    #print(temp_fiveDays)
-    #print(rain_fiveDays)
-    
-    #print("===============rrrrrrrrr================")
     #add weather temp and rain data
     x_new_5_days$mean_temp <- temp_fiveDays$main.temp
     x_new_5_days$rain <- rain_fiveDays$rain.3h
     
-    
-    #print(x_new_5_days)
-    
-    #drop "Date", "status" columns 
     x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
     
     #load prediction model
@@ -1538,10 +1413,6 @@ shinyServer(function(input, output, session){
     #y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
     rownames(y_new_5_days_past_weekdays) <- 1:nrow(y_new_5_days_past_weekdays)
     y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[,2:ncol(y_new_5_days_past_weekdays)])
-    
-    #####I WANT TO CARRY THIS FORWARD......
-    #print(y_new_5_days)
-    #print("===============")
 
     print(y_new_5_days)
     print(y_new_5_days_past_weekdays)
@@ -1577,9 +1448,7 @@ shinyServer(function(input, output, session){
     #initialisation
     temp_Value <- 0
     rain_Value <- 0
-    #http://www.holiday-weather.com/leeds/averages/
-    #non_Selectable_Date <- c(as.Date("2018-05-15"), as.Date("2018-12-25"), as.Date("2019-01-01"),as.Date("2019-12-25"))
-    
+
     #prediction parameters from UI
     input_dateToForecast = as.Date(input$dateToForecast)
     input_temp_level = as.character(input$temp_level)
@@ -1630,61 +1499,17 @@ shinyServer(function(input, output, session){
     
     y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
     colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
-    # 
-    #print(temp_Value)
-    #print(rain_Value)
-    #print(x_new)
-    #print(y_new)
-    #print("==============================")   
+
   #to set chart type
   chartType = input$chartType
   #to set time segmentation to plot
   plotOptn = input$timeOftheDayInput
 
-#if(chartType=="Dot"){  
-  #if(plotOptn=="Whole Day"){
   data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
-  #} 
-  
-  # else if (plotOptn=="Daytime"){
-  #   data <- convert_Date(dayTime_HF_aggre, TimeField = FALSE)     
-  #   par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-  #   auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-  #} 
-  
-#   else if(plotOptn=="Evening"){
-#     data <- convert_Date(eveningTime_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-#   }else if(plotOptn=="Night"){
-#     data <- convert_Date(nightTime_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), predicted_Point = y_new, addTrend = input$trendLine, chartType=input$chartType)
-#   }
-# #} 
 
-# if(chartType=="Line"){  
-#   if(plotOptn=="Whole Day"){
-#     data <- convert_Date(twentyFourHours_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
-#   } else if(plotOptn=="Daytime"){
-#     data <- convert_Date(dayTime_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
-#   }else if(plotOptn=="Evening"){
-#     data <- convert_Date(eveningTime_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
-#   }else if(plotOptn=="Night"){
-#     data <- convert_Date(nightTime_HF_aggre)     
-#     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-#     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), addTrend = input$trendLine, plotStyle=1)
-#   }
-# } 
-  
+
   })
   
  
@@ -1705,15 +1530,7 @@ shinyServer(function(input, output, session){
     paste(th_separator(27*200))
   }) 
   
-  #Leeds = map('world', fill = TRUE, plot = FALSE, region = "UK", exact=TRUE)
-  
-  # Add a default minZoom and maxZoom of the same value so that the map does not zoom
-  # output$mapLeeds <- renderLeaflet({
-  #   leaflet(Leeds) %>% addTiles(options=tileOptions(minZoom=4, maxZoom=4)) %>%
-  #     fitBounds(Leeds$range[1], Leeds$range[3], Leeds$range[2], Leeds$range[4]) %>%
-  #     addPolygons(fillOpacity = 0.6,  smoothFactor = 0.5, stroke = TRUE, weight = 1)               
-  # })
-  
+
   output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
@@ -1724,26 +1541,7 @@ shinyServer(function(input, output, session){
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
       addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)
   })
-  # 
-  # # Change a reactive value depending on mouse click
-  # zoom <- reactiveValues(level=4)
-  # # This records mouse clicks outside polygons
-  # observeEvent(input$mapLeeds_click, {
-  #   zoom$level = 20
-  # })
-  # # This records mouse clicks inside polygons
-  # observeEvent(input$mapLeeds_shape_click, {
-  #   zoom$level = 20
-  # })
-  # # Change zoom level of the map
-  # observe({
-  #   if (zoom$level == 20) {
-  #     leafletProxy("mapLeeds") %>% clearTiles() %>%
-  #       addTiles(options=tileOptions(minZoom=4, maxZoom=20))
-  #   }
-  # })
-  # 
-    
+
   output$mytable1_1 <- DT::renderDataTable({
     DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
   })
@@ -1804,13 +1602,11 @@ shinyServer(function(input, output, session){
     autoInvalidate1()
     Sys.sleep(1)
   })
-  #detecting missing data
 
   #create a list dates occuring in the dataset
   missData <- missingData(history_footfall)
-  #print(missData)
-  #Note: the appended row in missingData function has to be removed. 
-  if(length(missData)==3){
+
+    if(length(missData)==3){
     missData
     
   }
@@ -1828,16 +1624,13 @@ shinyServer(function(input, output, session){
       paste("<b>No date is completely missed across all cameras!")
     })
     shinyjs::hide("file1")  
-    #shinyjs::hide("progressingbar1")  
     shinyjs::hide("progressingbar2")  
   }
   
   #run this if there are missing dataset
   if(nrow(missData)>0){
     output$missed_Foot <- DT::renderDataTable({
-      #DT::datatable(historical_footfall[,c("Date","Hour","InCount")])
       DT::datatable(apply(missData, 2, rev))
-      #DT::datatable(missing_dates) #apply(history_footfall, 2, rev)
     })
     
   output$testHTML1 <- renderText({paste("<b>Above table shows the list of periods in which footfall data are missing.", "<br>")})
@@ -1873,8 +1666,6 @@ shinyServer(function(input, output, session){
     shinyjs::hide("append_button_Descrip") #   
     shinyjs::hide("confirm_Append")
     shinyjs::hide("reload_APP")
-    ##shinyjs::hide("required_aggreg")
-    #shinyjs::hide("aggre_HF_processing")
     })
 
   observe({
@@ -1911,7 +1702,6 @@ shinyServer(function(input, output, session){
     leng_name <- uploaded_fieldnames(uploaded_file, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
-    #Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file)
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file, lists_Loc_Correct)
     
 
@@ -1934,7 +1724,6 @@ shinyServer(function(input, output, session){
       issue5<-1
     }
     
-    #total_issues <- issue1 + issue2 + issue3 + issue4 + issue5
     total_issues <- issue1 + issue2 + issue3 + issue5 #+ issue5
     
     #if there is no issues, then show "Upload" button
@@ -1949,14 +1738,10 @@ shinyServer(function(input, output, session){
       shinyjs::hide("resolve_issue")
       shinyjs::hide("reload_APP")
       
-      #shinyjs::show("required_aggreg")
-      #turn on
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed!")})
       shinyjs::show("append")
       shinyjs::show("append_button_Descrip")
-      
-      #aggregated the data and preview
-      
+
       }
     
     if(total_issues!=0){
@@ -1974,8 +1759,6 @@ shinyServer(function(input, output, session){
         output$fall_outside_daterange <- renderText({print("*  One or more of the uploaded dates fall outside the expected range (i.e. earliest date in the footfall (database) and the current date")})}
       if(issue3==1){
         output$date_Overlapping <- renderText({print("*  Some dates in the uploaded file overlap with dates in the existing footfall database")})}
-      #if(issue4==1){
-        #output$timeFormatWrong <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
       if(issue5==1){
         output$typo_camera_Name <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check 'Parameter' tab for correct spellings of location names.")})
       }
@@ -1987,9 +1770,7 @@ shinyServer(function(input, output, session){
   
   #perform the following action upon clicking 'append' button
   observeEvent(input$append, {
-    #create two files
-    #historicalData_Subset <- history_footfall[,c("Date","Hour","InCount", "LocationName")]
-    #print(historicalData_Subset)
+
     shinyjs::show("confirm_Append")
     
   })
@@ -2007,40 +1788,21 @@ shinyServer(function(input, output, session){
     uploaded_file <- uploaded_file[which(!is.na(uploaded_file$InCount)),]
     
     shinyjs::show("processingbar1")
-    
-    # print("line2")
+
     # #subset the data for only the necessary fields
     uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
      
      #removing possible whitespaces in the names of camera location
     uploadedData_Subset <- remove_whiteSpace_in_Camera_Name(uploadedData_Subset)
   
-    # #get the most recent date from the uploaded dataset
+     #get the most recent date from the uploaded dataset
      max_Date <- max(uniq_Dates(uploadedData_Subset))
-    #
-     
-    # #specifying the temporal segmentations to use for the data aggregation
-     #print(max_Date)
-     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-     
-     #hours_of_the_Day <- list(c(0:23), c(8:17))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-     hours_of_the_Day <- list(c(0:23))  #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-    #
-     #print("200000")
-    #
-    # #labels of time aggregation
-     #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-     #time_aggregation <- c("twentyFour_Hours", "dayTime")
+
      time_aggregation <- c("twentyFour_Hours")
     #
     # #first aggregating HF count across stations for each hour of the day
      result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
-    # print("300000")
-    
-    #print("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
-    #print(result1)
-    # print("3500000")
-    #
+
     # print("line3")
     aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
     # #-----------------------------------
@@ -2048,10 +1810,6 @@ shinyServer(function(input, output, session){
     #'Hour' field check
     HourField <- as.vector(is.na(aggregate_Location$Hour[1]))
     
-    #print(aggregate_Location)
-    #print("l;jskdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;")
-    #print(HourField)
-    #print(length(HourField))
 
   if(nrow(aggregate_Location)>1){
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
@@ -2065,10 +1823,6 @@ shinyServer(function(input, output, session){
         colnames(aggregate_time_of_the_Day) <- c("Date", "InCount")
       }
       
-       
-      #print(aggregate_time_of_the_Day)
-      #print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-          #   #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
        outlier_events <- outliers(data=aggregate_time_of_the_Day)
     #   #append the outlier list to the result
        update_aggregate <- cbind(aggregate_time_of_the_Day, outlier_events)
@@ -2086,42 +1840,20 @@ shinyServer(function(input, output, session){
       Date_Combined <- c(existing_time_aggre_HF$Date, as.vector(update_aggregate$Date))
       InCount_Combined <- c(existing_time_aggre_HF$InCount, as.vector(update_aggregate$InCount))
       data_Combined <- as.data.frame(cbind(Date_Combined, InCount_Combined))
-      
-      #print()
-      #print()
-      
+
       colnames(data_Combined) <- c("Date","InCount")
       print(data_Combined[2800:nrow(data_Combined),])
    
-      #data_Combined_InCount <- matrix(data_Combined$InCount,,1)
-      #print(data_Combined_InCount[2800:nrow(data_Combined_InCount),])
       print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-      
-      ####existing_time_aggre_HF_Updated <- rbind(existing_time_aggre_HF, update_aggregate)
-      #convert_atomic <- matrix(data_Combined[,2],,1)
-      
-      #print(convert_atomic)
-      #print("******************************************************")
-      
-      # print(existing_time_aggre_HF_Updated[2800:nrow(existing_time_aggre_HF_Updated),])
-      # print("###############################################")
-      # print(existing_time_aggre_HF)
-      # print(existing_time_aggre_HF[2800:nrow(existing_time_aggre_HF), ])
-      # print("==========================")
-      # print(update_aggregate)
-      
+
       #drop the outlier field and re-compute a new one using the new data
       #existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
       #recompute the outlier
       outlier_events <- outliers(data=data_Combined)
-      
-      # 
+
       #append the outlier list to the result
       aggregates_updated <- cbind(data_Combined, outlier_events)
       
-      # print(aggregates_updated[2800:nrow(aggregates_updated),])
-      # print("++++++++++++++++++++++++++++++++++++++++")
-      # 
       colnames(aggregates_updated)<- c("Date","InCount","outlier")
       
       print(aggregates_updated[2800:nrow(aggregates_updated),])
@@ -2138,29 +1870,11 @@ shinyServer(function(input, output, session){
       
       write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
-      #write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",") 
-      #update the existing raw HF dataset too..-----------------------------
-      #read the existing one and append the subset of updated one to it
       shinyjs::hide("processingbar1")
       #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
       output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this
    }
-
-    ##existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-    ##existing_Raw_HF <- convert_Date(existing_Raw_HF) 
-       #append the uploaded file
-    ##new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
-    
-    #new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),]
-    
-    ##new_Raw_HF <- convert_Date(new_Raw_HF)
-    
-    #history_footfall <- write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-    
-    ##new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
-    
-    #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
 
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
@@ -2169,16 +1883,7 @@ shinyServer(function(input, output, session){
    
     #when no update is made (i.e. occurs in the case where one or more camera is down for the entire dataset to be uploaded) 
     if(aggregate_Location==1){
-  
-      ##existing_Raw_HF <- read.table(file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", head=TRUE) 
-      ##existing_Raw_HF <- convert_Date(existing_Raw_HF)
-      #append the uploaded file
-      ##new_Raw_HF <- rbind(existing_Raw_HF, uploadedData_Subset)
-      
-      ##new_Raw_HF <- new_Raw_HF[order(new_Raw_HF$Date),] #####
-      
-      #####write.table(new_Raw_HF, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-      
+
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("append")
       shinyjs::hide("confirm_Append")   
@@ -2202,216 +1907,6 @@ shinyServer(function(input, output, session){
     shinyjs::hide("aggre_HF_confirm")
   })
 
-  
-#-----------------------------------------------------------------SECTION: deals with UPLOADING a fresh historical file
-# observe({
-#   
-#     req(input$file2)
-#   
-#      #To check the gaps that an uploaded file fill
-#     #Check whether this is necessary again!
-#     uploaded_file2 <- read.csv(input$file2$datapath,
-#                           header = TRUE,
-#                           sep = ",")#,
-#   
-#     #uploading file
-#     startTimeC <- Sys.time()
-#   
-#     observe({
-#       #for(i in 1:100){
-#         timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
-#         updateProgressBar(session = session, id = "pb2", value = timeUpd) #input$i
-#         invalidateLater(1000, session)
-#       #}
-#     })
-#     
-#     #shinyjs::show("aggre_HF_processing")
-#     
-#     #to remove whitespace in teh location name column
-#     uploaded_file2 <- remove_whitespace(uploaded_file2)
-#     
-#     #initialisation
-#     total_issues_1 = 0
-#     issue1_1 = 0
-#     #issue2 = 0
-#     #issue3 = 0
-#     #issue4_1 = 0
-#     issue5_1 = 0
-# 
-#     #checking whether the uploaded file contain essential fields
-#     leng_name <- uploaded_fieldnames(uploaded_file2, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
-# 
-#     #Inspect_Time_Format <- detect_Time_Format_Error(uploaded_file2)
-#     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file2, lists_Loc_Correct)
-#     
-#     
-#     essential_Fields <- c("Date","Hour","InCount", "LocationName")
-#     
-#     if(as.numeric(leng_name)!=length(essential_Fields)){
-#       issue1_1<-1}
-#     
-#     #if(out_Len>0){
-#       #issue2<-1}
-#     
-#     #if(overlap_Dates>0){
-#       #issue3<-1}
-#     
-#     #if(Inspect_Time_Format>0){
-#       #issue4_1<-1
-#     #}
-#     
-#     if(check_typo_in_Camera_Name>0){
-#       issue5_1<-1
-#     }
-#     
-#     #total_issues_1 <- issue1_1 + issue4_1 + issue5_1  #issue2 + issue3 + 
-#     total_issues_1 <- issue1_1 + issue5_1  #issue2 + issue3 + 
-#     
-#     #if there is no issues, then show "Upload" button
-#     if(total_issues_1==0){
-#       #turn off
-#       output$issues_1 <- renderText({paste(" ")})
-#       output$fields_absent_1 <- renderText({print(" ")})
-#       #output$timeFormatWrong_1 <- renderText({paste(" ")})
-#       output$typo_camera_Name_1 <- renderText({paste(" ")})
-#       output$resolve_issue_1 <- renderText({paste(" ")})
-#       
-#       #turn on
-#       output$Uploaded_file_checks_Passed_1 <- renderText({paste("<b>File checks completed!")})
-#  
-#       shinyjs::show("aggre_HF")
-#       shinyjs::hide("aggre_HF_confirm")
-# 
-#     }
-# 
-#     #To show or hide 'aggre_HF_confirm' 
-#     if(total_issues_1!=0){
-#       #turn off
-#       shinyjs::hide("processingbar2")
-#       output$Uploaded_file_checks_Passed_1 <- renderText({paste(" ")})
-#       
-#       #turn on
-#       output$issues_1 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
-#       if(issue1_1==1){
-#         output$fields_absent_1 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
-#       #if(issue4_1==1){
-#         #output$timeFormatWrong_1 <- renderText({print("*  One or more of the 'Hour' entries  are in the format 'hh:mm'. Please, change to them 0, 1, 2,..., 23, to represent hours of 00:00, 01:00, ..... 23:00, respectively. Use MS Excel to accomplish this by creating a new column ('Hour'), set the column as numeric and return values (hh:mm x 24). Remove the original 'Hour' column")})}
-#       if(issue5_1==1){
-#         output$typo_camera_Name_1 <- renderText({paste("*  Errors detected in the name(s) of camera location. Check that there are no typo errors in the names of camera locations. Check under 'Parameter' tab for correct location names.")})
-#       }
-#       
-#       output$resolve_issue_1 <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
-#       
-#       shinyjs::hide("aggre_HF")
-#       shinyjs::hide("aggre_HF_confirm")
-#  
-#     }
-#     
-#   })
-#   
-#export appended data
-# observeEvent(input$aggre_HF, {
-#   
-#       shinyjs::show("aggre_HF_confirm")
-#     
-#     showModal(modalDialog(
-#       title = "Generate new data aggregates and re-train the model",
-#       "This process might take several hours to complete!",
-#       easyClose = FALSE
-#     ))
-#   })
-#   
 
-# observeEvent(input$aggre_HF_confirm, {
-#      
-#    req(input$file2)
-#    #To check the gaps that an uploaded file fill
-#    #Check whether this is necessary again!
-#    uploaded_file2 <- read.csv(input$file2$datapath,
-#                              header = TRUE,
-#                              sep = ",")#,
-#   
-#    shinyjs::show("processingbar2")
-#   
-#    output$processing_append <- renderText({print("Processing....")}) 
-#    #output$aggre_HF_processing <- renderText({paste(tags$p(tags$b("Processing....")))}) 
-#    #output$aggre_HF_processing <- renderText({paste("<b>Please, resolve the issues and re-upload file.....")})
-#    
-#    #to remove whitespace in teh location name column
-#    uploaded_file2 <- remove_whitespace(uploaded_file2)
-#   
-# 
-#    shinyjs::hide("aggre_HF_confirm")
-#    shinyjs::hide("aggre_HF")
-#    shinyjs::hide("Uploaded_file_checks_Passed_1")
-#  
-#      #subset the data for only the necessary fields
-#     orig_Data_Subset <- uploaded_file2[,c("Date","Hour","InCount", "LocationName")]
-#     head(orig_Data_Subset)
-#      
-#      #get the most recent date from the uploaded dataset
-#      max_Date <- max(uniq_Dates(orig_Data_Subset))
-# 
-#     print("100000")
-#     max_Date <- max(uniq_Dates(orig_Data_Subset))
-# 
-#     #to generate aggregated dataset at varying temporal scales
-#     print(max_Date)
-#     
-#     #create a list of time aggregate
-#     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:20), c(21,22,23, 0, 1, 2, 3, 4, 5))
-#     #hours_of_the_Day <- list(c(0:23), c(8:17), c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-#     
-#     #hours_of_the_Day <- list(c(0:23), c(8:17)) #, c(18:21), c(22,23,0, 1, 2, 3, 4, 5, 6, 7))
-#     hours_of_the_Day <- list(c(0:23)) #, c(18:21), 
-#     
-#     print("200000")
-#     
-#     #time_aggregation <- c("twentyFour_Hours", "dayTime", "eveningTime","nightTime")
-#     #time_aggregation <- c("twentyFour_Hours", "dayTime")
-#     time_aggregation <- c("twentyFour_Hours")
-#       
-#  
-#         result1 <- subset_Dataset(orig_Data=orig_Data_Subset, cameraLoc = "LocationName")
-#         print("300000")
-#         
-#         print("3500000")
-#         
-#         #removes location typo in the dataset
-#         aggregate_Location <- aggregate_Location(orig_Data_sub=result1)        
-#         #-----------------------------------         
-#         
-#         
-#         for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
-#           
-#         #if(i==1){
-#         print (hours_of_the_Day[[j]])
-#         #aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_across_location_by_Date, time_aggre = hours_of_the_Day[[j]])
-#         aggregate_time_of_the_Day <- footfall_by_time_of_the_Day(loc_agg_data=aggregate_Location, time_aggre = hours_of_the_Day[[j]])
-#         print("500000")
-# 
-#         #identify outliers ("0" - NULL data point, "1" - outliers, "2" - not outliers)
-#         outlier_events <- outliers(data=aggregate_time_of_the_Day)
-#         #append the outlier list to the result
-#         finalresult <- cbind(aggregate_time_of_the_Day, outlier_events)
-#         colnames(finalresult)<- c("Date","InCount","outlier")
-#         
-#         #file_here <- ROOT_DIR+"/lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/"
-#         finalresult <- finalresult[order(finalresult$Date),] #####
-#         write.table(finalresult, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
-# 
-#         orig_Data_Subset <- orig_Data_Subset[order(orig_Data_Subset$Date),]
-#         write.table(orig_Data_Subset, file=paste(HF_directory, "subset_historical_HF_DoNot_REMOVE_or_ADD_ToThisDirectory", ".csv", sep=""), sep=",", row.names=FALSE) 
-#       
-#         print("300000")
-#         }
-#         
-#         shinyjs::hide("processingbar2")
-#         output$taskCompleted <- renderText({paste(tags$p(tags$b(h4("Task Completed! New time series aggregates generated and predictive model re-trained. The data aggregates created can be found in the dir:"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
-#         output$data_aggre_dir <- renderText({paste(tags$p(tags$b(file_here)))}) # have to check this!
-#         output$reload_HF <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) 
-#         shinyjs::hide("processing_append")
-#    })
-    
   }) 
     
