@@ -607,7 +607,7 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
         
-      geom_point(data = y_m, aes(x = Var3, y = value, size = y_m$Var1, group = Var3, color=Var4)) +
+      geom_point(data = y_m, aes(x = Var3, y = value, size = (abs(y_m$Var1-length(unique(y_m$Var1)))+1), group = Var3, color=Var4)) +
         
       annotate(geom = "text", x = y_m$Var3, y = y_m$value, label = y_m$Var1, size = 2) +
         

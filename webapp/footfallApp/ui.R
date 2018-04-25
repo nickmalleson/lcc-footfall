@@ -236,7 +236,7 @@ shinyUI(
                       
                               box(
                                 width = 8, solidHeader = TRUE, status = "success",
-                                title = tags$b("Estimates of next 5 days footfall rates (using Weather forecast from 'http://openweathermap.org/api')"),
+                                title = tags$b("Estimates of next 5 days footfall rates and their comparison with past weeks"),
                                 plotOutput("forecasted_footfall", height = "420px")
                             )
                             )
