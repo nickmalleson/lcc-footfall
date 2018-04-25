@@ -582,7 +582,12 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
 
   d <- cbind(d, dateLabels)
 
-    
+  #prepare the previous weeks data
+  y_m <- melt(y_past)
+  y_m <- cbind(y_m, rep(1:length(unique(y_m$Var1)), length(unique(y_m$Var2))))
+  colnames(y_m) <- c("Var1","Var2","value","Var3")
+  y_m <- as.data.frame(y_m)
+  
   #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
     print(ggplot(d, aes(Date, InCount)) + #ylim(-1,max(50)) +
       geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 1) +
@@ -592,6 +597,8 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
       geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
+        
+      geom_point(data = y_m, aes(x = Var2, y = value, size = y_m$Var3, group = Var2)) +
         
       annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
         
@@ -1497,6 +1504,7 @@ shinyServer(function(input, output, session){
     
     #predict footfall rate for the selected Date, temperature and rain values
     y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
+    y_new_5_days <- vector_perc_diff(y_new_5_days)
     
     #generate predictions for the other past same weekdays predictors
     y_new_5_days_past_weekdays <- NULL
@@ -1511,16 +1519,20 @@ shinyServer(function(input, output, session){
       
     }
     
-    colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
-    y_new_5_days_past_weekdays <- as.data.frame(y_new_5_days_past_weekdays)
+    #y_new_5_days_past_weekdays <- t(y_new_5_days_past_weekdays)
+    rownames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
+    y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
+    y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[2:ncol(y_new_5_days_past_weekdays),])
+  
     
-    print(y_new_5_days_past_weekdays)
-    print("33333333333333333333333333333333333333333333333")
     #####I WANT TO CARRY THIS FORWARD......
     #print(y_new_5_days)
     #print("===============")
 
-    y_new_5_days <- vector_perc_diff(y_new_5_days)
+    print(y_new_5_days)
+    print(y_new_5_days_past_weekdays)
+    print("33333333333333333333333333333333333333333333333")
+    
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot3(y=y_new_5_days, y_past = y_new_5_days_past_weekdays) #, chartType = input$forecast_chartType
   })
