@@ -451,6 +451,10 @@ if(chartType=="Dot"){
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
 
+            ###geom_text(data = txt,aes(label = lab),angle = 0, hjust = 0, vjust = 0)
+          
+
+            
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
           #scale_x_discrete(labels = x_backup)
     ) }
