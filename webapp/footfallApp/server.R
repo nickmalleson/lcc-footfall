@@ -1502,39 +1502,22 @@ shinyServer(function(input, output, session){
     hist_Dates <- as.vector(temp_fiveDays$Date)
     hist_Dates_weekdays <- weekdays(as.Date(hist_Dates))
     
-    predictors_info_status <- predictors_info[(predictors_info$Date < Sys.Date()),]  #head(predictors_info_status)
-    subset_predictor_info_subset <- predictors_info_status[(predictors_info_status$status==1),]#extract predictors with weather information
-    subset_predictor_info_subset_Day <- weekdays(as.Date(subset_predictor_info_subset$Date))
+    HF_aggregates <- twentyFourHours_HF_aggre[order(twentyFourHours_HF_aggre$Date, decreasing=FALSE),]
+    HF_aggregates_Days <- weekdays(as.Date(HF_aggregates$Date))
     
-    x_new_5_days_same_WeekDays <- list()
+    y_new_5_days_past_weekdays <- NULL
     
     #select the predictors for the last 6 consecutive same days data..
-    for(k in 1:length(hist_Dates_weekdays)){  #k=2
-      id_week <- which(subset_predictor_info_subset_Day==hist_Dates_weekdays[k])
-      extract_Same_weekDay <- subset_predictor_info_subset[id_week[length(id_week):(length(id_week)-5)],]
-      x_new_5_days_same_WeekDays [[k]] <- list(extract_Same_weekDay)
-    }
-    
-    
-    #generate predictions for the other past same weekdays predictors
-    y_new_5_days_past_weekdays <- NULL
-    #now to predict footfall rate for the past same weekdays 
     for(k in 1:length(hist_Dates_weekdays)){  #k=1
-      
-      hold_Pred = NULL
-      for(p in 1:nrow((x_new_5_days_same_WeekDays)[[1]][[1]])){ #p=1
-        hold_Pred <- c(hold_Pred, as.vector(round(predict(pred_model, (x_new_5_days_same_WeekDays)[[k]][[1]][p,]), digits = 0)))
-      }
-      y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, hold_Pred)
-      
+      id_week <- which(HF_aggregates_Days==hist_Dates_weekdays[k])
+      extract_Same_weekDay <- HF_aggregates$InCount[id_week[length(id_week):(length(id_week)-5)]]
+      y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, extract_Same_weekDay)
     }
     
-    #y_new_5_days_past_weekdays <- t(y_new_5_days_past_weekdays)
-    rownames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
-    y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
+    colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays  
+    #y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
     rownames(y_new_5_days_past_weekdays) <- 1:nrow(y_new_5_days_past_weekdays)
     y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[,2:ncol(y_new_5_days_past_weekdays)])
-  
     
     #####I WANT TO CARRY THIS FORWARD......
     #print(y_new_5_days)
