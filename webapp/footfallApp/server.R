@@ -518,13 +518,18 @@ if(chartType=="Dot"){
                          color = "green", size=1) +
               
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
-              #geom_label(aes(x=(current_Date_Index + 100),xend=indEX2,y=percentiles[1],yend=percentiles[1], label=paste("Min.", " (",most_recent_year,")", sep=""))) +
-              geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[1]-100,yend=percentiles[1]-100, fill = "red"), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, alpha = 0.7) +
-                         #nudge_x = c(-300, -200, -200, -100)) +
+              geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3) +
+ 
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
+              geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[2],yend=percentiles[2]), label=paste("25th Pctile", " (",most_recent_year,")", sep=""), size=3) +
+              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[3],yend=percentiles[3]), linetype="dashed", color = "yellow", size=0.5) +
+              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
+              geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th Pctile", " (",most_recent_year,")", sep=""), size=3) +
+              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
+              ##geom_label(aes(x=indEX2-100,xend=indEX2,y=percentiles[5],yend=percentiles[5]), label=paste("Max", " (",most_recent_year,")", sep=""), size=3) +
               
               #geom_text(data = txt,aes(label = lab),angle = 0, hjust = 0, vjust = 0)
               #geom_text(data = percentiles,aes(label = prob),angle = 0, hjust = 0, vjust = 0) + 
