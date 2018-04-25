@@ -564,7 +564,7 @@ if(chartType=="Dot"){
 #}
 
 #function to plot...points and lines for forecast
-auc_plot3 <- function(y){ #, chartType="Dot"
+auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
   
   xy_1 <- y
   
@@ -1470,19 +1470,55 @@ shinyServer(function(input, output, session){
     #drop "Date", "status" columns 
     x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
     
+    
+    #--------------------	
+    #collect five previous observation of the same week day
+    hist_Profile <- NULL
+    hist_Dates <- as.vector(temp_fiveDays$Date)
+    hist_Dates_weekdays <- weekdays(as.Date(hist_Dates))
+    
+    predictors_info_status <- predictors_info[(predictors_info$Date < Sys.Date()),]  #head(predictors_info_status)
+    subset_predictor_info_subset <- predictors_info_status[(predictors_info_status$status==1),]#extract predictors with weather information
+    subset_predictor_info_subset_Day <- weekdays(as.Date(subset_predictor_info_subset$Date))
+    
+    x_new_5_days_same_WeekDays <- list()
+    
+    #select the predictors for the last 6 consecutive same days data..
+    for(k in 1:length(hist_Dates_weekdays)){  #k=2
+      id_week <- which(subset_predictor_info_subset_Day==hist_Dates_weekdays[k])
+      extract_Same_weekDay <- subset_predictor_info_subset[id_week[length(id_week):(length(id_week)-5)],]
+      x_new_5_days_same_WeekDays [[k]] <- list(extract_Same_weekDay)
+    }
+    
+    
     #load prediction model
     load(paste(other_dir, "random_forest_model.rda", sep=""))
     
     #predict footfall rate for the selected Date, temperature and rain values
     y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
     
+    #generate predictions for the other past same weekdays predictors
+    y_new_5_days_past_weekdays <- NULL
+    #now to predict footfall rate for the past same weekdays 
+    for(k in 1:length(hist_Dates_weekdays)){  #k=1
+      
+      hold_Pred = NULL
+      for(p in 1:nrow((x_new_5_days_same_WeekDays)[[1]][[1]])){ #p=1
+        hold_Pred <- c(hold_Pred, as.vector(round(predict(pred_model, (x_new_5_days_same_WeekDays)[[k]][[1]][p,]), digits = 0)))
+      }
+      y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, hold_Pred)
+      
+    }
+    colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays
+    y_new_5_days_past_weekdays <- as.data.frame(y_new_5_days_past_weekdays)
     
+    #####I WANT TO CARRY THIS FORWARD......
     #print(y_new_5_days)
     #print("===============")
 
     y_new_5_days <- vector_perc_diff(y_new_5_days)
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot3(y=y_new_5_days) #, chartType = input$forecast_chartType
+    auc_plot3(y=y_new_5_days, y_past = y_new_5_days_past_weekdays) #, chartType = input$forecast_chartType
   })
   
   
