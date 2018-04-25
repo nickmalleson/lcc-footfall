@@ -48,7 +48,6 @@ ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
-#functions
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
 # 
@@ -93,94 +92,17 @@ subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   
   cam_ID <- which(colnames(orig_Data)==cameraLoc)
   #append to real data
-  #orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data$Hour, unique_field, orig_Data$InCount, as.character(orig_Data[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
   orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data_Conv$Hour, unique_field, orig_Data_Conv$InCount, as.character(orig_Data_Conv[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
-  #head(orig_Data_sub)
   orig_Data_sub<-as.data.frame(orig_Data_sub)
   colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id") #head(orig_Data_sub)
   return(orig_Data_sub)
 }
 
 #------------------------
-#function to deal with typo in camera name
-
-
-#---------------------------------------------------------
-#function to correct typo in Camera's Location
-
-# data_Location_Typo_removed <- function(data, lists_Loc_Correct){
-#   
-#   #are these all the camera locations expected
-#   unique_Camera <- as.vector(unique(data$LocationName))  #head(data)
-#   
-#   matrix_Loc <- matrix(0, length(data$LocationName), 1)
-#   
-#   listId <- which(data$LocationName=="BriggateAtMcDs")
-#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-#   
-#   listId <- which(data$LocationName=="Briggate at McDonalds\t")
-#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-#   
-#   listId <- which(data$LocationName=="CommercialStLush")
-#   matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
-#   
-#   listId <- which(data$LocationName=="CommercialStBarratts")
-#   matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
-#   
-#   listId <- which(data$LocationName=="Dortmund Square\t")
-#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-#   
-#   listId <- which(data$LocationName=="DortmundSq")
-#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-#   
-#   listId <- which(data$LocationName=="AlbionStNorth")
-#   matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
-#   
-#   listId <- which(data$LocationName=="AlbionStSouth")
-#   matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
-#   
-#   listId <- which(data$LocationName=="Briggate")
-#   matrix_Loc[listId, 1] <- rep("Briggate", length(listId))
-#   
-#   listId <- which(data$LocationName=="Briggate at McDonalds")
-#   matrix_Loc[listId, 1] <- rep("Briggate at McDonalds", length(listId))
-#   
-#   listId <- which(data$LocationName=="Commercial Street at Sharps")
-#   matrix_Loc[listId, 1] <- rep("Commercial Street at Sharps", length(listId))
-#   
-#   listId <- which(data$LocationName=="Commercial Street at Barratts")
-#   matrix_Loc[listId, 1] <- rep("Commercial Street at Barratts", length(listId))
-#   
-#   listId <- which(data$LocationName=="Headrow")
-#   matrix_Loc[listId, 1] <- rep("Headrow", length(listId))
-#   
-#   listId <- which(data$LocationName=="Dortmund Square")
-#   matrix_Loc[listId, 1] <- rep("Dortmund Square", length(listId))
-#   
-#   listId <- which(data$LocationName=="Albion Street South")
-#   matrix_Loc[listId, 1] <- rep("Albion Street South", length(listId))
-#   
-#   listId <- which(data$LocationName=="Albion Street North")
-#   matrix_Loc[listId, 1] <- rep("Albion Street North", length(listId))
-#   
-#   matrix_Loc <- as.data.frame(matrix_Loc)
-#   colnames(matrix_Loc) <- c("LocationName")
-#   
-#   #append to the real data
-#   data[,"LocationName"] <- matrix_Loc
-#   
-#   return(data)
-# }
-
-
-#------------------------
 aggregate_Location <- function(orig_Data_sub){
   
   cameraLoc <- as.vector(unique(orig_Data_sub$Loc_Id))
-  
-  #pick a unique Id
-  #sum 'InCount' across all stations.
-  
+
   orig_Data_agg_Loc <- NULL
   uniqId <- unique(orig_Data_sub$Id)
   
@@ -190,9 +112,7 @@ aggregate_Location <- function(orig_Data_sub){
   row.N <- "100" #just any number different from 'length(unique_Times)' 
   appd_Row <- matrix(0, 1, 4)
   rownames(appd_Row) <- length(cameraLoc)
-  #flush.console()
-  #print("point1")
-  
+
   for(i in 1:length(uniqId)){ #i<-2
     #for(i in 1:24){ #i<-24
     
@@ -208,12 +128,8 @@ aggregate_Location <- function(orig_Data_sub){
     rownames(loc_agg_data) <- rep("100", nrow(loc_agg_data))
     
     loc_agg_data <- rbind(loc_agg_data, appd_Row)
-    #flush.console()
-    #print(paste("point2", i, length(uniqId)))
   }
-  
-  #  write.table(loc_agg_data, file="backuploc_agg_data.csv", sep=",", row.names=FALSE) 
-  
+
   #clean it up
   loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]  #head(loc_agg_data)
   if(nrow(loc_agg_data)!=0){
@@ -233,7 +149,6 @@ aggregate_Location <- function(orig_Data_sub){
 
 #Given a footfall dataset (containing a column 'Id' - concatenation of unique day-time), sum all 'InCount' by unique 'Hour' of the day
 footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
-  #---------------------allows all dates to be seen
   #create list of all days between two range (i.e. start and end date of historical footfall dataset)
   start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
   end_date <- max(uniq_Dates(loc_agg_data))
