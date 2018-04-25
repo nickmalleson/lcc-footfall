@@ -587,8 +587,8 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
   colfunc <- colorRampPalette(c("black", "grey"))
   colfunc <- colfunc(length(unique(y_m$Var2)))
   #generate Ids
-  Ids1 <- NULL
-  Ids_co <- NULL
+  Ids <- NULL
+  Ids_col <- NULL
   for(g in 1:length(unique(y_m$Var2))){   #g<-1
     Ids <- c(Ids, rep(g, length(unique(y_m$Var1))))
     Ids_col <- c(Ids_col, rep(colfunc[g], length(unique(y_m$Var1))))
@@ -607,7 +607,9 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
         
-        geom_point(data = y_m, aes(x = Var3, y = value, size = y_m$Var1, group = Var3, color=Var4)) +
+      geom_point(data = y_m, aes(x = Var3, y = value, size = y_m$Var1, group = Var3, color=Var4)) +
+        
+      annotate(geom = "text", x = y_m$Var3, y = y_m$value, label = y_m$Var1, size = 2) +
         
       annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
         
