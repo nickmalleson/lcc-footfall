@@ -71,118 +71,91 @@ subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   #create unique field for the dataset#
   #convert date to appropriate format
   orig_Data_Conv <- convert_Date(orig_Data, TimeField = TRUE)
-  #create unique field (i.e. combination of date and time)
+  #create a unique field, combining the 'date' and 'time' field)
   unique_field <- matrix(paste(orig_Data_Conv$Date, orig_Data_Conv$Hour, sep="-"),,1)
   colnames(unique_field) <- c("Id")
   cam_ID <- which(colnames(orig_Data)==cameraLoc)
-  #append to real data
-  orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data_Conv$Hour, unique_field, orig_Data_Conv$InCount, as.character(orig_Data_Conv[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
+  #append back to the real data
+  orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data_Conv$Hour, unique_field, orig_Data_Conv$InCount, as.character(orig_Data_Conv[,cam_ID])) 
   orig_Data_sub<-as.data.frame(orig_Data_sub)
-  colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id") #head(orig_Data_sub)
+  colnames(orig_Data_sub) <- c("Date","Hour","Id","InCount","Loc_Id")
   return(orig_Data_sub)
 }
 
-#------------------------
+#function to aggregate footfall dataset across camera location  
 aggregate_Location <- function(orig_Data_sub){
-  
   cameraLoc <- as.vector(unique(orig_Data_sub$Loc_Id))
-
   orig_Data_agg_Loc <- NULL
   uniqId <- unique(orig_Data_sub$Id)
-  
   #this is to ensure that all cameras are represented, otherwise "NA" is reported
   loc_agg_data <-  matrix(0, 1, 4)
   rownames(loc_agg_data) <- length(cameraLoc)
-  row.N <- "100" #just any number different from 'length(unique_Times)' 
+  row.N <- "100" 
   appd_Row <- matrix(0, 1, 4)
   rownames(appd_Row) <- length(cameraLoc)
-
   for(i in 1:length(uniqId)){ #i<-2
-    #for(i in 1:24){ #i<-24
-    
     data_Sub <- orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),]
     InCountN <- sum(as.numeric(as.vector(orig_Data_sub[which(orig_Data_sub$Id==uniqId[i]),c("InCount")])))
-    
     #check if all the unique_times are present
     true_Ct <- length((data_Sub$Loc_Id%in%cameraLoc)=="TRUE")
-    
     orig_Data_agg_Loc <- rbind(orig_Data_agg_Loc, cbind(as.character(data_Sub$Date[1]), as.numeric(as.vector(data_Sub$Hour[1])), as.character(uniqId[i]), InCountN))
     combine_Result <- cbind(as.character(data_Sub$Date[1]), as.numeric(as.vector(data_Sub$Hour[1])), as.character(uniqId[i]), InCountN)
     loc_agg_data[which(rownames(loc_agg_data)==true_Ct),] <- as.vector(combine_Result)
     rownames(loc_agg_data) <- rep("100", nrow(loc_agg_data))
-    
     loc_agg_data <- rbind(loc_agg_data, appd_Row)
   }
-
   #clean it up
-  loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),]  #head(loc_agg_data)
+  loc_agg_data <- loc_agg_data[-which(loc_agg_data[,1]=="0"),] 
   if(nrow(loc_agg_data)!=0){
     rownames(loc_agg_data) <- 1:nrow(loc_agg_data)
     loc_agg_data <- as.data.frame(loc_agg_data)
     colnames(loc_agg_data) <- c("Date","Hour","Id","InCount")
     return(loc_agg_data)}
-  
   if(nrow(loc_agg_data)==0){
     loc_agg_data = 1
     return(loc_agg_data)}
-  
 }
 
-#-----------------------------------
-
-
+#aggregate footfall dataset by time of the day
 #Given a footfall dataset (containing a column 'Id' - concatenation of unique day-time), sum all 'InCount' by unique 'Hour' of the day
 footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
   #create list of all days between two range (i.e. start and end date of historical footfall dataset)
   start_date <- min(uniq_Dates(loc_agg_data)) #library(lubridate) #suppress warning...
   end_date <- max(uniq_Dates(loc_agg_data))
-  
   allDays_listed <- seq(as.Date(start_date), as.Date(end_date), by=1)
-  
-  #how do you approximate it..forward or back
   #create list of days and time, covering the entire study period (start of the footfall database and its end).
   allDays_Time_listed <- merge(allDays_listed, c(0:23), all = TRUE, sort = FALSE)#time_aggre
   allDays_Time_listed <- allDays_Time_listed[order(allDays_Time_listed[,1]),]
-  
   #combine date and time to create a unique field
   unique_allDays_Time_listed <- paste(allDays_Time_listed$x, allDays_Time_listed$y, sep="-")
-  
   unique_allDays_Time_listed_join <- cbind(allDays_Time_listed, unique_allDays_Time_listed)  #head(orig_Data)
   unique_allDays_Time_listed_join <- as.data.frame(unique_allDays_Time_listed_join)
   colnames(unique_allDays_Time_listed_join) <- c("Date","Hour","Id")
-  
   #Join 'InCount' values from 'orig_Data' to 'unique_allDays_Time_listed_join', using the 'Id' fields
   merge_Data <- merge(x = unique_allDays_Time_listed_join, y = loc_agg_data, by = "Id", all.x = TRUE)
   merge_Data <- as.data.frame(merge_Data)
-  
   #create a subset of the data with the fields: 'Date.x', 'Hour.x', and 'InCount'
   data_subset <- merge_Data[, c("Date.x", "Hour.x", "InCount")]   
   data_subset  <- as.data.frame(data_subset)
-  colnames(data_subset) <- c("Date","Hour","InCount")   #head(data_subset[1:10,])
-  
+  colnames(data_subset) <- c("Date","Hour","InCount")
   #create aggregated data to plot i.e. for each time scale; 24-hours, morning, evening & morning.
   unique_dates <- unique(data_subset$Date)
   unique_Times <- time_aggre 
-  
-  
   time_agg_data <-  matrix(0, 1, 2)
   rownames(time_agg_data) <- length(unique_Times)
   row.N <- "100" #just any number different from 'length(unique_Times)' 
   appd_Row <- matrix(0, 1, 2)
   rownames(appd_Row) <- length(unique_Times)
-  
-  for(i in 1:length(unique_dates)){ #i<-1
+   for(i in 1:length(unique_dates)){ #i<-1
     timeT <- data_subset[which(data_subset$Date==unique_dates[i]),c("Hour")]
     totalCt_allDay <- data_subset[which(data_subset$Date==unique_dates[i]),]
     #sum the 'InCount values for the time selected aggregate'
     totalCt <- sum(as.numeric(as.vector(totalCt_allDay[which(totalCt_allDay$Hour%in%unique_Times),c("InCount")])))
-    
     #check if all the unique_times are present
     true_Ct <- length((unique_Times%in%totalCt_allDay$Hour)=="TRUE")
     combine_Result <- cbind(as.character(unique_dates[i]), totalCt)
     time_agg_data[which(rownames(time_agg_data)==length(unique_Times)),] <- as.vector(combine_Result)
     rownames(time_agg_data) <- rep("", nrow(time_agg_data))
-    
     time_agg_data <- rbind(time_agg_data, appd_Row)
   }
   #clean it up
@@ -190,19 +163,17 @@ footfall_by_time_of_the_Day <- function(loc_agg_data, time_aggre){
   rownames(time_agg_data) <- 1:nrow(time_agg_data)
   time_agg_data <- as.data.frame(time_agg_data)
   colnames(time_agg_data) <- c("Date","InCount")
-  
   return(time_agg_data)
 }
 #------------------------------------------
 
-#function to identify outliers
-outliers <- function(data){ #=aggregate_time_of_the_Day
+#function to identify outliers in the footfall datasets - add an outlier field indicating outliers as "1"
+outliers <- function(data){ 
   x<-data
   hold_result <- matrix(0, nrow(x), 1)
-  x<-as.numeric(as.vector(data$InCount))  #median(x, na.rm=TRUE)
+  x<-as.numeric(as.vector(data$InCount)) 
   ind_hold.na <- which(is.na(x))
   ind_hold.not.na  <- which(!is.na(x))
-  # hold.not.na <- matrix(0, length(ind_not_na),1)
   x_2 <- x[ind_hold.not.na]
   med <- median(x_2)
   MAD <-median(abs(med-x_2))
@@ -219,7 +190,6 @@ outliers <- function(data){ #=aggregate_time_of_the_Day
 
 # plot function for the 4 prediction panels
 auc_plot <- function(y, plotStyle=1){
-  
   x <- 1:length(y)
   n <- length(y)
   #using ggplot2
