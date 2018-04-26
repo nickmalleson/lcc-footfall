@@ -650,9 +650,207 @@ shinyServer(function(input, output, session){
   #extract the predictors info that have weather information.
   predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
   
-  #-------------------------------------------
+  
+  #---------------------------------------------------------------------------------------------------------------------
+  #'FOOTFALL DASHBOARD' Menu
+  #---------------------------------------------------------------------------------------------------------------------
+  autoInvalidate1 <- reactiveTimer(5000)
+  
+  #display today's date on the header
+  output$headersTime <- renderText({
+    #invalidateLater(1000, session)
+    date_function()
+  })
+  
+  #display today's time on the header
+  output$headersTime2 <- renderText({
+    invalidateLater(1000, session)
+    date_function2()
+  })
+  
+
+  #--------------------------------------
+  #Historical Pattern (blue line) + Forecast (red point)
+  #--------------------------------------
+  #To plot the footfall time series 
+  #To include a predicted point based on the setting from the 'Set Weather Conditions:' panel
+  output$footfall_history <- renderPlot({
+    
+    #initialisation
+    temp_Value <- 0
+    rain_Value <- 0
+    
+    #Take values from the 'Set Weather Conditions:' panel
+    input_dateToForecast = as.Date(input$dateToForecast)
+    input_temp_level = as.character(input$temp_level)
+    input_rain_level = as.character(input$rainfall_level)
+    
+    #import other predictors and extract the record for the date selected Date above
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
+    x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                
+    
+    #the assumed values corresponding to different selectable temperature levels
+    if(input_temp_level=="Very Low"){temp_Value=5} 
+    else if(input_temp_level=="Low"){temp_Value=10}
+    else if(input_temp_level=="Moderate"){temp_Value=15}
+    else {temp_Value=28}
+    
+    x_new$mean_temp <- temp_Value
+    
+    #the assumed values corresponding to different selectable rainfall levels
+    if(input_rain_level=="None"){rain_Value=0} 
+    else if(input_rain_level=="Light"){rain_Value=0.5}
+    else {rain_Value=10}
+    
+    x_new$rain <- rain_Value
+    
+    #drop "Date" and "status" columns, because they are not needed for the prediction 
+    x_new <- subset(x_new, select = -c(Date, status))
+    
+    #load prediction model
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    
+    #predict footfall rate for the selected Date, temperature and rain values
+    y_new <- round(predict(pred_model, x_new), digits = 0)
+    
+    Type_dummy <- 2
+    outlier_dummy <-2
+    
+    y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
+    colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
+    
+    #to set chart type
+    chartType = input$chartType
+    #to set time segmentation to plot
+    plotOptn = input$timeOftheDayInput
+    
+    data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
+    
+    
+  })
+  
+  
+  output$todaysfootfallCount <- renderText({
+    paste(th_separator(3634*200))
+  }) 
+  
+  
+  output$lastDayCount <- renderText({
+    paste(th_separator(30*200))
+  }) 
+  
+  output$lastWeekCount <- renderText({
+    paste(th_separator(32*200))
+  }) 
+  
+  output$lastWeekCounty <- renderText({
+    paste(th_separator(27*200))
+  }) 
+  
+  #----------------------
+  #plotting the map
+  output$mapLeeds <- renderLeaflet({
+    crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+    city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
+    val=2
+    city_Boundary = readShapePoly(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/leeds_City.shp"))
+    data <- as.data.frame(city_central[1:nrow(city_central),])
+    leaflet(data = data) %>% addTiles() %>%
+      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
+      addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)
+  })
+  
+  output$mytable1_1 <- DT::renderDataTable({
+    DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
+  })
+  
+  
+  
+  #---------------------------------------------
+  #to stream the next 5-days temperature and rainfall ('sourced predictors') from an open website
+  #and predict the next 5-days footfall information with them.
+  output$forecasted_footfall <- renderPlot({
+    
+    #streaming 3-hourly aggregates of weather forecast from "https://sci.ncas.ac.uk/leedsweather/", of the next 5-days
+    weather_forecast <- get_forecast(lat = 53.8013, lon = -1.548567, cnt = 40) #coord of city centre
+    
+    Date <- substr(weather_forecast$list$dt_txt, 1, 10)
+    uniqueDates <- data.frame(unique(Date))
+    colnames(uniqueDates) <- "Date"
+    
+    weather_forecast <- cbind(Date, weather_forecast$list[, c("main.temp","rain.3h")])
+    
+    #calculate the mean temperature for each day
+    temp_fiveDays <- aggregate(main.temp ~ Date, data = weather_forecast, FUN = mean, drop = FALSE)
+    temp_fiveDays <- Data_kelvin_to_celsius(temp_fiveDays)
+    #where temp is "NA" (due to instrument breakdown), substitute "5"
+    temp_fiveDays <- merge(x = uniqueDates, y = temp_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
+    temp_fiveDays$main.temp[is.na(temp_fiveDays$main.temp)] <- 5
+    #converting the 3 hours rain values to its corresponding 5 minutes aggregates (i.e. equivalence of values from 'http://sci.ncas.ac.uk/leedsweather/')
+    weather_forecast$rain.3h <- weather_forecast$rain.3h * 3/5
+    #calculate the total rainfall for each day
+    rain_fiveDays <- aggregate(rain.3h ~ Date, data = weather_forecast, FUN = sum, na.action = na.omit)
+    #where rain is "NA" (due to instrument breakdown), substitute "0"
+    rain_fiveDays <- merge(x = uniqueDates, y = rain_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
+    rain_fiveDays$rain.3h[is.na(rain_fiveDays$rain.3h)] <- 0
+    
+    #import other predictors (auto-generated)
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
+    #extract the predictors info. for the current day plus the next five days.
+    x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]    
+    
+    #insert the newly calculated temperature and rainfall dataset into their appropriate fields.
+    x_new_5_days$mean_temp <- temp_fiveDays$main.temp
+    x_new_5_days$rain <- rain_fiveDays$rain.3h
+    
+    x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
+    
+    #load the prediction model (parameter)
+    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    
+    #predict footfall rates for the selected Date, given the inserted temperature and rain values
+    y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
+    y_new_5_days <- vector_perc_diff(y_new_5_days)
+    
+    #In order to compare the predicted values with previous footfall observations (of the same week days)
+    hist_Profile <- NULL
+    hist_Dates <- as.vector(temp_fiveDays$Date)
+    hist_Dates_weekdays <- weekdays(as.Date(hist_Dates))
+    #import existing footfall dataset
+    HF_aggregates <- twentyFourHours_HF_aggre[order(twentyFourHours_HF_aggre$Date, decreasing=FALSE),]
+    HF_aggregates_Days <- weekdays(as.Date(HF_aggregates$Date))
+    
+    y_new_5_days_past_weekdays <- NULL
+    
+    #extract 6 most recent footfall information of each week days.
+    for(k in 1:length(hist_Dates_weekdays)){  #k=1
+      id_week <- which(HF_aggregates_Days==hist_Dates_weekdays[k])
+      extract_Same_weekDay <- HF_aggregates$InCount[id_week[length(id_week):(length(id_week)-5)]]
+      y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, extract_Same_weekDay)
+    }
+    
+    colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays  
+    rownames(y_new_5_days_past_weekdays) <- 1:nrow(y_new_5_days_past_weekdays)
+    y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[,2:ncol(y_new_5_days_past_weekdays)])
+    
+    print(y_new_5_days)
+    print(y_new_5_days_past_weekdays)
+    print("33333333333333333333333333333333333333333333333")
+    
+    #plot
+    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
+    auc_plot3(y=y_new_5_days, y_past = y_new_5_days_past_weekdays) #, chartType = input$forecast_chartType
+  })
+  
+  
+  #-----------------------------------------------------------------------------------------------------------------------------------
   #'Data Preview & Settings' Menu
-  #-------------------------------------------
+  #-----------------------------------------------------------------------------------------------------------------------------------
+  
   #To generate the table displayed in the 'Preview of Footfall Data Aggregates' 
   #Import the aggregated footfall dataset
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
@@ -673,9 +871,20 @@ shinyServer(function(input, output, session){
                                                     "ensure that the spellings of the camera (location) names","<br>",
                                                     "are exactly as typed above.")})
   
-  
-  #'Update Footfall records' tab
+  #'Update Weather records' tab
   #---------------------------------------------
+  #processing bar to display when updating predictors file
+  observeEvent(input$aggre_HF_confirm, priority=10, {
+    js$play()
+  })
+  output$processingbar2 = renderUI({
+    shinyjs::hide("processingbar2")
+    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Pls, wait...",
+                animate = animationOptions(
+                  interval = (8*7200), #5 seconds
+                  playButton = "",
+                  pauseButton = ""))})
+  
   #generate the list of dates whose 'sourced predictors' information (i.e. temperature and rain) is yet to be updated
   missData_Predictors <- missingData(data=predictors_info, indicatorField = TRUE)
   
@@ -845,9 +1054,7 @@ shinyServer(function(input, output, session){
       #show the button to re-train the model
       shinyjs::show("Re-train Prediction Model")
     })
-    
-    
-    
+ 
     #upon clicking the "Re-train Prediction Model" button
     observeEvent(input$train_Prediction_Model, priority=10, {
       
@@ -860,22 +1067,20 @@ shinyServer(function(input, output, session){
       
       #to match the footfall data with the predictors data and subset the last 3 years of the dataset
       cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
-      
-      #train the model  - regression
-      #pred_model <- lm(InCount ~ ., data = cleaned_data_for_training)
+      #re-train the model
       pred_model <- randomForest(InCount ~., data=cleaned_data_for_training)
       
-      #save the model
+      #save the predictive model (parameters)
       save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
-
+      #display a message, instructing to re-start the webtool
       shinyjs::show("restart_app3")
       
     })
   
-  
-    
-#processing bar for updating historical datasets
-#disable("slider")
+
+  #'Update Footfall records' tab
+  #---------------------------------------------
+  #processing bar to display when appending footfall dataset
   observeEvent(input$confirm_Append, priority=10, {
     js$play()
   })
@@ -887,282 +1092,20 @@ shinyServer(function(input, output, session){
                   playButton = "",
                   pauseButton = ""))})
   
-  
-  #processing bar for uploading historical datasets
-  #disable("slider")
-  observeEvent(input$aggre_HF_confirm, priority=10, {
-    js$play()
-    })
-  output$processingbar2 = renderUI({
-    shinyjs::hide("processingbar2")
-    sliderInput("slider", label = "", width = '800px',min = 0, max = 99,value = 0, step = 1, post="% Done. Pls, wait...",
-                animate = animationOptions(
-                  interval = (8*7200), #5 seconds
-                  playButton = "",
-                  pauseButton = ""))})
-
-
-  autoInvalidate1 <- reactiveTimer(5000)
-  
-  #display today's date on the header
-  output$headersTime <- renderText({
-    #invalidateLater(1000, session)
-    date_function()
-  })
-
-  #display today's time on the header
-  output$headersTime2 <- renderText({
-    invalidateLater(1000, session)
-    date_function2()
-  })
-  
-  #display today's date on the header
-  output$dateOnPredictionBoard1 <- renderText({
-    #invalidateLater(1000, session)
-    date_function3()
-  })
-  
-  #display today's date on the header
-  output$dateOnPredictionBoard2 <- renderText({
-    #invalidateLater(1000, session)
-    date_function3()
-  })
-  
-  #display today's date on the header
-  output$dateOnPredictionBoard3 <- renderText({
-    #invalidateLater(1000, session)
-    date_function3()
-  })
-  
-  #display today's date on the header
-  output$dateOnPredictionBoard4 <- renderText({
-    #invalidateLater(1000, session)
-    date_function3()
-  })
-  #date to display on tomorrow forecast
-  output$tomorrowDate <- renderText({
-    date_function()
-  })
-  
-  #day of tomorrow
-  output$today <- renderText({
-    day_function()
-  })
-  
-  output$tomorrowDay_2 <- renderText({
-    day_function()
-  })
-  
-  output$tomorrowDay_3 <- renderText({
-    day_function()
-  })
-  
-  output$tomorrowDay_4 <- renderText({
-    day_function()
-  })
-  
-#to forecast next 5-days footfall  
-  output$forecasted_footfall <- renderPlot({
- 
-    #streaming 3-hourly aggregates of weather forecast from "https://sci.ncas.ac.uk/leedsweather/", for next 5-days
-    weather_forecast <- get_forecast(lat = 53.8013, lon = -1.548567, cnt = 40) #coord of city centre
-    
-    Date <- substr(weather_forecast$list$dt_txt, 1, 10)
-    uniqueDates <- data.frame(unique(Date))
-    colnames(uniqueDates) <- "Date"
-    
-    weather_forecast <- cbind(Date, weather_forecast$list[, c("main.temp","rain.3h")])
-    
-    #aggregate
-    temp_fiveDays <- aggregate(main.temp ~ Date, data = weather_forecast, FUN = mean, drop = FALSE)
-    temp_fiveDays <- Data_kelvin_to_celsius(temp_fiveDays)
-    #where temp is "NA" (due to instrument breakdown), substitute "5"
-    temp_fiveDays <- merge(x = uniqueDates, y = temp_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
-    temp_fiveDays$main.temp[is.na(temp_fiveDays$main.temp)] <- 5
-    
-    #converting the 3 hours rain values to its corresponding 5 minutes aggregates (i.e. equivalence of values from 'http://sci.ncas.ac.uk/leedsweather/')
-    weather_forecast$rain.3h <- weather_forecast$rain.3h * 3/5
-    
-    rain_fiveDays <- aggregate(rain.3h ~ Date, data = weather_forecast, FUN = sum, na.action = na.omit)
-    #where rain is "NA" (due to instrument breakdown), substitute "0"
-    rain_fiveDays <- merge(x = uniqueDates, y = rain_fiveDays, by = "Date", all.x = TRUE, all.y = TRUE)
-    rain_fiveDays$rain.3h[is.na(rain_fiveDays$rain.3h)] <- 0
-
-    #import othe predictors for the date specified
-    #import the predictor information
-    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
-    
-    #extract the independent variables of today and the next five days.
-    x_new_5_days <- predictors_info[which(as.character(predictors_info$Date) %in% as.vector(temp_fiveDays$Date)),]            #head(predictors_info_subset)
-
-    #add weather temp and rain data
-    x_new_5_days$mean_temp <- temp_fiveDays$main.temp
-    x_new_5_days$rain <- rain_fiveDays$rain.3h
-    
-    x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
-    
-    #load prediction model
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
-  
-    #predict footfall rate for the selected Date, temperature and rain values
-    y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
-    y_new_5_days <- vector_perc_diff(y_new_5_days)
-    
-    #--------------------	
-    #collect five previous observation of the same week day
-    hist_Profile <- NULL
-    hist_Dates <- as.vector(temp_fiveDays$Date)
-    hist_Dates_weekdays <- weekdays(as.Date(hist_Dates))
-    
-    HF_aggregates <- twentyFourHours_HF_aggre[order(twentyFourHours_HF_aggre$Date, decreasing=FALSE),]
-    HF_aggregates_Days <- weekdays(as.Date(HF_aggregates$Date))
-    
-    y_new_5_days_past_weekdays <- NULL
-    
-    #select the predictors for the last 6 consecutive same days data..
-    for(k in 1:length(hist_Dates_weekdays)){  #k=1
-      id_week <- which(HF_aggregates_Days==hist_Dates_weekdays[k])
-      extract_Same_weekDay <- HF_aggregates$InCount[id_week[length(id_week):(length(id_week)-5)]]
-      y_new_5_days_past_weekdays <- cbind(y_new_5_days_past_weekdays, extract_Same_weekDay)
-    }
-    
-    colnames(y_new_5_days_past_weekdays) <- hist_Dates_weekdays  
-    #y_new_5_days_past_weekdays <- t(as.data.frame(y_new_5_days_past_weekdays))
-    rownames(y_new_5_days_past_weekdays) <- 1:nrow(y_new_5_days_past_weekdays)
-    y_new_5_days_past_weekdays <- as.matrix(y_new_5_days_past_weekdays[,2:ncol(y_new_5_days_past_weekdays)])
-
-    print(y_new_5_days)
-    print(y_new_5_days_past_weekdays)
-    print("33333333333333333333333333333333333333333333333")
-    
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot3(y=y_new_5_days, y_past = y_new_5_days_past_weekdays) #, chartType = input$forecast_chartType
-  })
-  
-
-#plot footfall history
-  output$footfall_history <- renderPlot({
- #   c <- 1:100
-
-    #initialisation
-    temp_Value <- 0
-    rain_Value <- 0
-
-    #prediction parameters from UI
-    input_dateToForecast = as.Date(input$dateToForecast)
-    input_temp_level = as.character(input$temp_level)
-    input_rain_level = as.character(input$rainfall_level)
-    
-    #initialise temperature and rainfall value
-    
-    
-    #import othe predictors for the date specified
-    #import the predictor information
-    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
-    predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
-    #extract the predictors info for the specified Date
-    x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
-    
-    #return the value for the corresponding temperature selected
-    if(input_temp_level=="Very Low"){temp_Value=5} 
-    else if(input_temp_level=="Low"){temp_Value=10}
-    else if(input_temp_level=="Moderate"){temp_Value=15}
-    else {temp_Value=28}
-    
-    #print(temp_Value)
-    #print("==============================")
-    
-    x_new$mean_temp <- temp_Value
-    
-    #return the value for the corresponding rain level selected
-    if(input_rain_level=="None"){rain_Value=0} 
-    else if(input_rain_level=="Light"){rain_Value=0.5}
-    else {rain_Value=10}
-    
-    #print(rain_Value)
-    #print("==============================")
-    
-    x_new$rain <- rain_Value
-    
-    #drop "Date", "status" columns 
-    x_new <- subset(x_new, select = -c(Date, status))
-    
-    #load prediction model
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
-    
-    #predict footfall rate for the selected Date, temperature and rain values
-    y_new <- round(predict(pred_model, x_new), digits = 0)
-    
-    Type_dummy <- 2
-    outlier_dummy <-2
-    
-    y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
-    colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
-
-  #to set chart type
-  chartType = input$chartType
-  #to set time segmentation to plot
-  plotOptn = input$timeOftheDayInput
-
-  data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
-
-
-  })
-  
- 
-  output$todaysfootfallCount <- renderText({
-    paste(th_separator(3634*200))
-  }) 
-  
- 
-  output$lastDayCount <- renderText({
-    paste(th_separator(30*200))
-  }) 
-
-  output$lastWeekCount <- renderText({
-    paste(th_separator(32*200))
-  }) 
-  
-  output$lastWeekCounty <- renderText({
-    paste(th_separator(27*200))
-  }) 
-  
-
-  output$mapLeeds <- renderLeaflet({
-    crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
-    val=2
-    city_Boundary = readShapePoly(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/leeds_City.shp"))
-    data <- as.data.frame(city_central[1:nrow(city_central),])
-    leaflet(data = data) %>% addTiles() %>%
-      addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
-      addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)
-  })
-
-  output$mytable1_1 <- DT::renderDataTable({
-    DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
-  })
-  
-
-  #create a list dates occuring in the dataset
+  #generate the list of dates whose footfall information is not up-to-date (i.e. current date)
   missData <- missingData(history_footfall)
-
+  
+  # I will check this section later. I don't think they are necessary anymore.
     if(length(missData)==3){
     missData
-    
-  }
-  
-  #to hide "missing data" warning
+    }
+  #"missing data" warning
   if(nrow(missData)>0){
     output$notify <- renderText({
       print("Issues")
     }) 
   }
-   
-  #message for "missing data" warning
+  #warnings
   if(nrow(missData)==0){
     output$msg <- renderText({
       paste("<b>No date is completely missed across all cameras!")
@@ -1171,12 +1114,13 @@ shinyServer(function(input, output, session){
     shinyjs::hide("progressingbar2")  
   }
   
-  #run this if there are missing dataset
+  #list of missing dates in the footfall information
   if(nrow(missData)>0){
     output$missed_Foot <- DT::renderDataTable({
       DT::datatable(apply(missData, 2, rev))
     })
-    
+  
+  #Some messages/instructions to display  
   output$testHTML1 <- renderText({paste("<b>Above table shows the list of periods in which footfall data are missing.", "<br>")})
   output$text2 <- renderText({paste("Search for the missing data from either of the following sources:")})
   output$testHTML3 <- renderText({paste("<b>1. https://datamillnorth.org/dataset/leeds-city-centre-footfall-data")})
@@ -1192,17 +1136,9 @@ shinyServer(function(input, output, session){
                                         "An 'upload' button will appear after a valid file has been uploaded")})
 
   output$HF_view <- renderText({paste("<b>The corresponding aggregated HF can be viewed on the 'DASHBOARD' page'; and the actual .csv files can be found in the 'aggregated_historical_HF' directory")})
-  
-  output$why_re_gen_HF <- renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})#tags$p(tags$b(h4
-  output$why_re_gen_HF2 <- renderText({paste("CAUTION: This means that you want to replace the existing historical HF file, generate new aggregates of the historical HF, and re-train the prediction. The results are used to generate the HF profiles on the 'DASHBOARD' page")})
-  
-  output$regen_HF_warning <- renderText({paste("<b>Warning: If you want to replace the historical HF file, to generate new aggregates and training the prediction model can take up to two and half hours!")})
   output$append_button_Descrip <- renderText({paste("<b> By clicking the 'append' button, the different aggregates, based on the time segmentation, c(0:23), representing the 'whole day' footfall aggregation, will be generated")})
-  
   }
 
- 
-  #-----------------------------------------------------------------SECTION: deals with UPDATING historical footfall
   observe({
     #to hide upload button
     shinyjs::hide("append")
@@ -1212,19 +1148,16 @@ shinyServer(function(input, output, session){
     })
 
   observe({
-
     req(input$file1)
     #To check the gaps that an uploaded file fill
     uploaded_file <- read.csv(input$file1$datapath,
                               header = TRUE,
                               sep = ",")#,
-    
-    #to take care of data with null records (new/latest footfall data downloads)
+    #to take care of data with null records (i.e. especially for new footfall dataset available on the websites)
     uploaded_file <- uploaded_file[which(!is.na(uploaded_file$InCount)),]
     
     #uploading file
     startTimeC <- Sys.time()
-    
     observe({
       #for(i in 1:100){
       timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
@@ -1238,7 +1171,6 @@ shinyServer(function(input, output, session){
     issue1 = 0
     issue2 = 0
     issue3 = 0
-    #issue4 = 0
     issue5 = 0
    
     #checking the uploaded file for errors and conflicts
@@ -1246,7 +1178,6 @@ shinyServer(function(input, output, session){
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
     check_typo_in_Camera_Name <- check_typo_in_Camera_Name(data=uploaded_file, lists_Loc_Correct)
-    
 
     essential_Fields <- c("Date","Hour","InCount", "LocationName")
     
@@ -1307,7 +1238,7 @@ shinyServer(function(input, output, session){
   observeEvent(input$append, {
     shinyjs::show("confirm_Append")
   })
-  
+    #show 'Continue' button
     observeEvent(input$confirm_Append, {
 
     req(input$file1)
@@ -1318,32 +1249,28 @@ shinyServer(function(input, output, session){
     
     #to take care of data with null records (new/latest footfall data downloads)
     uploaded_file <- uploaded_file[which(!is.na(uploaded_file$InCount)),]
-    
     shinyjs::show("processingbar1")
 
-    # #subset the data for only the necessary fields
+    #subset the uploaded footfall dataset for only the necessary fields
     uploadedData_Subset <- uploaded_file[,c("Date","Hour","InCount", "LocationName")]
      
-     #removing possible whitespaces in the names of camera location
+    #removing possible whitespaces in the names of camera location
     uploadedData_Subset <- remove_whiteSpace_in_Camera_Name(uploadedData_Subset)
   
-     #get the most recent date from the uploaded dataset
-     max_Date <- max(uniq_Dates(uploadedData_Subset))
+    #get the most recent date from the uploaded dataset
+    max_Date <- max(uniq_Dates(uploadedData_Subset))
 
-     time_aggregation <- c("twentyFour_Hours")
-    #
-    # #first aggregating HF count across stations for each hour of the day
-     result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
+    time_aggregation <- c("twentyFour_Hours")
+    #first aggregating the footfall count in each stations for all hours of the day
+    result1 <- subset_Dataset(orig_Data = uploadedData_Subset, cameraLoc = "LocationName")
 
-    # print("line3")
+    #now aggregate the footfall count accross the stations for each day
     aggregate_Location <- aggregate_Location(orig_Data_sub = result1)
     # #-----------------------------------
-    
-    #'Hour' field check
+    #To determine whether the originally uploaded file actually contained aggregated records. 
     HourField <- as.vector(is.na(aggregate_Location$Hour[1]))
     
-
-  if(nrow(aggregate_Location)>1){
+   if(nrow(aggregate_Location)>1){
     for(j in 1:length(hours_of_the_Day)){ #i<-1   #length(hours_of_the_Day )
        print (hours_of_the_Day[[j]])
       
@@ -1364,30 +1291,27 @@ shinyServer(function(input, output, session){
        print(update_aggregate)
        print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
        
-      #Import the existing corresponding aggregate file
+      #Import the existing aggregate file and merge the uploaded (now aggregated) files
       existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
       existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
       existing_time_aggre_HF <- as.data.frame(existing_time_aggre_HF)
-      
       Date_Combined <- c(existing_time_aggre_HF$Date, as.vector(update_aggregate$Date))
       InCount_Combined <- c(existing_time_aggre_HF$InCount, as.vector(update_aggregate$InCount))
       data_Combined <- as.data.frame(cbind(Date_Combined, InCount_Combined))
-
       colnames(data_Combined) <- c("Date","InCount")
       print(data_Combined[2800:nrow(data_Combined),])
    
       print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
-      #drop the outlier field and re-compute a new one using the new data
-      #existing_time_aggre_HF_Updated <- subset(existing_time_aggre_HF_Updated, select = c("Date", "InCount"))
-      #recompute the outlier
+      #drop the outlier field and re-compute a new one using the combined records
       outlier_events <- outliers(data=data_Combined)
 
-      #append the outlier list to the result
+      #append the outlier list to the combined dataset
       aggregates_updated <- cbind(data_Combined, outlier_events)
       
       colnames(aggregates_updated)<- c("Date","InCount","outlier")
       
+      #just checking...
       print(aggregates_updated[2800:nrow(aggregates_updated),])
       print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
       
@@ -1397,13 +1321,14 @@ shinyServer(function(input, output, session){
       
       aggregates_updated <- aggregates_updated[order(aggregates_updated$Date),] #####
       
+      #just checking...
       print(aggregates_updated[2800:nrow(aggregates_updated),])
       print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
       
+      #export the newly combined (aggregaed) dataset
       write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("processingbar1")
-      #generate the aggregation of uploaded historical HF separately and appened to the existing updated.-----
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
       output$reload_HF_update <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))}) # have to check this
    }
@@ -1411,21 +1336,24 @@ shinyServer(function(input, output, session){
     shinyjs::hide("append_button_Descrip")
     shinyjs::hide("append")
     shinyjs::hide("confirm_Append")
-  }
-   
-    #when no update is made (i.e. occurs in the case where one or more camera is down for the entire dataset to be uploaded) 
+   }
+    
+    #If one or more camera are down for for all the 'Dates' uploaded, no aggregated datasets will be generated. 
+    #Thus,'aggregate_Location' variable would return "1".
     if(aggregate_Location==1){
-
+      #Therefore, append button will not appear, as there is nothing to append
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("append")
       shinyjs::hide("confirm_Append")   
-      
+      #instead, a message will appear, informing about the situation
       showModal(modalDialog(
         title = "Missing Data!",
         "Data from one or more camera location is missing. The aggregated time series will not be updated! However, HF file would be updated. Please, wait while the processing is completed!",
         easyClose = FALSE
       ))
     }
+    
+    #if actuall update is made...
     output$reload_APP <- renderText({paste(tags$p(tags$b(h2("Please, re-load the application to see changes made. Thanks."))))})
     shinyjs::hide("processingbar1")
     shinyjs::show("reload_APP")
