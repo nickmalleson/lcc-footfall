@@ -200,11 +200,11 @@ shinyUI(
                           )
                           ),
                           
-                        box(title = tags$p(tags$b(h4("Parameters and Data Settings"))),
+                        box(title = tags$p(tags$b(h4("To update historical footfall and weather records"))),
                             
                               tabBox(width = 12, height = 800,
                                     
-                                     tabPanel(title = tags$b('Basic Inputs'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Cameras'), status = "warning", solidHeader = T, background = "aqua",
                                               id='basic parameters',
                                               
                                               #list of names of cameara location
@@ -215,62 +215,8 @@ shinyUI(
                                               htmlOutput("warning_cameraLocation")
                                      ),
                                      
-                                     tabPanel(title = tags$b('Update Weather Info.'), status = "warning", solidHeader = T, background = "aqua",
-                                              id='update_predictors',
-                                              box(tags$p(tags$b(h4("List of dates with missing Weather information (Temperature and Rain intensity)"))),  tags$hr(), 
-                                                  tabPanel("predict_Info", DT::dataTableOutput("missed_Pred_Info")),
-                                                  width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI14"),
-                                                  tags$hr(),
-                                              htmlOutput("testHTML1_pred"),
-                                              htmlOutput("text2_pred"),
-                                              htmlOutput("testHTML3_pred"),
-                                              htmlOutput("testHTML4_pred")
-                                              ),
-                                              
-                                              tags$style(".shiny-file-input-progress {display: none}"),
-                                              
-                                              fileInput('file3', 'Choose file to upload',
-                                                        accept = c(
-                                                          'text/csv',
-                                                          'text/comma-separated-values',
-                                                          'text/tab-separated-values',
-                                                          'text/plain',
-                                                          '.csv',
-                                                          '.tsv'
-                                                        )),
-                                              
-                                              #processing bar for uploading file (historical)
-                                              fluidPage(
-                                                #tags$b("Loading..."), br(),
-                                                progressBar(id = "pb3", value = 0)
-                                              ),
-                                              
-                                              tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
-                                              useShinyjs(), extendShinyjs(text = jscode1),
-                                              tags$hr(),
 
-                                              htmlOutput("Uploaded_file_checks_Passed3"),
-                                              tags$hr(), # 
-                                              htmlOutput("issues3"),
-                                              textOutput("fields_absent3"),
-                                              textOutput("fall_outside_daterange3"),
-                                              textOutput("date_Overlapping3"),
-                                              tags$hr(), # 
-                                              htmlOutput("resolve_issue3"),
-                                              useShinyjs(),
-                                              htmlOutput("append_button_Descrip3"),
-                                              useShinyjs(),
-                                              actionButton("append_file3", "Update predictor Info.", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                              tags$hr(), # 
-                                              htmlOutput("taskCompleted3"),
-                                              tags$hr(),
-                                              actionButton("train_Prediction_Model", "Re-train Prediction Model", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                                              htmlOutput("restart_app3")
-                                              
-                                              ),
-                                     
-                                     
-                                     tabPanel(title = tags$b('Update HF records'), status = "warning", solidHeader = T, background = "aqua",
+                                     tabPanel(title = tags$b('Update Footfall records'), status = "warning", solidHeader = T, background = "aqua",
                                               box(tags$p(tags$b(h4("List of missing dates in the historical footfall database"))),  tags$hr(), # ,#"F
                                                 tabPanel("missedFootfall", DT::dataTableOutput("missed_Foot")),
                                                 width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI15"),
@@ -346,7 +292,61 @@ shinyUI(
                                               tags$hr() #
 
                                               
-                                     ) 
+                                     ),
+                                     
+                                     tabPanel(title = tags$b('Update Weather records'), status = "warning", solidHeader = T, background = "aqua",
+                                              id='update_predictors',
+                                              box(tags$p(tags$b(h4("List of dates with missing Weather information (Temperature and Rain intensity)"))),  tags$hr(), 
+                                                  tabPanel("predict_Info", DT::dataTableOutput("missed_Pred_Info")),
+                                                  width = 12, solidHeader = FALSE, status = "primary", uiOutput("boxContentUI14"),
+                                                  tags$hr(),
+                                                  htmlOutput("testHTML1_pred"),
+                                                  htmlOutput("text2_pred"),
+                                                  htmlOutput("testHTML3_pred"),
+                                                  htmlOutput("testHTML4_pred")
+                                              ),
+                                              
+                                              tags$style(".shiny-file-input-progress {display: none}"),
+                                              
+                                              fileInput('file3', 'Choose file to upload',
+                                                        accept = c(
+                                                          'text/csv',
+                                                          'text/comma-separated-values',
+                                                          'text/tab-separated-values',
+                                                          'text/plain',
+                                                          '.csv',
+                                                          '.tsv'
+                                                        )),
+                                              
+                                              #processing bar for uploading file (historical)
+                                              fluidPage(
+                                                #tags$b("Loading..."), br(),
+                                                progressBar(id = "pb3", value = 0)
+                                              ),
+                                              
+                                              tags$head(tags$style(HTML('.irs-from, .irs-to, .irs-min, .irs-max, .irs-grid-text, .irs-grid-pol, .irs-slider {visibility:hidden !important;}'))),
+                                              useShinyjs(), extendShinyjs(text = jscode1),
+                                              tags$hr(),
+                                              
+                                              htmlOutput("Uploaded_file_checks_Passed3"),
+                                              tags$hr(), # 
+                                              htmlOutput("issues3"),
+                                              textOutput("fields_absent3"),
+                                              textOutput("fall_outside_daterange3"),
+                                              textOutput("date_Overlapping3"),
+                                              tags$hr(), # 
+                                              htmlOutput("resolve_issue3"),
+                                              useShinyjs(),
+                                              htmlOutput("append_button_Descrip3"),
+                                              useShinyjs(),
+                                              actionButton("append_file3", "Update predictor Info.", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              tags$hr(), # 
+                                              htmlOutput("taskCompleted3"),
+                                              tags$hr(),
+                                              actionButton("train_Prediction_Model", "Re-train Prediction Model", style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                              htmlOutput("restart_app3")
+                                              
+                                     )
 
                              )
                         )

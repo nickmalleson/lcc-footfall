@@ -189,86 +189,37 @@ outliers <- function(data){
 } 
 
 
-# plot function for the 4 prediction panels
-auc_plot <- function(y, plotStyle=1){
-  x <- 1:length(y)
-  n <- length(y)
-  #using ggplot2
-  if(plotStyle==1){
-    xy_1 <- as.data.frame(cbind(x, y))
-    xy_1Type <- rep(1, nrow(xy_1))
-    #xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
-    xy_1 <- data.frame(xy_1Type,  xy_1)
-
-    #plot(xy_1$Date, xy_1$InCount)  
-     print(ggplot(xy_1, aes(x, y, group=xy_1Type)) +
-             geom_line(color="blue", size = 1) +
-             #geom_point(color=xy_1Type, size = 2) +
-             geom_point(color="blue", size = 2) +
-             geom_area(aes(ymin = 0,ymax = y),
-                       alpha = 0.3,fill = "blue")) }
-  
-  #to generate regular plot
-  if(plotStyle==2){
-    s = smooth.spline(x, y, spar=0.5)
-    xy <- predict(s, seq(min(x), max(x), by=1)) # Some vertices on the curve
-    m <- length(xy$x)
-    x.poly <- c(xy$x, xy$x[m], xy$x[1])         # Adjoin two x-coordinates
-    y.poly <- c(xy$y, 0, 0)                     # .. and the corresponding y-coordinates
-    plot(range(x), c(0, max(y)), type='n', xlab="X", ylab="Y", axes=F)
-    polygon(x.poly, y.poly, col="lightblue", border=NA)
-    lines(s, col="blue", lwd=2)
-    points(x.poly[1:(length(x.poly)-2)], y.poly[1:(length(y.poly)-2)], pch=16, col="blue") # (Optional)
-    points(x.poly[(length(x.poly)-2)], y.poly[(length(y.poly)-2)], pch=16, col="red", cex=2) # (Optional)
-  }
-  
-}
-
-# plot function for the big HF panel
+# plot function for the historical footfall dataset (also add 'trend line', select plot types)
 auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = y_new, addTrend = FALSE, chartType="Dot"){
-  
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
   #end_date <- Sys.Date()
   end_date <- as.Date("2019-12-31")
-  
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
-    #Join 
   merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE, all.y = TRUE)
   merged_Datasetd  <- as.data.frame(merged_Datasetd)
   #combine historical data and predicted.
   x <- c(as.character(as.Date(merged_Datasetd$Date)), as.character(as.Date(predicted_Point$Date)))
   y <- c(merged_Datasetd$InCount, predicted_Point$InCount)
   Outliers <- c(merged_Datasetd$outlier, predicted_Point$outlier)
-  
   x_backup <- x
   dateLabels = seq(as.Date("2009/01/01"), as.Date("2019-01-01"), by = "year")
-  
   #using ggplot2
     xy_1 <- as.data.frame(cbind(x, y))  
     xy_1Type <- rep(1, nrow(xy_1))
     xy_1Type[length(xy_1Type)] <- 2  #changing the type of the last point, so that it can be colored differently
     xy_1 <- data.frame(xy_1Type,  xy_1)
-    
- 
     colnames(xy_1) <- c("Type","x","y")   #, "Outliers")
-
     x<-xy_1$x
     y<-xy_1$y
-    #to adjust the start of plot
-
     Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
-
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-
     xy_1 <- data.frame(Type, Date, InCount) #, Outliers)
-
     #overall mean of the time series
     mean_InCount <-  mean(xy_1$InCount)
-    
     getUnique_year <- as.vector(allDays_inbetween)
     sub_getUnique_year <- as.vector(substr(data$Date, 1, 4))
     most_recent_year <- max(unique(sub_getUnique_year))
@@ -277,28 +228,20 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     ind_Foot <- data[which(substr(data$Date[order(data$Date)], 1,4) == most_recent_year), c("InCount")]
     percentiles <- round(as.vector(quantile(ind_Foot, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm=TRUE)), digits=0)   # quartile
     
-    
 if(chartType=="Dot"){
   if(addTrend==FALSE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
-
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
-
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
-
             geom_vline(xintercept = min(Date), linetype="dashed",
                        color = "brown", size=0.5) + #current date
-
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
-            
             geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(2, (length(Type)-1)), 4)  ) +
-            
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
-            
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
             #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
@@ -307,31 +250,22 @@ if(chartType=="Dot"){
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
             geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
     ) }
-
   if(addTrend==TRUE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
- 
             geom_vline(xintercept = min(Date),
                        color = "grey", size=1.5) +
             geom_hline(yintercept=0,
                        color = "grey", size=1.5) +
-
             geom_vline(xintercept = min(Date), linetype="dashed",
                        color = "brown", size=0.5) + #current date
-
             geom_vline(xintercept = current_Date_Index, linetype="dashed",
                        color = "grey", size=1) + #current date
-            
             geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(2, (length(Type)-1)), 4)  ) +
-            
             geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                        color = "green", size=1) +
-
             geom_smooth(method = "lm", se=FALSE, color="red", lwd = 2) +
-            
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
             #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
@@ -340,33 +274,25 @@ if(chartType=="Dot"){
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
             geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
             geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
     ) }
 }
-
   #to generate regular plot
   if(chartType=="Line"){
     if(addTrend==FALSE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
-  
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
-
               geom_vline(xintercept = min(Date), linetype="dashed",
                          color = "brown", size=0.5) + #current date
-
               geom_vline(xintercept = current_Date_Index, linetype="dashed",
                          color = "grey", size=1) + #current date
-              
               geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
-              
               geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                          color = "green", size=1) +
-              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
               #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
@@ -375,33 +301,25 @@ if(chartType=="Dot"){
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
               geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-              
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
-
       ) }
 
     if(addTrend==TRUE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
               geom_line(color="blue", size = 0.5) +
- 
               geom_vline(xintercept = min(Date),
                          color = "grey", size=1.5) +
               geom_hline(yintercept=0,
                          color = "grey", size=1.5) +
-
               geom_vline(xintercept = min(Date), linetype="dashed",
                          color = "brown", size=0.5) + #current date
 
               geom_vline(xintercept = current_Date_Index, linetype="dashed",
                          color = "grey", size=1) + #current date
-              
               geom_point(color= c(rep("blue", (length(Type)-1)), "red") , size = c(rep(1, (length(Type)-1)), 4)  ) +
-              
               geom_hline(aes(yintercept = mean(InCount, na.rm = T)), linetype="dashed",
                          color = "green", size=1) +
-
               geom_smooth(method = "lm", se=FALSE, color="red", lwd=1) +
-              
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[1],yend=percentiles[1]), linetype="dashed", color = "red", size=0.5) +
               #geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[1],yend=percentiles[1]), label=paste("Min.", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[2],yend=percentiles[2]), linetype="dashed", color = "orange", size=0.5) +
@@ -410,35 +328,26 @@ if(chartType=="Dot"){
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[4],yend=percentiles[4]), linetype="dashed", color = "orange", size=0.5) +
               geom_text(aes(x=indEX2-100,xend=indEX2,y=percentiles[4],yend=percentiles[4]), label=paste("75th %tile", " (",most_recent_year,")", sep=""), size=3, colour = 'gray', alpha=0.9) +
               geom_segment(aes(x=indEX1,xend=indEX2,y=percentiles[5],yend=percentiles[5]), linetype="dashed", color = "red", size=0.5) +
-              
               scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
       ) }
-    
- 
     }
   }
   
 
 #function to plot...points and lines for forecast
 auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
-  
   xy_1 <- y
-  
   labs <- data.frame(xy_1Type=c(1, 2),
                      label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
-  
   d <- merge(xy_1, labs, by="xy_1Type")[order(merge(xy_1, labs, by="xy_1Type")[,2]),]
   d$Perc =  d$Perc * -1
   dateLabels = seq(Sys.Date()+1, (Sys.Date()+1 +(nrow(d)-1)), by = "day")
   dayLabels =   weekdays(as.Date(dateLabels))
-
   d <- cbind(d, dateLabels)
-
   #prepare the previous weeks data
   y_m <- melt(y_past)
   colfunc <- colorRampPalette(c("black", "grey"))
   colfunc <- colfunc(length(unique(y_m$Var2)))
-  #generate Ids
   Ids <- NULL
   Ids_col <- NULL
   for(g in 1:length(unique(y_m$Var2))){   #g<-1
@@ -448,8 +357,6 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
   y_m <- cbind(y_m, Ids, Ids_col)
   colnames(y_m) <- c("Var1","Var2","value","Var3", "Var4")
   y_m <- as.data.frame(y_m)
-  
-  #if(chartType=="Line-Dot"){  #https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
     print(ggplot(d, aes(Date, InCount)) + #ylim(-1,max(50)) +
       geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 1) +
       theme(legend.position=" ") +
@@ -458,15 +365,10 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
       geom_point(aes(Date, InCount, color=factor(xy_1Type)), size = 11) +
       geom_text(aes(Date, InCount,label=label),family='fontawesome-webfont', size=c(9)) + #nudge_x=0, nudge_y=0
         scale_x_discrete(limits=d$Date,labels=dateLabels) + 
-        
       geom_point(data = y_m, aes(x = Var3, y = value, size = (abs(y_m$Var1-length(unique(y_m$Var1)))+1), group = Var3, color=Var4)) +
-        
       annotate(geom = "text", x = y_m$Var3, y = y_m$value, label = y_m$Var1, size = 2) +
-        
       annotate(geom = "text", x = d$Date, y = (min(d$InCount)-(min(d$InCount)/3)), label = dayLabels, size = 4) +
-        
       coord_cartesian(ylim = c((min(d$InCount)-(min(d$InCount)/3)), (max(d$InCount)+(max(d$InCount)/8)))) + 
-        
       geom_text_repel(
        aes(Date, InCount, color=factor(xy_1Type), label=paste(Perc,"%", sep="")),
        size = 5,
@@ -476,9 +378,8 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
     )
 }
 
-
 #------------------------
-#function to calculate percentage increase in prediction
+#function to calculate percentage increase/decrease a footfall prediction compared to previous prediction
 vector_perc_diff <- function(data){
   table_R <- matrix(0, length(data)-1, 4)
   for (i in 2:length(data)){ #i<-2
@@ -487,14 +388,13 @@ vector_perc_diff <- function(data){
     table_R[i-1,3] <- round(((data[i-1]-data[i])/data[i-1])*100, digits=0)
     if(table_R[i-1,3]<=0){table_R[i-1,4] = 1}
     if(table_R[i-1,3]>0){table_R[i-1,4] = 2}
-    #table_R[i-1,5] <- as.character(Sys.Date()+(i-1))
   }
   table_R <- data.frame(table_R)
   colnames(table_R) <- c("Date", "InCount", "Perc", "xy_1Type")#, "Date")
   return(table_R)
 }
 
-#function to display time
+#function to display date/time on the title bar of the dashboard
 date_function <- function(){
   date_time <- Sys.time()
   dateT <- substr(as.character(date_time), 1, 10)
@@ -502,13 +402,13 @@ date_function <- function(){
   dayT <- weekdays(as.Date(dateT))
   print(paste(dayT, ", ", dateT, ", ", sep=""))}
 
+#date/time function 2 
 date_function2 <- function(){
   date_time <- Sys.time()
   timeT <- substr(as.character(date_time), 11, 20)
-  #dayT <- weekdays(as.Date(dateT))
   print(paste(" ",timeT, "GMT", sep=" "))}
 
-#function to display time
+#date/time function 3 
 date_function3 <- function(){
   dateT <- Sys.Date() - 1
   #date_time2 <- Sys.Time()
@@ -517,19 +417,18 @@ date_function3 <- function(){
   dayT <- weekdays(as.Date(dateT))
   print(paste(dayT, ", ", dateT, sep=""))}
 
-#function to display tomorrow's day in the forecast panels
+#date/time function 4 
 day_function <- function(){
   dateD <- Sys.Date()
   dayT <- paste(weekdays(as.Date(dateD)), ", ", (Sys.Date()), sep = "")
   print(dayT)}
 
 
-#function to list the gaps in the dates field of a datasets
+#function to identify gaps in a 'Date' field of a datasets
 missingData <- function(data, indicatorField = FALSE){
   #to subset the dataset first based on field on interest (specifically to deal with 'predictors' table)
   if(indicatorField==TRUE){
     data = data[which(as.vector(data$Date) < Sys.Date()),]
-    #data = data[which(as.vector(data$Date) < Sys.Date()),]
   }
   dataValues <- data$Date
   DateFromData <- as.character(dataValues)
@@ -538,22 +437,17 @@ missingData <- function(data, indicatorField = FALSE){
   #to detect dates not in right format (i.e. yyyy-mm-dd)
   converDate1 <- as.Date(parse_date_time(dateField,"dmy"))
   listInconvertible <- which(!is.na(converDate1))
-  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])   #data[89480:89559,]
+  dateField[listInconvertible] <- as.character(converDate1[listInconvertible])  
   #append back to the dataset
-  #dataValues <- cbind(min(dateField), "missing dates(months)")
   dataValues <- dateField   
   dataValues <-   matrix(dataValues[order(dataValues[,1]),],,1)
   #append current date to the list..
   dataValues <- rbind(dataValues, as.character(Sys.Date()))
-  ##dataValues <- c(dataValues, as.character(Sys.Date()))
-  
   #for 'predictor' table, remove those whose 'temp' and 'rain' column have been updated (i.e. with entry '1')
   if(indicatorField==TRUE){
     dataIndd = which(data$status == 0)
     dataValues = dataValues[-dataIndd,] #isolate the 'yet-to-be-updated' dates
   }
-  
-  #to identify gaps in the dataset.
   DF <- as.Date(dataValues)
   DF_Dates <- diff(DF)
   missing_Dates <-  data.frame((DF[DF_Dates>1]+1), (DF[c(1, DF_Dates)>1]-1), (DF[c(1, DF_Dates)>1]-1)-(DF[DF_Dates>1]))
@@ -564,7 +458,6 @@ missingData <- function(data, indicatorField = FALSE){
   #remove dates with less than one day
   missing_Dates <- missing_Dates[which(as.vector(missing_Dates[,3]) != 1),]
   #if number of rows of the table is greater than 3, remove the last row
-  
   #if 'missing_Dates' is one row, 
   if(nrow(missing_Dates)==2){ #>2
     missing_Dates <- as.data.frame(missing_Dates[1,])
@@ -580,12 +473,11 @@ missingData <- function(data, indicatorField = FALSE){
     missing_Dates = missing_Dates[-nrow(missing_Dates),]
     ##missing_Dates = missing_Dates[(4:nrow(missing_Dates)),]
   }
-
   return(missing_Dates)
 }
 
 
-#function to return list of unique dates in a dataset
+#function to return list of unique dates (in the 'Date' field) of a dataset
 uniq_Dates <- function(data){
   #first convert the data to the right format i.e. "yyyy-mm-dd"
   dataValues <- data$Date
@@ -603,7 +495,7 @@ uniq_Dates <- function(data){
   return(dataValues)
 }
 
-#function to convert list of dates to format 'yyyy-mm-dd'. Returns the dataset, and with date converted to date type
+#function to convert 'Date' field in any format to format 'yyyy-mm-dd'.
 convert_Date <- function(data, TimeField = FALSE){
   #first convert the data to the right format i.e. "yyyy-mm-dd"
   dataValues <- data$Date
@@ -626,15 +518,14 @@ convert_Date <- function(data, TimeField = FALSE){
   return(data)
 }
 
-#function to check that uploaded contains the three fields, "Date","Hour","InCount", "LocationName"
+#function to check whether the uploaded dataset contains the four important fields: "Date","Hour","InCount", "LocationName". Returns "1" if true and "0" if false
 uploaded_fieldnames <- function(data, essential_Fields){
-  #essential_Fields <- c("Date","Hour","InCount", "LocationName")
   names_uploaded <- essential_Fields %in% colnames(data)
   leng_name <- length(which(names_uploaded=="TRUE"))
   return(leng_name)
 }
 
-#function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time
+#function to check that all the uploaded records fall within appropriate time range i.e. start date of the historical data and the current time. Returns "1" if true and "0" if false
 dateRange_Checker <- function(history_footfall, data){
   #unique dates in the footfall (database) data
   uniqueDate_footfallDatabase <- uniq_Dates(history_footfall)
@@ -648,7 +539,7 @@ dateRange_Checker <- function(history_footfall, data){
   return(out_Len)
 }
 
-#function to check whether there is overlap in the dates:
+#function to check whether there is date overlap between historical data and an uploaded record. Returns "1" if true and "0" if false
 dateOverlap_Checker <- function(history_footfall, data){
   #unique dates in the footfall (database) data
   uniqueDate_footfallDatabase <- uniq_Dates(history_footfall)
@@ -659,22 +550,8 @@ dateOverlap_Checker <- function(history_footfall, data){
   return(length(overlap_Dates))
 }
 
-#to detect if time (i.e. 'Hour') field is in 'hh:mm' format. 
-#If so, return a error warning
-detect_Time_Format_Error <- function(data){
-  backup_Hour <- data$Hour
-  Hour_New <- matrix(0, length(data$Hour),1)
-  pattern <- ":"
-  timeString <- as.character(data$Hour)
-  pattern_Exist <- grepl(pattern, timeString)
-  whichIsTrue <- which(pattern_Exist==TRUE)
-  if(length(whichIsTrue)==0){timeF = 0}
-  if(length(whichIsTrue)>0){timeF = 1}
-  return(timeF)
-}
 
-
-#function to remove whitespace in the names of camera location
+#function to remove whitespace in the 'LocationName' field of a footfall dataset
 remove_whiteSpace_in_Camera_Name <- function(data, lists_Loc_Correct){
   vec_Name <- trimws(as.vector(data$LocationName), which="right") #trailing whitespace
   vec_Name <- trimws(vec_Name, which="left") #leading whitespace
@@ -685,7 +562,7 @@ remove_whiteSpace_in_Camera_Name <- function(data, lists_Loc_Correct){
 }
 
 
-#function to detect typo in the list of camera location
+#function to detect typo in the list of camera location. Returns "1" if true and "0" if false
 check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
   #are these all the camera locations expected
   unique_Camera_Loc <- as.vector(lists_Loc_Correct)  #head(orig_Data_sub)
@@ -699,56 +576,32 @@ check_typo_in_Camera_Name <- function(data, lists_Loc_Correct){
   return(issue0)
 }
 
-#function to remove trailing and leading white spaces in column ('LocationName')
-remove_whitespace <- function(data){                           #head(data)
-  vec_Name <- as.vector(data$LocationName)
-  vec_Name <- trimws(vec_Name, which="right")
-  vec_Name <- trimws(vec_Name, which="left")
-  vec_Name <- matrix(vec_Name,,1)
-  colnames(vec_Name) <- c("LocationName")
-  data[, "LocationName"] <- vec_Name
-  return(data)
-}
-
-
 #Preparing dataset for training
-#function to merge footfall aggregate with predictors 
+#function to merge footfall aggregate with its corresponding predictors records
 data_Preparation_for_training <- function(aggre_footfall, predictors, modelName ="randomForest", training_length_in_yrs = 3) {
-  
   # extract days with status 1 (i.e. rows with weather information)
   predictors_info_extract <- predictors[which(predictors$status==1),]  
-  
   #convert dates to right format
   predictors_info_extract <- convert_Date(predictors_info_extract, TimeField = FALSE)	
-  
   #order by dates and extract the mode recent last three years
   predictors_info_extract_subset <- predictors_info_extract[order(predictors_info_extract$Date, decreasing = TRUE),]
   predictors_info_extract_subset <- predictors_info_extract_subset[1:(training_length_in_yrs*365), ] 
-  
- 
   #remove the outlier and "NA", and drop the outlier 'column'
   dayTime_HF_aggre_MINUS_outlier <- aggre_footfall[which(aggre_footfall$outlier==2),]
   dayTime_HF_aggre_MINUS_outlier <- subset(dayTime_HF_aggre_MINUS_outlier, select=-c(outlier))
-  
   #To ensure that the 'Date' column in both datasets (predictor dataset and Footfal datasets)are in the right format
   dayTime_HF_aggre_MINUS_outlier <- convert_Date(dayTime_HF_aggre_MINUS_outlier, TimeField = FALSE)
   predictors_info_extract_subset <- convert_Date(predictors_info_extract_subset, TimeField = FALSE)
-  
   #now merge both datasets using the 'Date' column
   setDT(dayTime_HF_aggre_MINUS_outlier)
   setDT(predictors_info_extract_subset)
-  
   joined_dataset_for_Training <- dayTime_HF_aggre_MINUS_outlier[predictors_info_extract_subset, on = c('Date','Date')]
-  
   #remove records with InCount == "NA"
   joined_dataset_for_Training <- joined_dataset_for_Training[which(joined_dataset_for_Training$InCount!="NA"),]
-  
   #drop "Date.1" & "status" columns
   joined_dataset_for_Training <- subset(joined_dataset_for_Training, select=-c(Date, Date.1, status))
-  
   return(joined_dataset_for_Training)
 }
-
 
 #function to convert temp from Kelvin to Celcius
 Data_kelvin_to_celsius <- function(data) {
@@ -758,30 +611,30 @@ Data_kelvin_to_celsius <- function(data) {
 }
 
 
-
 #to restrict the file upload size to 120MB
 options(shiny.maxRequestSize=200*1024^2) 
 
-#----------------------------------------------------------
 
+#----------------------------------------------------------
+#MAIN CODE
+#----------------------------------------------------------
 shinyServer(function(input, output, session){
 
   output$aggre_HF_by  <- renderText({
     aggre_HF_by <- c("Time", "Location")
   })
   
-
-  
   output$dateText  <- renderText({
     paste("input$date is", as.character(input$date))
   })
 
+  #list of camera names (location)
   lists_Loc_Correct <- c("Briggate", "Briggate at McDonalds", "Commercial Street at Sharps",
                          "Commercial Street at Barratts", "Headrow", "Dortmund Square",
                          "Albion Street South", "Albion Street North")
   
   
-  #start date of HF data collection
+  #start date of footfall data collection
   HF_startDate <- as.Date("2009-01-01")
   
   #setting the directories
