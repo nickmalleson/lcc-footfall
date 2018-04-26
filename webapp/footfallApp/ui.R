@@ -55,7 +55,7 @@ shinyUI(
   #Title bar
   dashboardPage(title = "Demo App", skin = "green",
   
-                 dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
+                 dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Pred')), 
                                   tags$li(class = "dropdown", 
                                          tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
                                          tags$style("#headersTime{color: white;

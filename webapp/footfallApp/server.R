@@ -188,7 +188,7 @@ outliers <- function(data){
 } 
 
 
-# plot function for the historical footfall dataset (also add 'trend line', select plot types)
+# plot function for the historical footfall dataset (also add 'trend line' and select plot types ['Line' or 'Dot'])
 auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = y_new, addTrend = FALSE, chartType="Dot"){
   #create list of all days between the start date HF data collection and the current time
   start_date <- HF_startDate
@@ -226,7 +226,8 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     indEX2 <- length(allDays_inbetween)
     ind_Foot <- data[which(substr(data$Date[order(data$Date)], 1,4) == most_recent_year), c("InCount")]
     percentiles <- round(as.vector(quantile(ind_Foot, probs = c(0, 0.25, 0.5, 0.75, 1), na.rm=TRUE)), digits=0)   # quartile
-    
+
+#to generate dot plot    
 if(chartType=="Dot"){
   if(addTrend==FALSE){
     print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
@@ -276,7 +277,7 @@ if(chartType=="Dot"){
             scale_x_discrete(limits=Date[which(as.character(x_backup)%in%as.character(dateLabels))], labels = x_backup[which(as.character(x_backup)%in%as.character(dateLabels))])
     ) }
 }
-  #to generate regular plot
+  #to generate line plot
   if(chartType=="Line"){
     if(addTrend==FALSE){
       print(ggplot(xy_1, aes(Date, InCount, group=Type)) +
@@ -333,8 +334,8 @@ if(chartType=="Dot"){
   }
   
 
-#function to plot...points and lines for forecast
-auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
+#function to plot the 5-day predictions (and also their corresponding previous weeks predictions)
+auc_plot3 <- function(y, y_past=NULL){ 
   xy_1 <- y
   labs <- data.frame(xy_1Type=c(1, 2),
                      label = fontawesome(c('fa-arrow-circle-up','fa-arrow-circle-down'))  )
@@ -377,7 +378,6 @@ auc_plot3 <- function(y, y_past=NULL){ #, chartType="Dot"
     )
 }
 
-#------------------------
 #function to calculate percentage increase/decrease a footfall prediction compared to previous prediction
 vector_perc_diff <- function(data){
   table_R <- matrix(0, length(data)-1, 4)
