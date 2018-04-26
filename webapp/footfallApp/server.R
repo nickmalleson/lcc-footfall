@@ -718,36 +718,15 @@ shinyServer(function(input, output, session){
     outlier_dummy <-2
     y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
     colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
-    #to set chart type
+    #input chart type
     chartType = input$chartType
-    #to set time segmentation to plot
-    plotOptn = input$timeOftheDayInput
-    
     data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)
-    
     #plot the historical footfall and add the predicted point to the plot
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
   })
   
-  
-  output$todaysfootfallCount <- renderText({
-    paste(th_separator(3634*200))
-  }) 
-  
-  
-  output$lastDayCount <- renderText({
-    paste(th_separator(30*200))
-  }) 
-  
-  output$lastWeekCount <- renderText({
-    paste(th_separator(32*200))
-  }) 
-  
-  output$lastWeekCounty <- renderText({
-    paste(th_separator(27*200))
-  }) 
-  
+
   #----------------------
   #plotting the map
   output$mapLeeds <- renderLeaflet({
@@ -760,11 +739,6 @@ shinyServer(function(input, output, session){
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
       addCircles(data=data, ~X_Lon, ~Y_Lat, popup = ~as.character(Id),  stroke = TRUE, radius=1500)
   })
-  
-  output$mytable1_1 <- DT::renderDataTable({
-    DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
-  })
-  
   
   
   #---------------------------------------------
