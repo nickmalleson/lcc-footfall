@@ -4,8 +4,9 @@
 #
 # Find out more about building applications with Shiny here:
 # 
-#    http://shiny.rstudio.com/
-#
+#http://shiny.rstudio.com/
+
+#install libraries
 library(base)
 library(shiny)
 library(shinydashboard)
@@ -34,23 +35,20 @@ require(reshape2)
 # Manually set the time zone
 Sys.setenv(TZ="Europe/London")
 
-#owmr package allows talking to ROpenWeatherMap website
-
 #api key for downloading weather forecast...(http://openweathermap.org/)
-
 owmr_settings("c8a930a2e30b695551e57d375a67d76e")  #Open weather forecast api key 
 
-
-ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
+#set the root directory
+ROOT_DIR = "C:/Users/geomad/Documents/GitHub/"
+#ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
 
 
-#option(digits.secs = 1)
 EventTime <- Sys.time() - 1*1
 
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
-# 
+ 
 
 #funtion to print message to catch..
 myPeriodicFunction <- function(){

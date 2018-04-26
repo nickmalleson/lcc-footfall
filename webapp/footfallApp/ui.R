@@ -47,13 +47,15 @@ $('.slider-animate-button').trigger('click');
 "
 
 
-# Define UI for application that ...
+#----------------------------------------------------
+# Designing UI layout
+#----------------------------------------------------
 shinyUI(
 
+  #Title bar
   dashboardPage(title = "Demo App", skin = "green",
   
-                #   
-                dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
+                 dashboardHeader(title = tags$b(tags$h3('Leeds Ftfall Counts')), 
                                   tags$li(class = "dropdown", 
                                          tags$p(tags$b(h3(textOutput("headersTime")))), #style="text-align:left", tags$p(tags$b(h3(textOutput("headersTime"))))
                                          tags$style("#headersTime{color: white;
@@ -73,12 +75,13 @@ shinyUI(
                                           ))
                 ),
                 
+                #----------------------------------------------------
+                # Designing the content of the sidebar
+                #----------------------------------------------------
                 dashboardSidebar( 
                   
                   sidebarMenu(
-                    
-                    
-                    
+
                     menuItem( 
                       tags$b('FOOTFALL DASHBOARD'), tabName ="dashboard", icon = icon("braille")),    #textOutput("headersTime"))#
                   
@@ -98,13 +101,14 @@ shinyUI(
                     
 
                     menuItem(tags$b('Data Preview & Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
-                    
 
                            )
    
                 ),
                 
-  
+                #----------------------------------------------------
+                # Designing the contents of the main body
+                #----------------------------------------------------
                 body <- dashboardBody(
                   
                 tags$style(HTML(".box-header{background:#FFFFFF; color:#000000; text-align:center; font-size:20px}")),
