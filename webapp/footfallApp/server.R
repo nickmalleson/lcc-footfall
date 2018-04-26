@@ -708,7 +708,7 @@ shinyServer(function(input, output, session){
     #drop "Date" and "status" columns, because they are not needed for the prediction 
     x_new <- subset(x_new, select = -c(Date, status))
     
-    #load prediction model
+    #load the Random Forest prediction model
     load(paste(other_dir, "random_forest_model.rda", sep=""))
     
     #predict footfall rate for the selected Date, temperature and rain values
@@ -716,20 +716,18 @@ shinyServer(function(input, output, session){
     
     Type_dummy <- 2
     outlier_dummy <-2
-    
     y_new <- data.frame(Type_dummy, input_dateToForecast, y_new, outlier_dummy)
     colnames(y_new) <- c("Type","Date","InCount", "Outlier")   #data.frame(Type, Date, InCount, Outliers)
-    
     #to set chart type
     chartType = input$chartType
     #to set time segmentation to plot
     plotOptn = input$timeOftheDayInput
     
-    data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)     
+    data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)
+    
+    #plot the historical footfall and add the predicted point to the plot
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
     auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
-    
-    
   })
   
   
