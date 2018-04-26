@@ -188,6 +188,7 @@ outliers <- function(data){
   return(hold_result)
 } 
 
+
 # plot function for the 4 prediction panels
 auc_plot <- function(y, plotStyle=1){
   x <- 1:length(y)
@@ -1122,15 +1123,6 @@ shinyServer(function(input, output, session){
     day_function()
   })
   
-
-  output$morning_footfall <- renderPlot({
-    c <- 1:25
-    set.seed(11)
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-  })
-  
 #to forecast next 5-days footfall  
   output$forecasted_footfall <- renderPlot({
  
@@ -1210,25 +1202,7 @@ shinyServer(function(input, output, session){
     auc_plot3(y=y_new_5_days, y_past = y_new_5_days_past_weekdays) #, chartType = input$forecast_chartType
   })
   
-  
 
-  output$evening_footfall <- renderPlot({
-    c <- 1:25
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-  })
-  
-  output$all_footfall <- renderPlot({
-    c <- 1:25
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-  })
- 
-  
 #plot footfall history
   output$footfall_history <- renderPlot({
  #   c <- 1:100
@@ -1334,62 +1308,6 @@ shinyServer(function(input, output, session){
     DT::datatable(history_footfall[, input$show_vars2, drop=FALSE])
   })
   
-  #temperature trend
-  output$temp_patterns <- renderPlot({
-    c <- 1:100
-    #generate some random number
-    set.seed(1)
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-    autoInvalidate1()
-    Sys.sleep(1)
-  })
-  
-  #holiday
-  output$holidays <- renderPlot({
-    c <- 1:100
-    set.seed(2)
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-    autoInvalidate1()
-    Sys.sleep(1)
-  })
-  
-  output$rainfall_patterns <- renderPlot({
-    c <- 1:100
-    set.seed(3)
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-    autoInvalidate1()
-    Sys.sleep(1)
-  })
-  
-  output$humidity_patterns <- renderPlot({
-    c <- 1:100
-    set.seed(4)
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,2)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle=2)
-    autoInvalidate1()
-    Sys.sleep(1)
-  })
-  
-  output$wind_patterns <- renderPlot({
-    c <- 1:100
-    set.seed(5)
-    #generate some random number
-    y <- sample(c^2)
-    par(mar=c(0,0,0,0)+0.0, mgp=c(0,0,0))
-    auc_plot(y, plotStyle = 2)
-    autoInvalidate1()
-    Sys.sleep(1)
-  })
 
   #create a list dates occuring in the dataset
   missData <- missingData(history_footfall)
