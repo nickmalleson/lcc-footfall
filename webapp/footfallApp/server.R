@@ -671,22 +671,22 @@ shinyServer(function(input, output, session){
                                                     "ensure that the spellings of the camera (location) names","<br>",
                                                     "are exactly as typed above.")})
 
-
-  #create a list dates occuring in the dataset
+  #generate the list of dates whose 'sourced predictors' information (i.e. temperature and rain) is yet to be updated
   missData_Predictors <- missingData(data=predictors_info, indicatorField = TRUE)
   
+  #----------------------------------------------------------------# I will check this section later. I don't think they are necessary anymore.
   #Note: the appended row in missingData function has to be removed. 
   if(length(missData_Predictors)==3){
-    missData_Predictors #####address tis.... are you returning the entire table... need to resolve
+    missData_Predictors ####
   }
   
- 
   #message for "missing data" warning
   if(nrow(missData_Predictors)==0){
     output$msg_pred <- renderText({
       paste("<b>Predictor Info. is up-to-date!")
     })
   }
+  #----------------------------------------------------------------
   
   #missing dates in the predictors information
   if(nrow(missData_Predictors)>0){
@@ -694,7 +694,7 @@ shinyServer(function(input, output, session){
       #DT::datatable(apply(missData_Predictors[2:nrow(missData_Predictors)], 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       DT::datatable(apply(missData_Predictors, 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       })
-
+ 
     output$notify_pred <- renderText({ print("Issues")  }) 
     #}
     
