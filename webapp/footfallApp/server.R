@@ -378,7 +378,7 @@ auc_plot3 <- function(y, y_past=NULL){
     )
 }
 
-#function to calculate percentage increase/decrease a footfall prediction compared to previous prediction
+#function to calculate percentage increase/decrease a footfall prediction compared to previous (same weekdays) predictions
 vector_perc_diff <- function(data){
   table_R <- matrix(0, length(data)-1, 4)
   for (i in 2:length(data)){ #i<-2
@@ -423,7 +423,7 @@ day_function <- function(){
   print(dayT)}
 
 
-#function to identify gaps in a 'Date' field of a datasets
+#function to identify gaps in a 'Date' field of a dataset
 missingData <- function(data, indicatorField = FALSE){
   #to subset the dataset first based on field on interest (specifically to deal with 'predictors' table)
   if(indicatorField==TRUE){
@@ -633,22 +633,19 @@ shinyServer(function(input, output, session){
                          "Albion Street South", "Albion Street North")
   
   
-  #start date of footfall data collection
+  #Origin of footfall data collection
   HF_startDate <- as.Date("2009-01-01")
   
-  #setting the directories
-  #directory for the historical HF
-  HF_directory = paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/historical_HF/")
+  #setting up the directories
   #directory for the aggregated HF
   file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
   #parameter file directory
-  parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/")
-  
+  parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/")
   #directory for other items
   other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
   
   #import the predictor information
-  predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+  predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
   predictors_info <- convert_Date(predictors_info)
   
   #extract the predictors info that have weather information.
@@ -659,7 +656,6 @@ shinyServer(function(input, output, session){
   
   history_footfall <- twentyFourHours_HF_aggre
  
-
   output$twentyFourHoursData <- DT::renderDataTable({
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
     return(twentyFourHours_HT_Table)
@@ -671,9 +667,9 @@ shinyServer(function(input, output, session){
                                              "<br>", "5.   Commercial Street at Barratts", "<br>","6.   Commercial Street at Sharps","<br>","7.   Dortmund Square","<br>",
                                             "8.   Headrow")})
 
-  output$warning_cameraLocation = renderText({paste("Note: Before uploading any files to either replace the existing HF records or update the records", "<br>", 
-                                                    "in the 'Historical Footfall (HF)' and 'Update HF' tabs respectively, ensure that the spellings of the camera (location) names","<br>",
-                                                    "are exactly as typed here. Also, watch out for leading and trailing whitespaces in the names.")})
+  output$warning_cameraLocation = renderText({paste("Note: Before uploading any new footfall file using the 'Update Footfall records' tab,", "<br>", 
+                                                    "ensure that the spellings of the camera (location) names","<br>",
+                                                    "are exactly as typed above.")})
 
 
   #create a list dates occuring in the dataset
@@ -734,7 +730,7 @@ shinyServer(function(input, output, session){
                                 sep = ",")#,
       
       #import the predictor information
-      predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+      predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
       predictors_info <- convert_Date(predictors_info)
       #extract the predictors info that have weather information.
       predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
@@ -848,7 +844,7 @@ shinyServer(function(input, output, session){
       
       predictors_info <- predictors_info[order(predictors_info$Date),] ######
       
-      write.table(predictors_info, file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", row.names=FALSE)
+      write.table(predictors_info, file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", row.names=FALSE)
       
       shinyjs::show("taskCompleted3")
    
@@ -867,7 +863,7 @@ shinyServer(function(input, output, session){
     observeEvent(input$train_Prediction_Model, priority=10, {
       
       #re-import the updated data to retrain the model.
-      predictors <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
+      predictors <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
       predictors <- convert_Date(predictors)
       
       aggre_footfall <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
@@ -1004,7 +1000,7 @@ shinyServer(function(input, output, session){
 
     #import othe predictors for the date specified
     #import the predictor information
-    predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
     predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
     
     #extract the independent variables of today and the next five days.
@@ -1073,7 +1069,7 @@ shinyServer(function(input, output, session){
     
     #import othe predictors for the date specified
     #import the predictor information
-    predictors_info <- read.table(file=paste(parameter_directory, "predictors_INFO/", "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
+    predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
     predictors_info <- convert_Date(predictors_info, TimeField = FALSE)  
     #extract the predictors info for the specified Date
     x_new <- predictors_info[which(predictors_info$Date == input_dateToForecast), ]                #head(predictors_info_subset)
@@ -1205,7 +1201,6 @@ shinyServer(function(input, output, session){
                                         "Upload a .csv file to update the database", "<br>", 
                                         "An 'upload' button will appear after a valid file has been uploaded")})
 
-  output$HF_directory <- renderText({paste("**The actual historical HF .csv file can be found in the directory:", HF_directory, sep=" ")})
   output$HF_view <- renderText({paste("<b>The corresponding aggregated HF can be viewed on the 'DASHBOARD' page'; and the actual .csv files can be found in the 'aggregated_historical_HF' directory")})
   
   output$why_re_gen_HF <- renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})#tags$p(tags$b(h4
