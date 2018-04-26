@@ -647,57 +647,57 @@ shinyServer(function(input, output, session){
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
   predictors_info <- convert_Date(predictors_info)
-  
   #extract the predictors info that have weather information.
   predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
   
+  #-------------------------------------------
+  #'Data Preview & Settings' Menu
+  #-------------------------------------------
+  #To generate the table displayed in the 'Preview of Footfall Data Aggregates' 
+  #Import the aggregated footfall dataset
   twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
-  
   history_footfall <- twentyFourHours_HF_aggre
- 
   output$twentyFourHoursData <- DT::renderDataTable({
     twentyFourHours_HT_Table <- DT::datatable(twentyFourHours_HF_aggre)
     return(twentyFourHours_HT_Table)
   })
 
+  #'Camera' tab
+  #---------------------------------------------
   output$cameraTitle = renderText({paste("<b> Names of Camera Location")})
-  
   output$cameraLocation = renderText({paste("1.   Albion Street North", "<br>", "2.   Albion Street South", "<br>", "3.   Briggate", "<br>", "4.   Briggate at McDonalds",
                                              "<br>", "5.   Commercial Street at Barratts", "<br>","6.   Commercial Street at Sharps","<br>","7.   Dortmund Square","<br>",
                                             "8.   Headrow")})
-
   output$warning_cameraLocation = renderText({paste("Note: Before uploading any new footfall file using the 'Update Footfall records' tab,", "<br>", 
                                                     "ensure that the spellings of the camera (location) names","<br>",
                                                     "are exactly as typed above.")})
-
+  
+  
+  #'Update Footfall records' tab
+  #---------------------------------------------
   #generate the list of dates whose 'sourced predictors' information (i.e. temperature and rain) is yet to be updated
   missData_Predictors <- missingData(data=predictors_info, indicatorField = TRUE)
   
-  #----------------------------------------------------------------# I will check this section later. I don't think they are necessary anymore.
+  # I will check this section later. I don't think they are necessary anymore.
   #Note: the appended row in missingData function has to be removed. 
   if(length(missData_Predictors)==3){
-    missData_Predictors ####
+    missData_Predictors
   }
-  
   #message for "missing data" warning
   if(nrow(missData_Predictors)==0){
     output$msg_pred <- renderText({
       paste("<b>Predictor Info. is up-to-date!")
     })
   }
-  #----------------------------------------------------------------
-  
   #missing dates in the predictors information
   if(nrow(missData_Predictors)>0){
     output$missed_Pred_Info <- DT::renderDataTable({
-      #DT::datatable(apply(missData_Predictors[2:nrow(missData_Predictors)], 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       DT::datatable(apply(missData_Predictors, 2, rev), options = list(lengthMenu = c(5, 10), pageLength = 5))
       })
  
     output$notify_pred <- renderText({ print("Issues")  }) 
-    #}
-    
+  
     output$testHTML1_pred <- renderText({paste("<b>Above table shows the list of days in which predictors (weather) information is missing", "<br>")})
     output$text2_pred <- renderText({paste("Any of the missing dates can be updated by uploading a .csv file containing three essential columns, namely:", "<br>",
                                           "(a) 'Date' - containing the list of all or some of the dates (from the table above), in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'", "<br>",
@@ -711,8 +711,7 @@ shinyServer(function(input, output, session){
     output$testHTML4_pred <- renderText({paste("<b>2. https://www.wunderground.com/weather/gb/leeds")})
     }
     
-
-  #------------------------checking.., uploading and appending predictor information
+  #When a file containing new 'sourced predictors' information for the missing dates (above) is uploaded.
     observe({
     
       shinyjs::hide("append_file3")  
@@ -724,27 +723,24 @@ shinyServer(function(input, output, session){
       shinyjs::hide("Re-train Prediction Model")
       
       req(input$file3)
-      #To check the gaps that an uploaded file fill
       uploaded_file3 <- read.csv(input$file3$datapath,
                                 header = TRUE,
                                 sep = ",")#,
       
-      #import the predictor information
+      #import the existing predictor information file
       predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
       predictors_info <- convert_Date(predictors_info)
-      #extract the predictors info that have weather information.
-      predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  #head(predictors_info_extract)
+      #extract the predictors info whose 'sourced predictors' have already been updated.
+      predictors_info_extract <- predictors_info[which(predictors_info$status==1),]  
       predictors_info_extract_Current <- predictors_info_extract[which(predictors_info_extract$Date <= Sys.Date()),] #
       
       startTimeC <- Sys.time()
       
-      #for(i in 1:100){
       observe({
       timeUpd <- (as.numeric(round(Sys.time()-startTimeC, digits=1))*50)
       updateProgressBar(session = session, id = "pb3", value = timeUpd) #input$i
       invalidateLater(1000, session)
       })
-      #}
  
     #initialisation
     total_issues3 = 0
@@ -752,7 +748,7 @@ shinyServer(function(input, output, session){
     issue2_3 = 0
     issue3_3 = 0
 
-    #checking the uploaded file
+    #checking the uploaded file for errors and conflicts
     leng_name3 <- uploaded_fieldnames(uploaded_file3, essential_Fields =  c("Date","mean_temp","rain")) #checking essential field names
     out_Len3 <- dateRange_Checker(predictors_info, uploaded_file3) #checking if dates falls outsides desired range 
     overlap_Dates3 <- dateOverlap_Checker(predictors_info_extract_Current, uploaded_file3) #checking whether any of the uploaded record overlap with the dates in the database 
@@ -761,16 +757,13 @@ shinyServer(function(input, output, session){
     
     if(as.numeric(leng_name3)!=length(essential_Fields)){
       issue1_3<-1}
-    
     if(out_Len3>0){
       issue2_3<-1}
-    
     if(overlap_Dates3>0){
       issue3_3<-1}
     
     total_issues3 <- issue1_3 + issue2_3 + issue3_3 #+ issue4_3 #+ issue5_3
-    
-    #if there is no issues, then show "Upload" button
+    #if there is no issues, hide all these textboxes
     if(total_issues3==0){
       #turn off
       shinyjs::hide("issues3")
@@ -780,22 +773,19 @@ shinyServer(function(input, output, session){
       shinyjs::hide("resolve_issue3")
       shinyjs::hide("taskCompleted3")
       shinyjs::hide("restart_app3")
-      
-      #turn on
+      #but show the these items
       output$Uploaded_file_checks_Passed3 <- renderText({paste("<b>File checks completed! Click the button below to update predictors info.")})
       shinyjs::show("append_file3")
       shinyjs::show("append_button_Descrip3")
       shinyjs::hide("Re-train Prediction Model")
-
     }
     
     if(total_issues3!=0){
-      
-     # shinyjs::hide("processingbar1")
+      #if there are issues, hide all these items
       shinyjs::hide("Uploaded_file_checks_Passed3")
       shinyjs::hide("append_file3")
       shinyjs::hide("append_button_Descrip3")
-      
+      #but show these items
       shinyjs::show("issues3")
       shinyjs::show("fields_absent3")
       shinyjs::show("fall_outside_daterange3")
@@ -805,6 +795,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("restart_app3")
       shinyjs::hide("Re-train Prediction Model")
       
+      #message to display for each error identified
       output$issues3 <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1_3==1){
         output$fields_absent3 <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'mean_temp', 'rain'")})}
@@ -818,57 +809,56 @@ shinyServer(function(input, output, session){
     
     })
     
-    
+    #when the append button is clicked
     observeEvent(input$append_file3, {
       
       shinyjs::hide("Re-train Prediction Model")
-      
       req(input$file3)
-      #To check the gaps that an uploaded file fill
-      #Check whether this is necessary again!
+      #use the uploaded file
       uploaded_file3 <- read.csv(input$file3$datapath,
                                  header = TRUE,
                                  sep = ",")#,
 
-      #convert date to appropriate format
-      predictors_info <- convert_Date(predictors_info, TimeField = FALSE) ##  predictors_info[1:5, 1:5]
-      weatherInfo <- convert_Date(uploaded_file3, TimeField = FALSE) ##weatherInfo
+      #convert date field to appropriate format
+      predictors_info <- convert_Date(predictors_info, TimeField = FALSE) 
+      weatherInfo <- convert_Date(uploaded_file3, TimeField = FALSE) 
       
+      #identify the rows of the predictors file to be updated
       id_to_update <- which(predictors_info$Date %in% weatherInfo$Date)
-      
-      #for(h in 1:nrow(weatherInfo)){ #h<-1
+      #update the 'sourced predictors' fields
       predictors_info[id_to_update, c("mean_temp")] <- weatherInfo$mean_temp
       predictors_info[id_to_update, c("rain")] <- weatherInfo$rain
+      #update the status to read "1" - indicating the update 
       predictors_info[id_to_update, c("status")] <- 1
       #}
       
-      predictors_info <- predictors_info[order(predictors_info$Date),] ######
-      
+      #sort the predictor information from oldest to ealiest
+      predictors_info <- predictors_info[order(predictors_info$Date),] 
+      #export the updated 'predictor' field 
       write.table(predictors_info, file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", row.names=FALSE)
-      
       shinyjs::show("taskCompleted3")
-   
       output$taskCompleted3 <- renderText({paste(tags$p(tags$b(h4("The Weather information for the specified date(s) have been updated successfully!"))))})  #renderText({paste(tags$p(tags$b(h3("Replacing the Existing Raw HF Dataset"))))})
       
       output$restart_app3 <- renderText({paste(tags$p(tags$b(h4("Re-training completed!  Please, restart app. to effect these changes."))))}) 
       
       shinyjs::hide("append_file3")
-      
+      #show the button to re-train the model
       shinyjs::show("Re-train Prediction Model")
     })
     
     
     
-    #procedure to re-train prediction model
+    #upon clicking the "Re-train Prediction Model" button
     observeEvent(input$train_Prediction_Model, priority=10, {
       
-      #re-import the updated data to retrain the model.
+      #import/re-import the updated predictors file to retrain the 'random_forest_model.rda' model.
       predictors <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
       predictors <- convert_Date(predictors)
-      
+      #import the aggregated footfall dataset in order to fetch footfall information for training
       aggre_footfall <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
       aggre_footfall <- convert_Date(aggre_footfall)
       
+      #to match the footfall data with the predictors data and subset the last 3 years of the dataset
       cleaned_data_for_training <- data_Preparation_for_training(aggre_footfall=aggre_footfall, predictors=predictors, modelName ="randomForest", training_length_in_yrs = 3)
       
       #train the model  - regression
@@ -1251,7 +1241,7 @@ shinyServer(function(input, output, session){
     #issue4 = 0
     issue5 = 0
    
-    #checking whether the uploaded file contain essential fields
+    #checking the uploaded file for errors and conflicts
     leng_name <- uploaded_fieldnames(uploaded_file, essential_Fields = c("Date","Hour","InCount", "LocationName")) #checking essential field names
     out_Len <- dateRange_Checker(history_footfall, uploaded_file) #checking if dates falls outsides desired range 
     overlap_Dates <- dateOverlap_Checker(history_footfall, uploaded_file) #checking whether any of the uploaded record overlap with the dates in the database 
@@ -1262,26 +1252,17 @@ shinyServer(function(input, output, session){
     
     if(as.numeric(leng_name)!=length(essential_Fields)){
       issue1<-1}
-    
     if(out_Len>0){
       issue2<-1}
-    
     if(overlap_Dates>0){
       issue3<-1}
-    
-    #if(Inspect_Time_Format>0){
-      #issue4<-1
-    #}
-    
     if(check_typo_in_Camera_Name>0){
       issue5<-1
     }
     
     total_issues <- issue1 + issue2 + issue3 + issue5 #+ issue5
-    
-    #if there is no issues, then show "Upload" button
     if(total_issues==0){
-      #turn off
+      #if there is no issues, then hide the following items
       shinyjs::hide("issues")
       shinyjs::hide("fields_absent")
       shinyjs::hide("fall_outside_daterange")
@@ -1290,7 +1271,7 @@ shinyServer(function(input, output, session){
       shinyjs::hide("typo_camera_Name")
       shinyjs::hide("resolve_issue")
       shinyjs::hide("reload_APP")
-      
+      #but show the following items
       output$Uploaded_file_checks_Passed <- renderText({paste("<b>File checks completed!")})
       shinyjs::show("append")
       shinyjs::show("append_button_Descrip")
@@ -1298,13 +1279,14 @@ shinyServer(function(input, output, session){
       }
     
     if(total_issues!=0){
-      
+      #if there are issues, then hide the following items
       shinyjs::hide("processingbar1")
       shinyjs::hide("Uploaded_file_checks_Passed")
       shinyjs::hide("append")
       shinyjs::hide("append_button_Descrip")
       shinyjs::hide("reload_APP")
       
+      #message to display for each error identified
       output$issues <- renderText({paste("<b>ISSUES IDENTIFIED:", "<br>")})
       if(issue1==1){
       output$fields_absent <- renderText({print("*  One or more of the essential fieldnames missing: 'Date', 'Hour', 'InCount', 'LocationName'")})}
@@ -1323,13 +1305,10 @@ shinyServer(function(input, output, session){
   
   #perform the following action upon clicking 'append' button
   observeEvent(input$append, {
-
     shinyjs::show("confirm_Append")
-    
   })
   
     observeEvent(input$confirm_Append, {
-    
 
     req(input$file1)
     #To check the gaps that an uploaded file fill
