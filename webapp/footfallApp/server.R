@@ -45,7 +45,6 @@ ROOT_DIR = "C:/Users/geomad/Documents/GitHub/"
 
 EventTime <- Sys.time() - 1*1
 
-
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
  
