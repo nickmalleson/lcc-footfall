@@ -43,25 +43,15 @@ ROOT_DIR = "C:/Users/geomad/Documents/GitHub/"
 #ROOT_DIR = "C:/Users/monsu/Documents/GitHub/"
 #ROOT_DIR = "/Users/nick/research_not_syncd/git_projects/"
 
-
 EventTime <- Sys.time() - 1*1
+
 
 #function to display number with thousand separator
 th_separator <- function (x) format(round(as.numeric(x), 1), nsmall=0, big.mark=",")
  
 
-#funtion to print message to catch..
-myPeriodicFunction <- function(){
-  for(i in 1:5){
-    msg <- paste(sprintf("Step %d done.... \n",i))
-    cat(msg)
-    Sys.sleep(1)
-  }
-}
-
-#to detect if time (i.e. 'Hour') field is in 'hh:mm' format. 
-#If so, round up to the nearest hour, by removing the last three character from behind i.e. ':00' 
-#Anytime a data is imported, check the time format and convert 
+#function to detect if time field (i.e. 'Hour') in a dataset is in 'hh:mm' format. 
+#If so, round up to the nearest hour (e.g. 00:34 --> 0, 01:45 --> 1).
 convert_Time_Format <- function(data){
   backup_Hour <- data$Hour
   Hour_New <- matrix(0, length(data$Hour),1)
@@ -76,18 +66,14 @@ convert_Time_Format <- function(data){
   data$Hour <- Hour_New
 }
 
-
-
-#subset data, colleting the necessary fields: 'Date', 'Hour', 'Id' & 'LocationName'
+#function to subset data (Subset to contain fields: 'Date', 'Hour', 'Id' & 'LocationName'
 subset_Dataset <- function(orig_Data, cameraLoc = "LocationName"){
   #create unique field for the dataset#
   #convert date to appropriate format
-  orig_Data_Conv <- convert_Date(orig_Data, TimeField = TRUE) #### #head(orig_Data_Conv) #nrow(orig_Data_Conv)
-  
+  orig_Data_Conv <- convert_Date(orig_Data, TimeField = TRUE)
   #create unique field (i.e. combination of date and time)
   unique_field <- matrix(paste(orig_Data_Conv$Date, orig_Data_Conv$Hour, sep="-"),,1)
   colnames(unique_field) <- c("Id")
-  
   cam_ID <- which(colnames(orig_Data)==cameraLoc)
   #append to real data
   orig_Data_sub <- cbind(orig_Data_Conv$Date, orig_Data_Conv$Hour, unique_field, orig_Data_Conv$InCount, as.character(orig_Data_Conv[,cam_ID]))   #head(length(which(orig_Data=="2011-01-01-0"))  
@@ -1471,10 +1457,10 @@ shinyServer(function(input, output, session){
   output$testHTML4 <- renderText({paste("<b>2. https://data.gov.uk/dataset/leeds-city-centre-footfall-data")})
 
   output$otherInfo <- renderText({paste("Note: Ensure that the file to be uploaded contains the following three columns:","<br>",
-                                        "(a) 'Date' - in any of the following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'yyyy/mm/dd', OR 'yyyy-mm-dd'","<br>",
+                                        "(a) 'Date' - in any format","<br>",
                                         "(b) 'Hour' - 'Hour of the day', either in the format 'hh:mm', or i.e. 0, 1, 2, .... 23.", 
                                         "(c) 'InCount' - Hourly aggregate of footfall count", "<br>",
-                                        "(d) 'LocationName' - Containing the names assigned to camera locations", "<br>",
+                                        "(d) 'LocationName' - Containing the names assigned to camera locations (See 'Basic Inputs' tab for the list)", "<br>",
                                         "<br>",
                                         "Upload a .csv file to update the database", "<br>", 
                                         "An 'upload' button will appear after a valid file has been uploaded")})
