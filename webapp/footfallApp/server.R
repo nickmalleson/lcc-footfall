@@ -721,9 +721,10 @@ shinyServer(function(input, output, session){
     #input chart type
     chartType = input$chartType
     data <- convert_Date(twentyFourHours_HF_aggre, TimeField = FALSE)
+    
     #plot the historical footfall and add the predicted point to the plot
     par(mar=c(0,0,0,0)+0.1, mgp=c(0,0,0))
-    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*12), y_new, addTrend = input$trendLine, chartType=input$chartType)
+    auc_plot2(data, HF_startDate=HF_startDate, plot_StartDate=(input$earliestDate*288), y_new, addTrend = input$trendLine, chartType=input$chartType)
   })
   
 

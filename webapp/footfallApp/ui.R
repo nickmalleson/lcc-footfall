@@ -94,7 +94,7 @@ shinyUI(
                       checkboxInput("trendLine", label="Add trend line?", value = FALSE),
                       
                  
-                      sliderInput("earliestDate", "Plot of last x-years", min=0, max=200, value=0, step=1) #use calculation 
+                      sliderInput("earliestDate", "Time Series (Skips)", min=0, max=5, value=5, post = "yrs", sep ="", step=1) #use calculation #24 - 120 ...value 120
                       
 
                     ),
@@ -122,7 +122,7 @@ shinyUI(
                               tags$head(
                                 tags$style(HTML(".fa{font-size: 20px; }"))),
 
-                              box(tags$b(h4("Set Weather Conditions:")), "  ",
+                              box(tags$b(h4("Set a Weather Scenario:")), "  ",
                                 fluidRow(
                                   box(
                                     dateInput("dateToForecast", "Pick a date to forecast Footfall for:", value = as.character(Sys.Date()), min=Sys.Date(), max=as.Date("2019-12-31"), format = "dd/mm/yy"),
