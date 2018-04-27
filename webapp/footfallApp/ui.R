@@ -94,7 +94,7 @@ shinyUI(
                       checkboxInput("trendLine", label="Add trend line?", value = FALSE),
                       
                  
-                      sliderInput("earliestDate", "Time Series (Skips from Origin)", min=0, max=5, value=5, post = "yrs", sep ="", step=1) #use calculation #24 - 120 ...value 120
+                      sliderInput("earliestDate", "Time Series (Skips from Origin)", min=1, max=5, value=1, post = "yr", sep ="", step=1) #use calculation #24 - 120 ...value 120
                       
 
                     ),

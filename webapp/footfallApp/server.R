@@ -194,6 +194,9 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
   start_date <- HF_startDate
   #end_date <- Sys.Date()
   end_date <- as.Date("2019-12-31")
+  
+  actual_Input_from_Slider <- round(plot_StartDate/365, digits = 0)
+  
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
   merged_Datasetd <- merge(x = allDays_inbetween, y = data, by = "Date", all.x = TRUE, all.y = TRUE)
@@ -216,7 +219,7 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
     sub_allDays_inbetween <- as.vector(allDays_inbetween)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
       
-    label_Ind <- which(sub_allDays_inbetween%in%as.character(dateLabels))
+    label_Ind <- which(as.vector(allDays_inbetween)%in%as.character(dateLabels)[actual_Input_from_Slider:length(as.character(dateLabels))])  #this was the toughest one!
     label_to_show <- as.character(dateLabels)[which(as.character(dateLabels) %in% sub_allDays_inbetween)]
     
     current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
