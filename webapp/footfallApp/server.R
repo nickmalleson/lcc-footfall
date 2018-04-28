@@ -196,6 +196,8 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
   end_date <- as.Date("2019-12-31")
   
   actual_Input_from_Slider <- round(plot_StartDate/365, digits = 0)
+  print(actual_Input_from_Slider)
+  print("OOOOOOOOOOOOOOOOOOOOOOOOOOO")
   
   allDays_inbetween <- matrix(as.character(seq(as.Date(start_date), as.Date(end_date), by=1)),,1)
   colnames(allDays_inbetween) <- c("Date")  #mode(allDays_inbetween) #mode(data)
@@ -216,11 +218,16 @@ auc_plot2 <- function(data, HF_startDate, plot_StartDate = 0, predicted_Point = 
     x<-xy_1$x
     y<-xy_1$y
     Type <- as.numeric(xy_1$Type)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    #print(Type)
+    
     Date <-as.numeric(xy_1$x)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
+    #print(Date)
     sub_allDays_inbetween <- as.vector(allDays_inbetween)[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
-      
-    label_Ind <- which(as.vector(allDays_inbetween)%in%as.character(dateLabels)[actual_Input_from_Slider:length(as.character(dateLabels))])  #this was the toughest one!
+    #print(sub_allDays_inbetween)
+    label_Ind <- which(as.vector(allDays_inbetween)%in%as.character(dateLabels)[(actual_Input_from_Slider+1):length(as.character(dateLabels))])  #this was the toughest one!
+    #print(label_Ind)
     label_to_show <- as.character(dateLabels)[which(as.character(dateLabels) %in% sub_allDays_inbetween)]
+    #print(label_to_show)
     
     current_Date_Index <- as.numeric(Sys.Date() - HF_startDate)
     InCount <- as.numeric(as.vector(xy_1$y))[which(as.vector(xy_1$x)==HF_startDate) + plot_StartDate:(nrow(xy_1)-1)]
