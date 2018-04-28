@@ -657,11 +657,11 @@ shinyServer(function(input, output, session){
   
   #setting up the directories
   #directory for the aggregated HF
-  file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
+  #file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
   #parameter file directory
   parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/")
   #directory for other items
-  other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
+  #other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
   
   #import the predictor information
   predictors_info <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE) 
@@ -728,7 +728,7 @@ shinyServer(function(input, output, session){
     x_new <- subset(x_new, select = -c(Date, status))
     
     #load the Random Forest prediction model
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    load(paste(parameter_directory, "random_forest_model.rda", sep="")) #parameter_directory
     
     #predict footfall rate for the selected Date, temperature and rain values
     y_new <- round(predict(pred_model, x_new), digits = 0)
@@ -751,9 +751,10 @@ shinyServer(function(input, output, session){
   #plotting the map
   output$mapLeeds <- renderLeaflet({
     crswgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-    city_central =read.table(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/city_central.csv"), sep=",", head=TRUE)
+    city_central =read.table(file=paste(parameter_directory,"city_central.csv", sep=""), sep=",", head=TRUE)
     val=2
-    city_Boundary = readShapePoly(paste0(ROOT_DIR,"/lcc-footfall/webapp/misc/leeds_City.shp"))
+    city_Boundary = readShapePoly(paste(parameter_directory, "leeds_City.shp", sep=""))
+
     data <- as.data.frame(city_central[1:nrow(city_central),])
     leaflet(data = data) %>% addTiles() %>%
       addMarkers (~X_Lon, ~Y_Lat, popup = ~as.character(Id)) %>% addPolygons(data= city_Boundary, color = "black", fill=FALSE) %>%
@@ -802,7 +803,7 @@ shinyServer(function(input, output, session){
     x_new_5_days <- subset(x_new_5_days, select = -c(Date, status))
     
     #load the prediction model (parameter)
-    load(paste(other_dir, "random_forest_model.rda", sep=""))
+    load(paste(parameter_directory, "random_forest_model.rda", sep=""))
     
     #predict footfall rates for the selected Date, given the inserted temperature and rain values
     y_new_5_days <- as.vector(round(predict(pred_model, x_new_5_days), digits = 0))
@@ -845,7 +846,7 @@ shinyServer(function(input, output, session){
   
   #To generate the table displayed in the 'Preview of Footfall Data Aggregates' 
   #Import the aggregated footfall dataset
-  twentyFourHours_HF_aggre <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  twentyFourHours_HF_aggre <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
   history_footfall <- twentyFourHours_HF_aggre
   output$twentyFourHoursData <- DT::renderDataTable({
@@ -1054,7 +1055,7 @@ shinyServer(function(input, output, session){
       predictors <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
       predictors <- convert_Date(predictors)
       #import the aggregated footfall dataset in order to fetch footfall information for training
-      aggre_footfall <- read.table(file=paste(file_here, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+      aggre_footfall <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
       aggre_footfall <- convert_Date(aggre_footfall)
       
       #to match the footfall data with the predictors data and subset the last 3 years of the dataset
@@ -1063,7 +1064,7 @@ shinyServer(function(input, output, session){
       pred_model <- randomForest(InCount ~., data=cleaned_data_for_training)
       
       #save the predictive model (parameters)
-      save(pred_model, file = paste(other_dir, "random_forest_model.rda", sep="")) 
+      save(pred_model, file=paste(parameter_directory,  "random_forest_model.rda", sep="")) 
       #display a message, instructing to re-start the webtool
       shinyjs::show("restart_app3")
       
@@ -1284,7 +1285,7 @@ shinyServer(function(input, output, session){
        print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
        
       #Import the existing aggregate file and merge the uploaded (now aggregated) files
-      existing_time_aggre_HF <- read.table(file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
+      existing_time_aggre_HF <- read.table(file=paste(parameter_directory, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
       existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
       existing_time_aggre_HF <- as.data.frame(existing_time_aggre_HF)
       Date_Combined <- c(existing_time_aggre_HF$Date, as.vector(update_aggregate$Date))
@@ -1318,7 +1319,7 @@ shinyServer(function(input, output, session){
       print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
       
       #export the newly combined (aggregaed) dataset
-      write.table(aggregates_updated, file=paste(file_here, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(aggregates_updated, file=paste(parameter_directory, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("processingbar1")
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
