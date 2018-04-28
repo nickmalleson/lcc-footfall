@@ -657,9 +657,8 @@ shinyServer(function(input, output, session){
   
   #setting up the directories
   #directory for the aggregated HF
-  #file_here <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/aggregated_historical_HF/")
   #parameter file directory
-  parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/downloaded_footfall dataset/predictors_INFO/")
+  parameter_directory <- paste0(ROOT_DIR,"lcc-footfall/webapp/resources/")
   #directory for other items
   #other_dir <- paste0(ROOT_DIR, "lcc-footfall/webapp/misc/")
   
