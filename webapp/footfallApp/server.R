@@ -845,7 +845,7 @@ shinyServer(function(input, output, session){
   
   #To generate the table displayed in the 'Preview of Footfall Data Aggregates' 
   #Import the aggregated footfall dataset
-  twentyFourHours_HF_aggre <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+  twentyFourHours_HF_aggre <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation.csv", sep=""), sep=",", head=TRUE)
   twentyFourHours_HF_aggre <- convert_Date(twentyFourHours_HF_aggre) 
   history_footfall <- twentyFourHours_HF_aggre
   output$twentyFourHoursData <- DT::renderDataTable({
@@ -1054,7 +1054,7 @@ shinyServer(function(input, output, session){
       predictors <- read.table(file=paste(parameter_directory, "predictors_info", ".csv", sep=""), sep=",", head=TRUE)
       predictors <- convert_Date(predictors)
       #import the aggregated footfall dataset in order to fetch footfall information for training
-      aggre_footfall <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", head=TRUE)
+      aggre_footfall <- read.table(file=paste(parameter_directory, "twentyFour_HoursAggregation.csv", sep=""), sep=",", head=TRUE)
       aggre_footfall <- convert_Date(aggre_footfall)
       
       #to match the footfall data with the predictors data and subset the last 3 years of the dataset
@@ -1284,7 +1284,7 @@ shinyServer(function(input, output, session){
        print("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
        
       #Import the existing aggregate file and merge the uploaded (now aggregated) files
-      existing_time_aggre_HF <- read.table(file=paste(parameter_directory, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep = ",", head=TRUE)
+      existing_time_aggre_HF <- read.table(file=paste(parameter_directory, time_aggregation[j], "Aggregation.csv", sep=""), sep = ",", head=TRUE)
       existing_time_aggre_HF <- convert_Date(existing_time_aggre_HF)
       existing_time_aggre_HF <- as.data.frame(existing_time_aggre_HF)
       Date_Combined <- c(existing_time_aggre_HF$Date, as.vector(update_aggregate$Date))
@@ -1318,7 +1318,7 @@ shinyServer(function(input, output, session){
       print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
       
       #export the newly combined (aggregaed) dataset
-      write.table(aggregates_updated, file=paste(parameter_directory, time_aggregation[j], "Aggregation_DoNot_REMOVE_or_ADD_ToThisDirectory.csv", sep=""), sep=",", row.names=FALSE) 
+      write.table(aggregates_updated, file=paste(parameter_directory, time_aggregation[j], "Aggregation.csv", sep=""), sep=",", row.names=FALSE) 
       
       shinyjs::hide("processingbar1")
       output$aggre_HF_file_updated <- renderText({paste("<b> The aggregated HF files have been generated from the uploaded file and appended to the existing aggregated files accordingly!")})
