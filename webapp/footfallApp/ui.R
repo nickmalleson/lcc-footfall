@@ -100,7 +100,7 @@ shinyUI(
                     ),
                     
 
-                    menuItem(tags$b('Data Preview & Settings'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
+                    menuItem(tags$b('DATA PREVIEW & SETTINGS'), tabName = "settings", badgeColor= "green", icon=icon("cogs")) #cogs
 
                            )
    
