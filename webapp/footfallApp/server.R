@@ -55,6 +55,9 @@ owmr_settings("c8a930a2e30b695551e57d375a67d76e")  #Open weather forecast api ke
 EventTime <- Sys.time() - 1*1
 
 
+#to restrict the file upload size to 120MB
+options(shiny.maxRequestSize=200*1024^2) 
+
 
 #----------------------------------------------------------
 #MAIN CODE
